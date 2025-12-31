@@ -1,72 +1,86 @@
 ---
-description: Deploy Application to aaPanel via GitHub
+description: Deploy Application to aaPanel via GitHub (Manual Method)
 ---
 
-This workflow guides you through deploying your Next.js application to an aaPanel server using GitHub integration.
+This workflow guides you through deploying your Next.js application to an aaPanel server manually via the terminal. This method works even if your aaPanel version lacks the direct "Git/Repository" UI fields.
 
 ## Prerequisites
 - An account on [GitHub](https://github.com/).
 - An aaPanel server with "Node.js Version Manager" installed.
-- SSH access to your aaPanel server (optional, but helpful).
+- **Terminal Access** inside aaPanel (or via SSH).
 
 ## Step 1: Create a GitHub Repository
 1.  Go to **GitHub** and create a **New Repository**.
-2.  Name it `newppdb` (or any name you prefer).
-3.  Make it **Private** (recommended) or Public.
-4.  **Do not** initialize with README, .gitignore, or license (we already have these).
+2.  Name it `newppdb`.
+3.  **Do not** initialize with README, .gitignore, or license.
 
 ## Step 2: Push Local Code to GitHub
-Since I have already initialized the local repository for you, run the following commands in your local terminal (VS Code):
+Run these commands in your local VS Code terminal:
 
 ```bash
-# Replace <YOUR_GITHUB_URL> with the actual URL (e.g., https://github.com/username/newppdb.git)
+# Replace <YOUR_GITHUB_URL> with your actual repository URL
+# e.g., https://github.com/username/newppdb.git
 git remote add origin <YOUR_GITHUB_URL>
 git branch -M main
 git push -u origin main
 ```
 
-## Step 3: Configure aaPanel
-1.  **Login** to your aaPanel dashboard.
-2.  Go to **Website** > **Node Project** tab.
-    *(If you don't see Node Project, go to App Store and install "Node.js Version Manager")*
-3.  Click **Add Node Project**.
-4.  **Fill in the details:**
+## Step 3: Prepare Folder in aaPanel
+1.  Login to **aaPanel**.
+2.  Go to **Files**.
+3.  Navigate to `/www/wwwroot`.
+4.  Create a **New Directory** named `newppdb`.
+5.  Open the **Terminal** in aaPanel (usually valid via the terminal icon or "Terminal" menu).
+
+## Step 4: Clone and Build (via aaPanel Terminal)
+Run the following commands inside the aaPanel terminal:
+
+```bash
+# 1. Navigate to the project folder
+cd /www/wwwroot/newppdb
+
+# 2. Initialize Git (if folder is empty) or Clone directly
+# NOTE: If the folder is empty, just clone:
+git clone <YOUR_GITHUB_URL> .
+
+# 3. Install Dependencies
+npm install
+
+# 4. Build the Project
+npm run build
+```
+
+*Note: If `git clone` fails because the folder is not empty, ensure the directory is empty first or use `git init` + `git pull`.*
+
+## Step 5: Configure Node Project in aaPanel
+1.  Go to **Website** > **Node Project**.
+2.  Click **Add Node Project**.
+3.  **Fill in the details:**
     -   **Project Name:** `newppdb`
     -   **Run User:** `www`
-    -   **Startup Mode:** `Start` (or `PM2` if available)
-    -   **Project Path:** Use the folder icon to select a path (usually `/www/wwwroot/newppdb`).
-    -   **Node Version:** Select a compatible version (v18 or v20 recommended).
-    -   **Git/Upload:** Select **Git**.
-    -   **Repository URL:** Paste your `<YOUR_GITHUB_URL>`.
-    -   **Password/Token:** If private, enter your GitHub Personal Access Token (Classic).
-    -   **Branch:** `main`
-5.  Click **Submit** or **Clone**.
-
-## Step 4: Install Dependencies & Build
-Once the project is created in aaPanel:
-1.  Click on the **Project Name** in the list to open settings.
-2.  Go to **Project Config** or **Dependencies**.
-3.  Click **Install dependencies** (this runs `npm install`).
-4.  **Build the Project:**
-    -   In the "Script" or "Command" section, look for a way to run `npm run build`.
-    -   Alternatively, open the terminal in aaPanel, navigate to the folder, and run:
-        ```bash
-        npm run build
-        ```
-
-## Step 5: Start the Application
-1.  Back in the Node Project settings, ensure the **Start Command** is set to `npm start`.
-2.  Click **Start** or **Restart**.
-3.  The status should change to "Running".
+    -   **Project Path:** Select `/www/wwwroot/newppdb`.
+    -   **Run Command:** `npm start` (or `next start`)
+    -   **Port:** `3000` (or whichever port Next.js uses, verify in package.json/logs)
+    -   **Node Version:** Select v18/v20.
+4.  Click **Submit**.
 
 ## Step 6: Configure Environment Variables
-1.  In the Project settings, go to **Environment** or **Config**.
-2.  You need to create a `.env` file or set the variables manually.
-3.  Important variables to set (copy from your local `.env`):
-    -   `DATABASE_URL`
-    -   `NEXTAUTH_SECRET`
-    -   `NEXTAUTH_URL` (Set this to your domain, e.g., `http://your-domain.com`)
+1.  In the File Manager, go to `/www/wwwroot/newppdb`.
+2.  Create a new file named `.env`.
+3.  Paste the content from your local `.env`.
+    *   `DATABASE_URL`
+    *   `NEXTAUTH_SECRET`
+    *   `NEXTAUTH_URL` (Set to your actual domain)
+4.  Save the file.
+5.  **Restart** the Node Project in the Website tab.
 
-## Step 7: Access the Site
-1.  If you mapped a domain in step 3, try accessing it.
-2.  If you only verified the local port, you might need to map a domain in the **Domain** tab of the project settings.
+## Step 7: Updates
+When you make changes locally:
+1.  `git push` from your computer.
+2.  Go to aaPanel Terminal:
+    ```bash
+    cd /www/wwwroot/newppdb
+    git pull
+    npm run build
+    # Then restart the project in aaPanel Website tab
+    ```
