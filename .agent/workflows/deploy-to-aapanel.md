@@ -111,5 +111,19 @@ When you make changes locally:
     cd /www/wwwroot/newppdb
     git pull
     npm run build
+    npm run build
     # Then restart the project in aaPanel Website tab
     ```
+
+## Troubleshooting
+
+### Git Error: "detected dubious ownership"
+If you see this error when running git commands:
+```
+fatal: detected dubious ownership in repository at '/www/wwwroot/newppdb'
+```
+Run this command to fix it:
+```bash
+git config --global --add safe.directory /www/wwwroot/newppdb
+```
+Then try your git command again.
