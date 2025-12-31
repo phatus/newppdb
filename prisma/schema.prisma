@@ -61,6 +61,7 @@ model Documents {
   fileKK          String?
   fileSKL         String?
   fileRaport      String?
+  pasFoto         String?
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

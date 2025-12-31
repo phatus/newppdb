@@ -5,7 +5,7 @@
   --color-primary-hover: #0e64b0;
   --color-background-light: #f6f7f8;
   --color-background-dark: #101a22;
-  
+
   --font-sans: var(--font-public-sans);
   --font-display: var(--font-public-sans);
 
@@ -31,3 +31,22 @@ body {
   font-family: var(--font-sans);
 }
 
+@media print {
+  @page {
+    margin: 1cm;
+  }
+
+  body {
+    background: white;
+    margin: 0;
+    padding: 0;
+    font-size: 12pt;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Make sure links don't show URLs */
+  a[href]:after {
+    content: none !important;
+  }
+}

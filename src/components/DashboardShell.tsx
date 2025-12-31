@@ -41,7 +41,7 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed top-0 left-0 z-50 h-screen w-72 flex-col border-r border-slate-200 bg-white dark:bg-[#1c2936] dark:border-slate-800 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}>
+            <aside className={`fixed top-0 left-0 z-50 h-screen w-72 flex-col border-r border-slate-200 bg-white dark:bg-[#1c2936] dark:border-slate-800 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} print:hidden`}>
                 <div className="flex h-full flex-col justify-between p-6">
                     <div className="flex flex-col gap-6">
                         {/* Profile */}
@@ -68,8 +68,8 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
                                     key={item.href}
                                     href={item.href}
                                     className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${isActive(item.href)
-                                            ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary"
-                                            : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
+                                        ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary"
+                                        : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
                                         }`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
@@ -96,10 +96,10 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 h-full overflow-y-auto bg-background-light dark:bg-background-dark relative">
-                <div className="flex flex-col w-full max-w-[1200px] mx-auto p-4 md:p-8 gap-8">
+            <main className="flex-1 h-full overflow-y-auto bg-background-light dark:bg-background-dark relative print:overflow-visible print:h-auto print:bg-white">
+                <div className="flex flex-col w-full max-w-[1200px] mx-auto p-4 md:p-8 gap-8 print:p-0 print:max-w-none">
                     {/* Mobile Header (Hamburger) */}
-                    <div className="lg:hidden flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800">
+                    <div className="lg:hidden flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800 print:hidden">
                         <h1 className="text-xl font-black text-primary">PPDB Online</h1>
                         <button
                             className="p-2 text-slate-600 dark:text-slate-300"

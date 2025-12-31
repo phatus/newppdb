@@ -1,6 +1,119 @@
 "use client";
 
-export default function AddStudentPage() {
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
+function AddStudentForm() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const studentId = searchParams.get("studentId");
+    const isEditMode = !!studentId;
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFetching, setIsFetching] = useState(false);
+    const [error, setError] = useState("");
+    const [formData, setFormData] = useState({
+        namaLengkap: "",
+        nisn: "",
+        gender: "",
+        tempatLahir: "",
+        tanggalLahir: "",
+        asalSekolah: "",
+        alamatLengkap: "",
+        kota: "",
+        kecamatan: ""
+    });
+
+    useEffect(() => {
+        if (isEditMode) {
+            setIsFetching(true);
+            fetch(`/api/students/${studentId}`)
+                .then((res) => {
+                    if (!res.ok) throw new Error("Failed to fetch student");
+                    return res.json();
+                })
+                .then((data) => {
+                    setFormData({
+                        namaLengkap: data.namaLengkap || "",
+                        nisn: data.nisn || "",
+                        gender: data.gender || "",
+                        tempatLahir: data.tempatLahir || "",
+                        tanggalLahir: data.tanggalLahir ? new Date(data.tanggalLahir).toISOString().split('T')[0] : "",
+                        asalSekolah: data.asalSekolah || "",
+                        alamatLengkap: data.alamatLengkap || "",
+                        kota: "", // Not stored separately
+                        kecamatan: "" // Not stored separately
+                    });
+                })
+                .catch((err) => {
+                    setError("Gagal mengambil data siswa: " + err.message);
+                })
+                .finally(() => {
+                    setIsFetching(false);
+                });
+        }
+    }, [studentId, isEditMode]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        setError("");
+
+        try {
+            const url = isEditMode ? `/api/students/${studentId}` : "/api/students";
+            const method = isEditMode ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method: method,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    namaLengkap: formData.namaLengkap,
+                    nisn: formData.nisn,
+                    gender: formData.gender,
+                    tempatLahir: formData.tempatLahir,
+                    tanggalLahir: formData.tanggalLahir,
+                    asalSekolah: formData.asalSekolah,
+                    alamatLengkap: formData.alamatLengkap,
+                    kota: formData.kota,
+                    kecamatan: formData.kecamatan
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message || "Something went wrong");
+            }
+
+            // Success, redirect
+            router.push("/dashboard");
+            router.refresh();
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    if (isFetching) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8">
             <div className="max-w-4xl mx-auto space-y-6 w-full">
@@ -15,23 +128,31 @@ export default function AddStudentPage() {
                     </a>
                     <span className="mx-2 text-slate-300 dark:text-slate-600">/</span>
                     <span className="text-slate-900 dark:text-white font-medium">
-                        Tambah
+                        {isEditMode ? "Edit" : "Tambah"}
                     </span>
                 </nav>
                 {/* Page Heading */}
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
-                            Formulir Tambah Siswa
+                            {isEditMode ? "Formulir Edit Siswa" : "Formulir Tambah Siswa"}
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 text-base max-w-2xl">
-                            Silakan lengkapi data diri calon siswa di bawah ini. Pastikan semua
-                            informasi valid sebelum menyimpan.
+                            {isEditMode
+                                ? "Silakan perbarui data siswa di bawah ini."
+                                : "Silakan lengkapi data diri calon siswa di bawah ini. Pastikan semua informasi valid sebelum menyimpan."}
                         </p>
                     </div>
                 </div>
+
+                {error && (
+                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+                        {error}
+                    </div>
+                )}
+
                 {/* Main Form Card */}
-                <form className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                     {/* Section 1: Data Pribadi */}
                     <div className="p-6 md:p-8 space-y-8">
                         <div className="pb-4 border-b border-slate-200 dark:border-slate-700">
@@ -53,8 +174,11 @@ export default function AddStudentPage() {
                                 </label>
                                 <input
                                     type="text"
-                                    name="nama_lengkap"
+                                    name="namaLengkap"
                                     id="nama_lengkap"
+                                    required
+                                    value={formData.namaLengkap}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
                                     placeholder="Contoh: Ahmad Fauzi"
                                 />
@@ -71,6 +195,9 @@ export default function AddStudentPage() {
                                     type="number"
                                     name="nisn"
                                     id="nisn"
+                                    required
+                                    value={formData.nisn}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
                                     placeholder="10 digit nomor"
                                 />
@@ -86,6 +213,9 @@ export default function AddStudentPage() {
                                             id="gender_male"
                                             name="gender"
                                             type="radio"
+                                            value="Laki-laki"
+                                            checked={formData.gender === "Laki-laki"}
+                                            onChange={handleChange}
                                             className="h-4 w-4 border-slate-300 text-primary focus:ring-primary"
                                         />
                                         <label
@@ -100,6 +230,9 @@ export default function AddStudentPage() {
                                             id="gender_female"
                                             name="gender"
                                             type="radio"
+                                            value="Perempuan"
+                                            checked={formData.gender === "Perempuan"}
+                                            onChange={handleChange}
                                             className="h-4 w-4 border-slate-300 text-primary focus:ring-primary"
                                         />
                                         <label
@@ -121,8 +254,10 @@ export default function AddStudentPage() {
                                 </label>
                                 <input
                                     type="text"
-                                    name="tempat_lahir"
+                                    name="tempatLahir"
                                     id="tempat_lahir"
+                                    value={formData.tempatLahir}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
                                     placeholder="Kota kelahiran"
                                 />
@@ -137,8 +272,10 @@ export default function AddStudentPage() {
                                 </label>
                                 <input
                                     type="date"
-                                    name="tanggal_lahir"
+                                    name="tanggalLahir"
                                     id="tanggal_lahir"
+                                    value={formData.tanggalLahir}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
                                 />
                             </div>
@@ -164,8 +301,10 @@ export default function AddStudentPage() {
                                 </label>
                                 <input
                                     type="text"
-                                    name="asal_sekolah"
+                                    name="asalSekolah"
                                     id="asal_sekolah"
+                                    value={formData.asalSekolah}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
                                     placeholder="Masukkan nama sekolah asal Anda"
                                 />
@@ -191,9 +330,11 @@ export default function AddStudentPage() {
                                     Alamat Lengkap
                                 </label>
                                 <textarea
-                                    name="alamat_lengkap"
+                                    name="alamatLengkap"
                                     id="alamat_lengkap"
                                     rows={3}
+                                    value={formData.alamatLengkap}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3 resize-none"
                                     placeholder="Nama Jalan, No. Rumah, RT/RW"
                                 ></textarea>
@@ -209,6 +350,8 @@ export default function AddStudentPage() {
                                     type="text"
                                     name="kota"
                                     id="kota"
+                                    value={formData.kota}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
                                     placeholder="Contoh: Pacitan"
                                 />
@@ -224,6 +367,8 @@ export default function AddStudentPage() {
                                     type="text"
                                     name="kecamatan"
                                     id="kecamatan"
+                                    value={formData.kecamatan}
+                                    onChange={handleChange}
                                     className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
                                     placeholder="Contoh: Arjosari"
                                 />
@@ -232,37 +377,57 @@ export default function AddStudentPage() {
                     </div>
                     {/* Footer Actions */}
                     <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-5 md:px-8 border-t border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <label className="inline-flex items-center cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                defaultChecked
-                                className="rounded border-slate-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                            />
-                            <span className="ml-2 text-sm text-slate-600 dark:text-slate-400">
-                                Tambah siswa lain setelah menyimpan
-                            </span>
-                        </label>
-                        <div className="flex items-center gap-3 w-full md:w-auto">
+                        {!isEditMode && (
+                            <label className="inline-flex items-center cursor-pointer select-none">
+                                <input
+                                    type="checkbox"
+                                    defaultChecked
+                                    className="rounded border-slate-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
+                                />
+                                <span className="ml-2 text-sm text-slate-600 dark:text-slate-400">
+                                    Tambah siswa lain setelah menyimpan
+                                </span>
+                            </label>
+                        )}
+                        <div className={`flex items-center gap-3 w-full md:w-auto ${isEditMode ? 'ml-auto' : ''}`}>
                             <button
                                 type="button"
+                                onClick={() => router.back()}
                                 className="w-full md:w-auto px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 font-medium text-sm hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 transition-colors"
                             >
                                 Batal
                             </button>
                             <button
                                 type="submit"
-                                className="w-full md:w-auto px-5 py-2.5 rounded-lg bg-primary hover:bg-primary-hover text-white font-medium text-sm shadow-md shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all flex items-center justify-center gap-2"
+                                disabled={isLoading}
+                                className="w-full md:w-auto px-5 py-2.5 rounded-lg bg-primary hover:bg-primary-hover text-white font-medium text-sm shadow-md shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                             >
-                                <span className="material-symbols-outlined text-[18px]">
-                                    save
-                                </span>
-                                Simpan Data
+                                {isLoading ? (
+                                    <span className="flex items-center gap-2">
+                                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                        {isEditMode ? "Menyimpan Perubahan..." : "Menyimpan..."}
+                                    </span>
+                                ) : (
+                                    <>
+                                        <span className="material-symbols-outlined text-[18px]">
+                                            save
+                                        </span>
+                                        {isEditMode ? "Simpan Perubahan" : "Simpan Data"}
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
                 </form>
-                <div className="h-8"></div> {/* Bottom Spacer */}
             </div>
         </div>
+    );
+}
+
+export default function AddStudentPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <AddStudentForm />
+        </Suspense>
     );
 }

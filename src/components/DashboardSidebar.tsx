@@ -69,11 +69,11 @@ export default function Sidebar({ user }: SidebarProps) {
                         <nav className="flex flex-col gap-2">
                             {navItems.map((item) => (
                                 <Link
-                                    key={item.href}
+                                    key={item.name}
                                     href={item.href}
                                     className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${isActive(item.href)
-                                            ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary"
-                                            : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
+                                        ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary"
+                                        : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
                                         }`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
