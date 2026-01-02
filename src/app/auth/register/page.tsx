@@ -10,8 +10,10 @@ export default function RegisterPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState(false);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -39,18 +41,10 @@ export default function RegisterPage() {
                 return;
             }
 
-            // Auto login after registration
-            const loginRes = await signIn("credentials", {
-                email,
-                password,
-                redirect: false,
-            });
+            // Registration successful, show success message
+            setSuccess(true);
+            setIsLoading(false);
 
-            if (loginRes?.ok) {
-                router.push("/dashboard");
-            } else {
-                router.push("/auth/login");
-            }
         } catch (err) {
             setError("Terjadi kesalahan sistem. Silakan coba lagi.");
             setIsLoading(false);
@@ -66,7 +60,7 @@ export default function RegisterPage() {
                         <span className="material-symbols-outlined text-xl">school</span>
                     </div>
                     <h2 className="text-[#0d151b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        PPDB SMP 2024
+                        PPDB MTs 2026
                     </h2>
                 </div>
                 <div className="flex flex-1 justify-end gap-8 hidden md:flex">
@@ -115,122 +109,148 @@ export default function RegisterPage() {
                         </p>
                     </div>
 
-                    <form onSubmit={handleRegister} className="flex flex-col gap-5 px-6 sm:px-8 pb-8 pt-4">
-                        {error && (
-                            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 flex items-center gap-2">
-                                <span className="material-symbols-outlined text-[18px]">error</span>
-                                {error}
+                    {success ? (
+                        <div className="px-6 pb-8 pt-4 text-center animate-in fade-in zoom-in duration-300">
+                            <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-6">
+                                <span className="material-symbols-outlined text-green-600 dark:text-green-400 text-3xl">
+                                    check_circle
+                                </span>
                             </div>
-                        )}
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Registrasi Berhasil!</h3>
+                            <p className="text-slate-600 dark:text-slate-300 mb-6">
+                                Sebuah email verifikasi telah dikirim ke <span className="font-bold text-slate-900 dark:text-white">{email}</span>. Silakan cek inbox atau spam Anda untuk mengaktifkan akun.
+                            </p>
 
-                        {/* Email / WhatsApp Field */}
-                        <div className="flex flex-col gap-1.5">
-                            <label
-                                className="text-[#0d151b] dark:text-slate-200 text-sm font-semibold leading-normal"
-                                htmlFor="email"
-                            >
-                                Email
-                            </label>
-                            <div className="relative flex items-center">
-                                <input
-                                    type="email"
-                                    id="email"
-                                    placeholder="Contoh: email@contoh.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    required
-                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d151b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#cfdce7] dark:border-slate-600 bg-slate-50 dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#9cacba] px-4 text-base font-normal leading-normal transition-all"
-                                />
-                            </div>
-                        </div>
+                            <Link href="/auth/login">
+                                <button className="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-sm">
+                                    Ke Halaman Login
+                                </button>
+                            </Link>
 
-                        {/* Password Field */}
-                        <div className="flex flex-col gap-1.5">
-                            <label
-                                className="text-[#0d151b] dark:text-slate-200 text-sm font-semibold leading-normal"
-                                htmlFor="password"
-                            >
-                                Password
-                            </label>
-                            <div className="relative flex w-full items-stretch rounded-lg">
-                                <input
-                                    type="password"
-                                    id="password"
-                                    placeholder="Minimal 8 karakter"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    minLength={8}
-                                    required
-                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d151b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#cfdce7] dark:border-slate-600 bg-slate-50 dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#9cacba] px-4 pr-12 text-base font-normal leading-normal transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Confirm Password Field */}
-                        <div className="flex flex-col gap-1.5">
-                            <label
-                                className="text-[#0d151b] dark:text-slate-200 text-sm font-semibold leading-normal"
-                                htmlFor="confirmPassword"
-                            >
-                                Konfirmasi Password
-                            </label>
-                            <div className="relative flex w-full items-stretch rounded-lg">
-                                <input
-                                    type="password"
-                                    id="confirmPassword"
-                                    placeholder="Masukkan ulang password"
-                                    value={confirmPassword}
-                                    onChange={(e) => setConfirmPassword(e.target.value)}
-                                    minLength={8}
-                                    required
-                                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d151b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#cfdce7] dark:border-slate-600 bg-slate-50 dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#9cacba] px-4 pr-12 text-base font-normal leading-normal transition-all"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Helper Text */}
-                        <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg flex gap-3 items-start">
-                            <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">
-                                info
-                            </span>
-                            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                                Pastikan email aktif untuk menerima notifikasi.
+                            <p className="mt-4 text-xs text-slate-400">
+                                Sudah verifikasi? Silakan login.
                             </p>
                         </div>
-
-                        {/* Action Button */}
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? (
-                                <span className="truncate">Memproses...</span>
-                            ) : (
-                                <span className="truncate">Daftar Sekarang</span>
+                    ) : (
+                        <form onSubmit={handleRegister} className="flex flex-col gap-5 px-6 sm:px-8 pb-8 pt-4">
+                            {error && (
+                                <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[18px]">error</span>
+                                    {error}
+                                </div>
                             )}
-                        </button>
 
-                        {/* Login Link */}
-                        <div className="text-center pt-2">
-                            <p className="text-[#4c759a] dark:text-slate-400 text-sm">
-                                Sudah punya akun?{" "}
-                                <Link
-                                    href="/auth/login"
-                                    className="text-primary font-bold hover:underline hover:text-blue-700 transition-colors"
+                            {/* Email / WhatsApp Field */}
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    className="text-[#0d151b] dark:text-slate-200 text-sm font-semibold leading-normal"
+                                    htmlFor="email"
                                 >
-                                    Masuk Disini
-                                </Link>
-                            </p>
-                        </div>
-                    </form>
+                                    Email
+                                </label>
+                                <div className="relative flex items-center">
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        placeholder="Contoh: email@contoh.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d151b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#cfdce7] dark:border-slate-600 bg-slate-50 dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#9cacba] px-4 text-base font-normal leading-normal transition-all"
+                                    />
+                                </div>
+                            </div>
+
+
+
+                            {/* Password Field */}
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    className="text-[#0d151b] dark:text-slate-200 text-sm font-semibold leading-normal"
+                                    htmlFor="password"
+                                >
+                                    Password
+                                </label>
+                                <div className="relative flex w-full items-stretch rounded-lg">
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        placeholder="Minimal 8 karakter"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        minLength={8}
+                                        required
+                                        className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d151b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#cfdce7] dark:border-slate-600 bg-slate-50 dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#9cacba] px-4 pr-12 text-base font-normal leading-normal transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Confirm Password Field */}
+                            <div className="flex flex-col gap-1.5">
+                                <label
+                                    className="text-[#0d151b] dark:text-slate-200 text-sm font-semibold leading-normal"
+                                    htmlFor="confirmPassword"
+                                >
+                                    Konfirmasi Password
+                                </label>
+                                <div className="relative flex w-full items-stretch rounded-lg">
+                                    <input
+                                        type="password"
+                                        id="confirmPassword"
+                                        placeholder="Masukkan ulang password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        minLength={8}
+                                        required
+                                        className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#0d151b] dark:text-white focus:outline-0 focus:ring-2 focus:ring-primary/20 border border-[#cfdce7] dark:border-slate-600 bg-slate-50 dark:bg-slate-800 focus:border-primary h-12 placeholder:text-[#9cacba] px-4 pr-12 text-base font-normal leading-normal transition-all"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Helper Text */}
+                            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg flex gap-3 items-start">
+                                <span className="material-symbols-outlined text-primary text-[20px] mt-0.5">
+                                    info
+                                </span>
+                                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    Pastikan email aktif untuk menerima notifikasi.
+                                </p>
+                            </div>
+
+                            {/* Action Button */}
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-sm mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isLoading ? (
+                                    <span className="truncate">Memproses...</span>
+                                ) : (
+                                    <span className="truncate">Daftar Sekarang</span>
+                                )}
+                            </button>
+
+                            {/* Login Link */}
+                            <div className="text-center pt-2">
+                                <p className="text-[#4c759a] dark:text-slate-400 text-sm">
+                                    Sudah punya akun?{" "}
+                                    <Link
+                                        href="/auth/login"
+                                        className="text-primary font-bold hover:underline hover:text-blue-700 transition-colors"
+                                    >
+                                        Masuk Disini
+                                    </Link>
+                                </p>
+                            </div>
+                        </form>
+                    )}
                 </div>
             </main>
 
             {/* Footer */}
             <footer className="w-full py-6 text-center border-t border-[#e7eef3] dark:border-slate-800 bg-white dark:bg-[#1A2632] mt-auto">
                 <p className="text-[#4c759a] dark:text-slate-500 text-sm">
-                    © 2024 Dinas Pendidikan Kabupaten Contoh. All rights reserved.
+                    © 2026 Kementerian Agama Kabupaten Pacitan. All rights reserved.
                 </p>
             </footer>
         </div>

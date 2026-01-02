@@ -65,6 +65,12 @@ export default async function RegistrationProofPage({
     // Usually if they can access this, they should have at least submitted? 
     // Actually the button is on the card, so they exist.
 
+    // Fetch school settings
+    const settings = await db.schoolSettings.findFirst();
+    const schoolName = settings?.schoolName || "SMP Merdeka";
+    const academicYear = settings?.academicYear || "2025/2026";
+    const schoolLogo = settings?.schoolLogo;
+
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white">
             <div className="max-w-[800px] mx-auto space-y-6 w-full print:max-w-none print:w-full">
@@ -101,13 +107,17 @@ export default async function RegistrationProofPage({
                                 {/* Header */}
                                 <div className="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-6 print:pb-2 print:mb-4">
                                     <div className="flex items-center gap-4 print:gap-3">
-                                        <div className="size-20 flex items-center justify-center border-[2.5px] border-slate-800 rounded-full shrink-0 print:size-16 print:border-2">
-                                            <span className="material-symbols-outlined text-5xl text-slate-800 print:text-4xl">school</span>
+                                        <div className="size-20 flex items-center justify-center overflow-hidden border-[2.5px] border-slate-800 rounded-full shrink-0 print:size-16 print:border-2">
+                                            {schoolLogo ? (
+                                                <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
+                                            ) : (
+                                                <span className="material-symbols-outlined text-5xl text-slate-800 print:text-4xl">school</span>
+                                            )}
                                         </div>
                                         <div className="space-y-1 print:space-y-0">
                                             <h3 className="font-bold text-lg uppercase text-slate-700 leading-none tracking-wide print:text-base">Panitia PPDB</h3>
-                                            <h2 className="font-black text-3xl uppercase leading-none tracking-tight text-slate-900 print:text-2xl">SMP Merdeka</h2>
-                                            <p className="text-sm font-medium text-slate-600 tracking-wide print:text-xs">Tahun Pelajaran 2025/2026</p>
+                                            <h2 className="font-black text-3xl uppercase leading-none tracking-tight text-slate-900 print:text-2xl">{schoolName}</h2>
+                                            <p className="text-sm font-medium text-slate-600 tracking-wide print:text-xs">Tahun Pelajaran {academicYear}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
@@ -163,6 +173,16 @@ export default async function RegistrationProofPage({
                                             <span className="text-slate-900 block w-full">{selectedStudent.alamatLengkap || "-"}</span>
                                         </div>
                                         <div className="grid grid-cols-[180px_10px_1fr] border-b border-slate-100 pb-2 print:grid-cols-[140px_10px_1fr] print:pb-1">
+                                            <span className="font-bold text-slate-700">Jalur Pendaftaran</span>
+                                            <span>:</span>
+                                            <span className="text-slate-900 font-bold uppercase">
+                                                {selectedStudent.jalur === "REGULER" ? "Reguler / Zonasi" :
+                                                    selectedStudent.jalur === "PRESTASI_AKADEMIK" ? "Prestasi Akademik" :
+                                                        selectedStudent.jalur === "PRESTASI_NON_AKADEMIK" ? "Prestasi Non-Akademik" :
+                                                            selectedStudent.jalur || "-"}
+                                            </span>
+                                        </div>
+                                        <div className="grid grid-cols-[180px_10px_1fr] border-b border-slate-100 pb-2 print:grid-cols-[140px_10px_1fr] print:pb-1">
                                             <span className="font-bold text-slate-700">Waktu Pendaftaran</span>
                                             <span>:</span>
                                             <span className="text-slate-900">{new Date(selectedStudent.createdAt).toLocaleString("id-ID")}</span>
@@ -202,6 +222,14 @@ export default async function RegistrationProofPage({
                                                 </div>
                                                 <span className="text-sm font-medium text-slate-700">Pas Foto</span>
                                             </div>
+                                            {(selectedStudent.jalur === "PRESTASI_AKADEMIK" || selectedStudent.jalur === "PRESTASI_NON_AKADEMIK" || (selectedStudent.documents?.filePrestasi && selectedStudent.documents?.filePrestasi.length > 0)) && (
+                                                <div className="flex items-center gap-3 print:gap-2">
+                                                    <div className={`flex items-center justify-center size-5 rounded border ${(selectedStudent.documents?.filePrestasi && selectedStudent.documents?.filePrestasi.length > 0) ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-300'}`}>
+                                                        {(selectedStudent.documents?.filePrestasi && selectedStudent.documents?.filePrestasi.length > 0) && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
+                                                    </div>
+                                                    <span className="text-sm font-medium text-slate-700">Dokumen Prestasi</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

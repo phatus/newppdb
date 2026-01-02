@@ -74,6 +74,8 @@ export async function PUT(
                 tanggalLahir: body.tanggalLahir ? new Date(body.tanggalLahir) : null,
                 asalSekolah: body.asalSekolah,
                 alamatLengkap: fullAddress,
+                jalur: body.jalur || undefined, // Only update if provided
+                telepon: body.telepon,
             },
         });
 

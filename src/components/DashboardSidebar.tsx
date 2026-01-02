@@ -21,7 +21,6 @@ export default function Sidebar({ user }: SidebarProps) {
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard", icon: "dashboard" },
-        { name: "Data Diri", href: "/dashboard/student/add", icon: "person" },
         { name: "Dokumen", href: "/dashboard/student/documents", icon: "description" },
         { name: "Pengumuman", href: "#", icon: "campaign" },
         { name: "Bantuan", href: "#", icon: "help" },

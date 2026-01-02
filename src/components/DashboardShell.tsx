@@ -22,7 +22,6 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
 
     const navItems = [
         { name: "Dashboard", href: "/dashboard", icon: "dashboard" },
-        { name: "Data Diri", href: "/dashboard/student/add", icon: "person" },
         { name: "Dokumen", href: "/dashboard/student/documents", icon: "description" },
         { name: "Pengumuman", href: "#", icon: "campaign" },
         { name: "Bantuan", href: "#", icon: "help" },
@@ -41,12 +40,12 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
             )}
 
             {/* Sidebar */}
-            <aside className={`fixed top-0 left-0 z-50 h-screen w-72 flex-col border-r border-slate-200 bg-white dark:bg-[#1c2936] dark:border-slate-800 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} print:hidden`}>
-                <div className="flex h-full flex-col justify-between p-6">
-                    <div className="flex flex-col gap-6">
+            <aside className={`fixed top-0 left-0 z-50 h-screen w-64 flex-col border-r border-slate-200 bg-white dark:bg-[#1e293b] dark:border-slate-800/50 transition-transform duration-300 lg:translate-x-0 lg:static lg:flex ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} print:hidden shadow-xl lg:shadow-none`}>
+                <div className="flex h-full flex-col justify-between p-4">
+                    <div className="flex flex-col gap-5">
                         {/* Profile */}
-                        <div className="flex items-center gap-3 pb-6 border-b border-slate-100 dark:border-slate-700">
-                            <div className="relative size-12 rounded-full overflow-hidden shadow-sm ring-2 ring-slate-100 dark:ring-slate-700 bg-slate-200 dark:bg-slate-700 shrink-0">
+                        <div className="flex items-center gap-3 pb-5 border-b border-slate-100 dark:border-slate-700/50">
+                            <div className="relative size-10 rounded-full overflow-hidden shadow-sm ring-2 ring-slate-100 dark:ring-slate-700/50 bg-slate-200 dark:bg-slate-700 shrink-0">
                                 {user.image ? (
                                     <Image src={user.image} alt={user.name} fill className="object-cover" />
                                 ) : (
@@ -56,8 +55,8 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
                                 )}
                             </div>
                             <div className="flex flex-col overflow-hidden">
-                                <h1 className="text-slate-900 dark:text-white text-sm font-bold leading-tight truncate">{user.name}</h1>
-                                <p className="text-slate-500 dark:text-slate-400 text-xs font-medium uppercase tracking-wider truncate">{user.role}</p>
+                                <h1 className="text-slate-900 dark:text-white text-xs font-bold leading-tight truncate">{user.name}</h1>
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest truncate">{user.role}</p>
                             </div>
                         </div>
 
@@ -65,18 +64,18 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
                         <nav className="flex flex-col gap-2">
                             {navItems.map((item) => (
                                 <Link
-                                    key={item.href}
+                                    key={item.name}
                                     href={item.href}
-                                    className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors group ${isActive(item.href)
-                                        ? "bg-primary/10 text-primary dark:bg-primary/20 dark:text-primary"
-                                        : "text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5"
+                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group border border-transparent ${isActive(item.href)
+                                        ? "bg-primary text-white shadow-md shadow-primary/20 border-primary"
+                                        : "text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-white/5 hover:text-primary"
                                         }`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
-                                    <span className={`material-symbols-outlined text-[24px] transition-colors ${!isActive(item.href) && "group-hover:text-primary"}`}>
+                                    <span className={`material-symbols-outlined text-[20px] transition-colors`}>
                                         {item.icon}
                                     </span>
-                                    <p className={`text-sm font-medium leading-normal ${!isActive(item.href) && "group-hover:text-slate-900 dark:group-hover:text-white"}`}>
+                                    <p className={`text-xs font-bold uppercase tracking-wide leading-normal`}>
                                         {item.name}
                                     </p>
                                 </Link>
@@ -87,17 +86,17 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
                     {/* Logout */}
                     <button
                         onClick={() => signOut({ callbackUrl: "/" })}
-                        className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors"
+                        className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-9 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-[11px] font-bold leading-normal tracking-widest transition-all uppercase"
                     >
-                        <span className="material-symbols-outlined text-[20px]">logout</span>
-                        <span className="truncate">Logout</span>
+                        <span className="material-symbols-outlined text-[18px]">logout</span>
+                        <span className="truncate">Keluar Sesi</span>
                     </button>
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 h-full overflow-y-auto bg-background-light dark:bg-background-dark relative print:overflow-visible print:h-auto print:bg-white">
-                <div className="flex flex-col w-full max-w-[1200px] mx-auto p-4 md:p-8 gap-8 print:p-0 print:max-w-none">
+            <main className="flex-1 h-full overflow-y-auto bg-background-light dark:bg-[#101a22] relative print:overflow-visible print:h-auto print:bg-white transition-colors">
+                <div className="flex flex-col w-full max-w-[1280px] mx-auto p-4 sm:p-6 lg:p-8 gap-6 print:p-0 print:max-w-none">
                     {/* Mobile Header (Hamburger) */}
                     <div className="lg:hidden flex justify-between items-center pb-4 border-b border-slate-200 dark:border-slate-800 print:hidden">
                         <h1 className="text-xl font-black text-primary">PPDB Online</h1>

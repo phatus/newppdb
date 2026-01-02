@@ -29,13 +29,18 @@ export const authOptions: NextAuthOptions = {
                 });
 
                 if (!user) {
-                    return null;
+                    throw new Error("Email tidak terdaftar.");
                 }
 
                 const isPasswordValid = await compare(credentials.password, user.password);
 
                 if (!isPasswordValid) {
-                    return null;
+                    throw new Error("Password salah.");
+                }
+
+                // Check if email is verified
+                if (!user.emailVerified) {
+                    throw new Error("Email belum diverifikasi. Silakan cek inbox Anda.");
                 }
 
                 return {

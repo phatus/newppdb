@@ -167,7 +167,7 @@ export default async function FinalizePage({
                                     <span className="material-symbols-outlined text-primary">person</span>
                                     Data Diri Siswa
                                 </h3>
-                                <Link href="/dashboard/student/add" className="text-primary text-sm font-semibold hover:underline">
+                                <Link href={`/dashboard/student/add?studentId=${selectedStudent.id}`} className="text-primary text-sm font-semibold hover:underline">
                                     Edit Data
                                 </Link>
                             </div>
@@ -257,6 +257,15 @@ export default async function FinalizePage({
                                     <span className="text-sm font-medium">Raport</span>
                                     {docs.fileRaport ? <span className="text-green-600 material-symbols-outlined text-sm">check_circle</span> : <span className="text-red-500 material-symbols-outlined text-sm">cancel</span>}
                                 </div>
+                                {(selectedStudent.jalur === "PRESTASI_AKADEMIK" || selectedStudent.jalur === "PRESTASI_NON_AKADEMIK" || (docs.filePrestasi && docs.filePrestasi.length > 0)) && (
+                                    <div className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-slate-700/50">
+                                        <span className="text-sm font-medium">Dokumen Prestasi</span>
+                                        {(docs.filePrestasi && docs.filePrestasi.length > 0) ?
+                                            <span className="text-green-600 material-symbols-outlined text-sm">check_circle</span> :
+                                            <span className="text-amber-500 material-symbols-outlined text-sm" title="Opsional / Belum Diunggah">help</span>
+                                        }
+                                    </div>
+                                )}
                             </div>
 
                             {!isComplete ? (

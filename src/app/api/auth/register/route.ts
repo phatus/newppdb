@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export async function POST(req: Request) {
     try {
@@ -26,16 +27,34 @@ export async function POST(req: Request) {
 
         const hashedPassword = await hash(password, 12);
 
+        // Generate verification token (simple random string for now)
+        const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
         const user = await db.user.create({
             data: {
                 email,
                 password: hashedPassword,
                 role: role === "ADMIN" ? "ADMIN" : "USER",
+
+                verificationToken,
+                verificationTokenExpiry,
+                emailVerified: null, // Explicitly null
             },
         });
 
+        // Send verification email
+        try {
+            await sendVerificationEmail(email, verificationToken);
+        } catch (mailError) {
+            console.error("Failed to send email:", mailError);
+        }
+
         return NextResponse.json(
-            { message: "User created successfully", user: { id: user.id, email: user.email } },
+            {
+                message: "Registrasi berhasil. Silakan cek inbox email Anda untuk verifikasi.",
+                user: { id: user.id, email: user.email }
+            },
             { status: 201 }
         );
     } catch (error) {

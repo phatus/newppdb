@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 interface DocumentUploadButtonProps {
     studentId: string;
-    documentType: "fileAkta" | "fileKK" | "fileSKL" | "fileRaport" | "pasFoto";
+    documentType: "fileAkta" | "fileKK" | "fileSKL" | "fileRaport" | "pasFoto" | "filePrestasi";
     label: string;
     onUploadSuccess?: () => void;
 }
@@ -23,6 +23,12 @@ export default function DocumentUploadButton({
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        // Validate file type for Raport
+        if (documentType === "fileRaport" && file.type !== "application/pdf") {
+            toast.error("Format raport harus PDF.");
+            return;
+        }
 
         // Validate file size (2MB)
         if (file.size > 2 * 1024 * 1024) {
@@ -90,7 +96,7 @@ export default function DocumentUploadButton({
             <input
                 type="file"
                 className="hidden"
-                accept=".pdf,.jpg,.jpeg,.png"
+                accept={documentType === "fileRaport" ? ".pdf" : ".pdf,.jpg,.jpeg,.png"}
                 onChange={handleFileChange}
                 disabled={isUploading}
             />

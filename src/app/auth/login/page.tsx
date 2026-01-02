@@ -14,6 +14,7 @@ function LoginForm() {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,7 +29,14 @@ function LoginForm() {
             });
 
             if (res?.error) {
-                setError("Email atau password salah. Silakan coba lagi.");
+                // If the error is the default "CredentialsSignin", keep generic. 
+                // But our custom errors should come through if they are simple strings.
+                // We'll trust res.error but map "CredentialsSignin" just in case.
+                const errorMessage = res.error === "CredentialsSignin"
+                    ? "Email atau password salah."
+                    : res.error;
+
+                setError(errorMessage);
                 setIsLoading(false);
             } else if (res?.ok) {
                 // Fetch the session to check the role
@@ -89,7 +97,7 @@ function LoginForm() {
                 </div>
                 <div className="relative flex w-full items-stretch rounded-lg">
                     <input
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         id="password"
                         placeholder="Masukkan password"
                         value={password}
@@ -99,20 +107,21 @@ function LoginForm() {
                     />
                     <button
                         type="button"
+                        onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-0 top-0 bottom-0 px-3 flex items-center justify-center text-[#4c759a] hover:text-primary transition-colors"
                     >
                         <span className="material-symbols-outlined text-xl">
-                            visibility
+                            {showPassword ? "visibility_off" : "visibility"}
                         </span>
                     </button>
                 </div>
                 <div className="flex justify-end mt-1">
-                    <a
-                        href="#"
+                    <Link
+                        href="/auth/forgot-password"
                         className="text-primary text-sm font-medium hover:underline hover:text-blue-700 transition-colors"
                     >
                         Lupa Password?
-                    </a>
+                    </Link>
                 </div>
             </div>
             {/* Action Button */}

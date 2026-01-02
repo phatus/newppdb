@@ -264,9 +264,64 @@ export default async function DocumentUploadPage({
 
                     {renderUploadSection(
                         "fileRaport",
-                        "Nilai Raport Kelas 5",
-                        "Semester 1 & 2 digabung dalam 1 file PDF.",
+                        "Nilai Raport Kelas 5 & 6",
+                        "Semua Semester digabung dalam 1 file PDF.",
                         "analytics"
+                    )}
+
+                    {/* Prestasi Section */}
+                    {(selectedStudent.jalur === "PRESTASI_AKADEMIK" || selectedStudent.jalur === "PRESTASI_NON_AKADEMIK") && (
+                        <div className="flex flex-col gap-4 mt-4 border-t border-slate-200 dark:border-slate-800 pt-6">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <span className="material-symbols-outlined text-purple-600">military_tech</span>
+                                Dokumen Prestasi
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-2">
+                                Unggah sertifikat atau piagam penghargaan yang dimiliki (Format PDF/JPG, Max 2MB). Bisa lebih dari satu.
+                            </p>
+
+                            {/* List of uploaded achievement files */}
+                            {docs.filePrestasi && docs.filePrestasi.length > 0 && (
+                                <div className="grid grid-cols-1 gap-3 mb-4">
+                                    {docs.filePrestasi.map((url: string, index: number) => (
+                                        <div key={index} className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
+                                            <div className="flex items-center gap-3">
+                                                <span className="material-symbols-outlined text-purple-600 text-[20px]">
+                                                    description
+                                                </span>
+                                                <span className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                                                    Dokumen Prestasi {index + 1}
+                                                </span>
+                                            </div>
+                                            <a
+                                                href={url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-xs font-bold text-purple-700 hover:text-purple-800 dark:text-purple-300 dark:hover:text-purple-200"
+                                            >
+                                                Lihat
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Upload Button */}
+                            <div className="flex items-center gap-4 bg-white dark:bg-[#1A2632] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                                <div className="flex-1">
+                                    <p className="text-sm font-medium text-slate-900 dark:text-white">
+                                        Tambah Sertifikat/Piagam
+                                    </p>
+                                </div>
+                                <div className="w-auto">
+                                    <DocumentUploadButton
+                                        studentId={selectedStudent.id}
+                                        documentType="filePrestasi"
+                                        label="Dokumen Prestasi"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
 
@@ -277,10 +332,10 @@ export default async function DocumentUploadPage({
                     </a>
                     {isComplete ? (
                         <a
-                            href="/dashboard/student/finalize"
+                            href={`/dashboard/student/grades?studentId=${selectedStudent.id}`}
                             className="flex cursor-pointer items-center justify-center gap-2 rounded-lg h-12 px-8 bg-primary hover:bg-blue-600 text-white text-base font-bold leading-normal transition-colors shadow-md shadow-blue-500/20 w-full md:w-auto text-decoration-none"
                         >
-                            <span>Simpan & Lanjutkan</span>
+                            <span>Lanjut Input Nilai</span>
                             <span className="material-symbols-outlined text-[20px]">
                                 arrow_forward
                             </span>

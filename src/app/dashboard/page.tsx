@@ -6,10 +6,14 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import StudentCard from "@/components/StudentCard";
 
+import { getAnnouncements } from "@/app/actions/announcements";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
+import RegistrationStepper from "@/components/RegistrationStepper";
+
 export default async function DashboardPage() {
     const session = await getServerSession(authOptions);
 
-    // Fetch user details including all students
+    // Fetch user details
     const user = await db.user.findUnique({
         where: { email: session?.user?.email! },
         include: {
@@ -17,10 +21,22 @@ export default async function DashboardPage() {
                 orderBy: { createdAt: 'desc' },
                 include: {
                     documents: true,
+                    grades: {
+                        include: {
+                            semesterGrades: {
+                                include: {
+                                    entries: true
+                                }
+                            }
+                        }
+                    },
                 }
             }
         }
     });
+
+    // Fetch Active Announcements
+    const announcements = await getAnnouncements(false); // only active
 
     const studentList = user?.students || [];
 
@@ -32,119 +48,200 @@ export default async function DashboardPage() {
     // Determine welcome name
     const welcomeName = session?.user?.email || "Orang Tua";
 
-    // Helper for formatting date
-    const formatDate = (date: Date) => {
-        return new Date(date).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        });
-    };
-
     return (
-        <div className="flex flex-col gap-8">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex flex-col gap-2">
-                    <h2 className="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-tight">
-                        Selamat Datang, {welcomeName}
+        <div className="flex flex-col gap-6 max-w-[1240px] mx-auto w-full p-4 sm:p-0">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-5 bg-white dark:bg-[#1e293b] p-5 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm">
+                <div className="flex flex-col gap-1">
+                    <h2 className="text-slate-900 dark:text-white text-2xl font-bold leading-tight tracking-tight">
+                        Selamat Datang, <span className="text-primary">{welcomeName}</span>
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal max-w-2xl">
-                        Pantau status pendaftaran putra-putri Anda untuk Tahun Pelajaran 2024/2025. Cek notifikasi secara berkala.
+                    <p className="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal max-w-xl">
+                        Tahun Pelajaran 2024/2025 • Pantau status pendaftaran secara berkala.
                     </p>
                 </div>
                 <Link href="/dashboard/student/add">
-                    <button className="flex-shrink-0 flex items-center gap-2 cursor-pointer justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20 text-sm font-bold leading-normal tracking-wide transition-all">
-                        <span className="material-symbols-outlined text-[20px]">person_add</span>
+                    <button className="flex-shrink-0 flex items-center gap-2 cursor-pointer justify-center overflow-hidden rounded-xl h-11 px-5 bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20 text-xs font-bold leading-normal tracking-wide transition-all uppercase">
+                        <span className="material-symbols-outlined text-[18px]">person_add</span>
                         <span className="truncate">Tambah Siswa Baru</span>
                     </button>
                 </Link>
             </header>
 
+            {/* Announcements Banner */}
+            <div className="scale-95 origin-center -my-2">
+                <AnnouncementBanner announcements={announcements} />
+            </div>
+
+            {/* Incomplete Data Warning Banner */}
+            {studentList.map(student => {
+                const missingDocs = [];
+                const docs = student.documents;
+                if (!docs?.fileKK) missingDocs.push("Kartu Keluarga");
+                if (!docs?.fileAkta) missingDocs.push("Akta Kelahiran");
+                if (!docs?.fileRaport) missingDocs.push("Raport (PDF)");
+                if (!docs?.pasFoto) missingDocs.push("Pas Foto");
+
+                // Check Grades
+                const gradeCount = student.grades?.semesterGrades?.length || 0;
+                const gradesComplete = gradeCount >= 4;
+
+                if (missingDocs.length === 0 && gradesComplete) return null;
+
+                return (
+                    <div key={student.id} className="bg-white dark:bg-[#1e293b] border-l-4 border-amber-500 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700/50 animate-in fade-in slide-in-from-top-2">
+                        <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 bg-amber-50 dark:bg-amber-900/20 rounded-full flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-amber-600 dark:text-amber-500 text-[20px]">warning</span>
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="font-bold text-slate-900 dark:text-white text-base mb-0.5">
+                                    Lengkapi Data: {student.namaLengkap}
+                                </h3>
+                                <p className="text-slate-500 dark:text-slate-400 text-xs mb-3">
+                                    Mohon lengkapi data berikut agar pendaftaran dapat segera kami verifikasi.
+                                </p>
+
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {!gradesComplete && (
+                                        <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded-md border border-amber-100 dark:border-amber-800">NILAI RAPORT</span>
+                                    )}
+                                    {missingDocs.map((doc, idx) => (
+                                        <span key={idx} className="px-2 py-1 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold rounded-md border border-slate-100 dark:border-slate-700">DOKUMEN: {doc}</span>
+                                    ))}
+                                </div>
+
+                                <div className="flex gap-2">
+                                    {!gradesComplete && (
+                                        <Link href={`#`} className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm shadow-amber-900/20">
+                                            <span className="material-symbols-outlined text-[14px]">edit_note</span>
+                                            INPUT NILAI
+                                        </Link>
+                                    )}
+                                    {missingDocs.length > 0 && (
+                                        <Link href={`/dashboard/student/documents?studentId=${student.id}`} className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-[10px] font-bold rounded-lg transition-colors border border-slate-200 dark:border-slate-700">
+                                            <span className="material-symbols-outlined text-[14px]">upload_file</span>
+                                            UPLOAD DOKUMEN
+                                        </Link>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })}
+
             {/* Stats Cards */}
             <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-[#1c2936] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
-                            <span className="material-symbols-outlined">assignment_ind</span>
+                        <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 text-primary rounded-lg">
+                            <span className="material-symbols-outlined text-[18px]">assignment_ind</span>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider">Total Siswa</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Total Siswa</p>
                     </div>
-                    <p className="text-slate-900 dark:text-white text-3xl font-black leading-tight">{totalStudents}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">Siswa terdaftar dalam akun ini</p>
+                    <div className="flex items-baseline gap-2 mt-1">
+                        <p className="text-slate-900 dark:text-white text-2xl font-bold leading-tight">{totalStudents}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Siswa terdaftar</p>
+                    </div>
                 </div>
-                <div className="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-[#1c2936] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 rounded-lg">
-                            <span className="material-symbols-outlined">hourglass_top</span>
+                        <div className="p-1.5 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-lg">
+                            <span className="material-symbols-outlined text-[18px]">hourglass_top</span>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider">Menunggu</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Menunggu</p>
                     </div>
-                    <p className="text-slate-900 dark:text-white text-3xl font-black leading-tight">{pendingStudents}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">Proses verifikasi dokumen</p>
+                    <div className="flex items-baseline gap-2 mt-1">
+                        <p className="text-slate-900 dark:text-white text-2xl font-bold leading-tight">{pendingStudents}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium font-medium">Verifikasi berkas</p>
+                    </div>
                 </div>
-                <div className="flex flex-col gap-3 rounded-xl p-6 bg-white dark:bg-[#1c2936] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div className="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-lg">
-                            <span className="material-symbols-outlined">verified</span>
+                        <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-lg">
+                            <span className="material-symbols-outlined text-[18px]">verified</span>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm font-bold uppercase tracking-wider">Terverifikasi</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest">Terverifikasi</p>
                     </div>
-                    <p className="text-slate-900 dark:text-white text-3xl font-black leading-tight">{verifiedStudents}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">Siap cetak kartu ujian</p>
+                    <div className="flex items-baseline gap-2 mt-1">
+                        <p className="text-slate-900 dark:text-white text-2xl font-bold leading-tight">{verifiedStudents}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Siap cetak kartu</p>
+                    </div>
                 </div>
             </section>
 
             {/* Student List */}
             <section className="flex flex-col gap-5">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-slate-900 dark:text-white text-2xl font-bold leading-tight">Daftar Calon Peserta Didik</h2>
+                <div className="flex items-center justify-between px-1">
+                    <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight flex items-center gap-2">
+                        <span className="w-1.5 h-6 bg-primary rounded-full"></span>
+                        Status Calon Peserta Didik
+                    </h2>
                 </div>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-5">
                     {studentList.length === 0 ? (
-                        <div className="p-8 text-center bg-white dark:bg-[#1c2936] rounded-xl border border-dashed border-slate-300 dark:border-slate-700">
-                            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+                        <div className="p-10 text-center bg-white dark:bg-[#1e293b] rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
+                            <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                                 <span className="material-symbols-outlined text-3xl">person_off</span>
                             </div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Belum ada data siswa</h3>
-                            <p className="text-slate-500 dark:text-slate-400 mb-6">Silakan tambahkan data calon siswa baru terlebih dahulu.</p>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white">Belum ada data siswa</h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Silakan tambahkan data calon siswa baru terlebih dahulu.</p>
                             <Link href="/dashboard/student/add">
-                                <button className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-blue-600 transition-colors">
+                                <button className="px-6 py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:bg-blue-600 transition-colors uppercase tracking-wider">
                                     Tambah Siswa
                                 </button>
                             </Link>
                         </div>
                     ) : (
                         studentList.map((student) => (
-                            <StudentCard
-                                key={student.id}
-                                student={{
-                                    ...student,
-                                    createdAt: student.createdAt.toISOString(),
-                                    updatedAt: student.updatedAt.toISOString(),
-                                    tanggalLahir: student.tanggalLahir ? student.tanggalLahir.toISOString() : null,
-                                }}
-                            />
+                            <div key={student.id} className="flex flex-col bg-white dark:bg-[#1e293b] rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm overflow-hidden transition-all hover:border-primary/30">
+                                <div className="p-5 border-b border-slate-100 dark:border-slate-700/50 bg-slate-50/30 dark:bg-slate-800/20">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-primary text-[18px]">account_circle</span>
+                                            PROGRES PENDAFTARAN: <span className="text-primary truncate">{student.namaLengkap}</span>
+                                        </h3>
+                                        <div className="hidden sm:block">
+                                            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tight">ID: {student.id.substring(0, 8)}</span>
+                                        </div>
+                                    </div>
+                                    <div className="px-1 sm:px-6">
+                                        <RegistrationStepper student={student} />
+                                    </div>
+                                </div>
+
+                                <div className="p-5">
+                                    <StudentCard
+                                        student={{
+                                            ...student,
+                                            createdAt: student.createdAt.toISOString(),
+                                            updatedAt: student.updatedAt.toISOString(),
+                                            tanggalLahir: student.tanggalLahir ? student.tanggalLahir.toISOString() : null,
+                                        }}
+                                    />
+                                </div>
+                            </div>
                         ))
                     )}
                 </div>
             </section>
 
             {/* Help Section */}
-            <section className="mt-8 mb-4 p-6 rounded-xl bg-gradient-to-r from-primary/10 to-transparent dark:from-primary/20 border border-primary/10 dark:border-primary/20">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <section className="mt-4 p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-white dark:from-[#1e293b] dark:to-[#101a22] border border-slate-200 dark:border-slate-700/50 shadow-sm">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
                     <div className="flex items-start gap-4">
-                        <div className="p-3 bg-white dark:bg-[#1c2936] rounded-full text-primary shadow-sm">
-                            <span className="material-symbols-outlined">support_agent</span>
+                        <div className="p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-primary border border-blue-100 dark:border-blue-800">
+                            <span className="material-symbols-outlined text-[20px]">support_agent</span>
                         </div>
-                        <div className="flex flex-col gap-1">
-                            <h4 className="text-slate-900 dark:text-white font-bold text-lg">Butuh Bantuan?</h4>
-                            <p className="text-slate-600 dark:text-slate-300 text-sm max-w-lg">
-                                Jika Anda mengalami kesulitan dalam proses pendaftaran atau verifikasi dokumen, tim support kami siap membantu Anda.
+                        <div className="flex flex-col gap-0.5">
+                            <h4 className="text-slate-900 dark:text-white font-bold text-base">Butuh Bantuan Teknis?</h4>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs max-w-lg leading-relaxed">
+                                Jika Anda mengalami kendala saat upload dokumen atau verifikasi, tim kami siap mendampingi Anda hingga selesai.
                             </p>
                         </div>
                     </div>
-                    <button className="whitespace-nowrap flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#1c2936] text-slate-900 dark:text-white font-bold rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm">
+                    <button className="whitespace-nowrap flex items-center gap-2 px-5 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm uppercase tracking-wide">
                         Hubungi Admin
                     </button>
                 </div>

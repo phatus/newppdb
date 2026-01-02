@@ -1,8 +1,47 @@
 
+import { db } from "@/lib/db";
 import Link from "next/link";
-import Image from "next/image";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
-export default function Home() {
+// Helper to get icon based on title keywords or index
+const getIcon = (title: string, index: number) => {
+  const t = title.toLowerCase();
+  if (t.includes('daftar') || t.includes('regis')) return 'app_registration';
+  if (t.includes('verifikasi') || t.includes('validasi')) return 'fact_check';
+  if (t.includes('pengumuman') || t.includes('hasil')) return 'campaign';
+  if (t.includes('ulang') || t.includes('masuk')) return 'school';
+
+  const icons = ['event', 'schedule', 'today', 'calendar_month'];
+  return icons[index % icons.length];
+}
+
+const getDefaultSchedule = () => [
+  { id: "1", title: "Pendaftaran Online", date: "1 - 5 Juli 2024", description: "Calon peserta didik melakukan pembuatan akun dan pengisian formulir pendaftaran secara mandiri melalui laman website." },
+  { id: "2", title: "Verifikasi & Validasi Berkas", date: "2 - 6 Juli 2024", description: "Panitia PPDB sekolah melakukan verifikasi berkas yang telah diunggah oleh calon peserta didik." },
+  { id: "3", title: "Pengumuman Hasil Seleksi", date: "8 Juli 2024", description: "Pengumuman hasil seleksi dapat dilihat melalui akun masing-masing peserta atau di papan pengumuman sekolah." },
+  { id: "4", title: "Daftar Ulang", date: "9 - 11 Juli 2024", description: "Peserta didik yang diterima wajib melakukan daftar ulang dengan membawa berkas fisik asli ke sekolah." },
+];
+
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  if (session) {
+    if (session.user.role === "ADMIN") {
+      redirect("/admin/dashboard");
+    } else {
+      redirect("/dashboard");
+    }
+  }
+
+  const settings = await db.schoolSettings.findFirst();
+  // Safe cast or parsing
+  const rawSchedule = settings?.ppdbSchedule;
+  const schedule = (Array.isArray(rawSchedule) && rawSchedule.length > 0)
+    ? rawSchedule as any[]
+    : getDefaultSchedule();
+
   return (
     <div className="min-h-screen font-sans bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-200">
 
@@ -12,14 +51,18 @@ export default function Home() {
           <div className="flex items-center justify-between h-16 sm:h-20">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 text-primary flex items-center justify-center">
-                <span className="material-symbols-outlined text-3xl sm:text-4xl">school</span>
+                {settings?.schoolLogo ? (
+                  <img src={settings.schoolLogo} alt="Logo" className="w-full h-full object-contain" />
+                ) : (
+                  <span className="material-symbols-outlined text-3xl sm:text-4xl">school</span>
+                )}
               </div>
               <div className="flex flex-col">
                 <h1 className="text-slate-900 dark:text-white text-lg sm:text-xl font-bold leading-tight tracking-tight">
-                  PPDB SMP 2024
+                  {settings?.schoolName || "PPDB SMP 2024"}
                 </h1>
                 <span className="text-slate-500 dark:text-slate-400 text-xs font-medium hidden sm:block">
-                  Dinas Pendidikan Kabupaten
+                  Kementerian Agama Kabupaten Pacitan
                 </span>
               </div>
             </div>
@@ -70,13 +113,13 @@ export default function Home() {
             <div className="relative z-10 max-w-3xl flex flex-col items-center gap-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-bold uppercase tracking-wider">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                Portal Resmi PPDB 2024
+                Portal Resmi PPDB {settings?.academicYear || "2024"}
               </div>
               <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight drop-shadow-sm">
                 Masa Depan Cerah Dimulai Di Sini
               </h1>
               <p className="text-slate-200 text-base sm:text-lg font-normal leading-relaxed max-w-2xl drop-shadow-sm">
-                Selamat datang di portal Penerimaan Peserta Didik Baru SMP. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.
+                Selamat datang di portal Penerimaan Peserta Didik Baru {settings?.schoolName || "SMP"}. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.
               </p>
               <div className="flex flex-wrap justify-center gap-4 mt-4">
                 <Link href="/auth/register">
@@ -108,72 +151,35 @@ export default function Home() {
           </div>
           <div className="bg-background-light dark:bg-[#15202b] rounded-2xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="grid grid-cols-[40px_1fr] gap-x-4 sm:gap-x-6">
-              {/* Item 1 */}
-              <div className="flex flex-col items-center pt-2">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center z-10">
-                  <span className="material-symbols-outlined text-xl">app_registration</span>
-                </div>
-                <div className="w-0.5 bg-slate-200 dark:bg-slate-700 h-full grow my-2"></div>
-              </div>
-              <div className="pb-8 pt-2">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Pendaftaran Online</h3>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-sm font-bold">1 - 5 Juli 2024</span>
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Calon peserta didik melakukan pembuatan akun dan pengisian formulir pendaftaran secara mandiri melalui laman website.
-                </p>
-              </div>
 
-              {/* Item 2 */}
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center z-10">
-                  <span className="material-symbols-outlined text-xl">fact_check</span>
-                </div>
-                <div className="w-0.5 bg-slate-200 dark:bg-slate-700 h-full grow my-2"></div>
-              </div>
-              <div className="pb-8 pt-2">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Verifikasi & Validasi Berkas</h3>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-sm font-bold">2 - 6 Juli 2024</span>
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Panitia PPDB sekolah melakukan verifikasi berkas yang telah diunggah oleh calon peserta didik.
-                </p>
-              </div>
+              {schedule.map((event: any, index: number) => {
+                const isLast = index === schedule.length - 1;
+                return (
+                  <div key={event.id} className="contents">
+                    {/* Icon Column */}
+                    <div className="flex flex-col items-center pt-2">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center z-10 shrink-0">
+                        <span className="material-symbols-outlined text-xl">{getIcon(event.title, index)}</span>
+                      </div>
+                      {!isLast && <div className="w-0.5 bg-slate-200 dark:bg-slate-700 h-full grow my-2"></div>}
+                    </div>
 
-              {/* Item 3 */}
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center z-10">
-                  <span className="material-symbols-outlined text-xl">campaign</span>
-                </div>
-                <div className="w-0.5 bg-slate-200 dark:bg-slate-700 h-full grow my-2"></div>
-              </div>
-              <div className="pb-8 pt-2">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Pengumuman Hasil Seleksi</h3>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 text-sm font-bold">8 Juli 2024</span>
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Pengumuman hasil seleksi dapat dilihat melalui akun masing-masing peserta atau di papan pengumuman sekolah.
-                </p>
-              </div>
+                    {/* Content Column */}
+                    <div className={`${isLast ? 'pt-2' : 'pb-8 pt-2'}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{event.title}</h3>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-sm font-bold whitespace-nowrap">
+                          {event.date}
+                        </span>
+                      </div>
+                      <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                        {event.description}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
 
-              {/* Item 4 */}
-              <div className="flex flex-col items-center">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-primary flex items-center justify-center z-10">
-                  <span className="material-symbols-outlined text-xl">school</span>
-                </div>
-              </div>
-              <div className="pt-2">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">Daftar Ulang</h3>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/20 text-primary text-sm font-bold">9 - 11 Juli 2024</span>
-                </div>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
-                  Peserta didik yang diterima wajib melakukan daftar ulang dengan membawa berkas fisik asli ke sekolah.
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -419,11 +425,11 @@ export default function Home() {
                   <span className="material-symbols-outlined text-3xl">school</span>
                 </div>
                 <h2 className="text-slate-900 dark:text-white text-xl font-bold">
-                  PPDB SMP 2024
+                  PPDB MTsN 1 Pacitan 2026
                 </h2>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                Layanan resmi Penerimaan Peserta Didik Baru jenjang Sekolah Menengah Pertama (SMP) Kabupaten.
+                Layanan resmi Penerimaan Peserta Didik Baru jenjang Madrasah Tsanawiyah Kabupaten.
               </p>
             </div>
             <div>
@@ -438,7 +444,7 @@ export default function Home() {
             <div>
               <h3 className="text-slate-900 dark:text-white font-bold mb-4">Jalur Pendaftaran</h3>
               <ul className="flex flex-col gap-3 text-sm text-slate-500 dark:text-slate-400">
-                <li><a className="hover:text-primary transition-colors" href="#">Zonasi</a></li>
+                <li><a className="hover:text-primary transition-colors" href="#">Reguler</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Afirmasi</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Perpindahan Tugas Orang Tua</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Prestasi</a></li>
@@ -449,7 +455,7 @@ export default function Home() {
               <ul className="flex flex-col gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <li className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-lg shrink-0">location_on</span>
-                  <span>Jl. Pendidikan No. 123, Kota Harapan, Indonesia</span>
+                  <span>Jl. Samanhudi No 15 </span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-lg shrink-0">call</span>
@@ -457,13 +463,13 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-lg shrink-0">mail</span>
-                  <span>helpdesk@ppdb-smp.go.id</span>
+                  <span>humas@mtsn1pacitan.sch.id</span>
                 </li>
               </ul>
             </div>
           </div>
           <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-slate-400 dark:text-slate-500 text-sm">© 2024 Dinas Pendidikan Kabupaten. All rights reserved.</p>
+            <p className="text-slate-400 dark:text-slate-500 text-sm">© 2024 Kementerian Agama Kabupaten Pacitan. All rights reserved.</p>
             <div className="flex gap-4">
               <a className="text-slate-400 hover:text-primary transition-colors" href="#">
                 <span className="sr-only">Facebook</span>
@@ -471,7 +477,7 @@ export default function Home() {
               </a>
               <a className="text-slate-400 hover:text-primary transition-colors" href="#">
                 <span className="sr-only">Instagram</span>
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path clip-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.468 2.52c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" fillRule="evenodd"></path></svg>
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path clipRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.468 2.52c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" fillRule="evenodd"></path></svg>
               </a>
             </div>
           </div>

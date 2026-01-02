@@ -1,12 +1,103 @@
+import { db } from "@/lib/db";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import DocumentList from "@/components/admin/DocumentList";
 
-export default function VerificationDetailPage() {
+interface PageProps {
+    params: {
+        id: string;
+    }
+}
+
+// 1. Fetcher with Deep Includes
+async function getVerificationData(id: string) {
+    const student = await db.student.findUnique({
+        where: { id },
+        include: {
+            documents: true,
+            grades: {
+                include: {
+                    semesterGrades: {
+                        include: {
+                            entries: {
+                                include: {
+                                    subject: true
+                                }
+                            },
+                            semester: true
+                        },
+                        orderBy: {
+                            semester: {
+                                order: 'asc'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    if (!student) return null;
+
+    // Fetch Active Subjects for Columns (Ordered)
+    const subjects = await db.subject.findMany({
+        where: { isActive: true },
+        orderBy: { order: 'asc' }
+    });
+
+    // Fetch All Semesters for Headers (Ordered)
+    const semesters = await db.semester.findMany({
+        where: { isActive: true },
+        orderBy: { order: 'asc' }
+    });
+
+    return { student, subjects, semesters };
+}
+
+const getDocumentList = (docs: any, jalur: string | null) => {
+    const list = [
+        { key: 'fileKK', label: 'Kartu Keluarga (KK)', icon: 'badge' },
+        { key: 'fileAkta', label: 'Akta Kelahiran', icon: 'child_care' },
+        { key: 'fileSKL', label: 'Surat Keterangan Lulus', icon: 'school' },
+        { key: 'fileRaport', label: 'Raport', icon: 'menu_book' },
+        { key: 'pasFoto', label: 'Pas Foto', icon: 'account_box' },
+    ];
+    if (jalur === 'PRESTASI_AKADEMIK' || jalur === 'PRESTASI_NON_AKADEMIK' || (docs && docs.filePrestasi)) {
+        list.push({ key: 'filePrestasi', label: 'Dokumen Prestasi', icon: 'emoji_events' });
+    }
+    return list;
+};
+
+export default async function VerificationDetailPage({ params }: any) {
+    const { id } = await params;
+
+    // 2. Use Data Fetcher
+    const data = await getVerificationData(id);
+    if (!data) return notFound();
+
+    const { student, subjects, semesters } = data;
+    const docList = getDocumentList(student.documents, student.jalur);
+
+    // 3. Transform Grade Data for Easy Access: map[semesterId][subjectId] = score
+    const gradesMap: Record<string, Record<string, number>> = {};
+    const semesterAverageMap: Record<string, number> = {};
+
+    student.grades?.semesterGrades?.forEach((sg: any) => {
+        gradesMap[sg.semesterId] = {};
+        semesterAverageMap[sg.semesterId] = sg.rataRataSemester;
+
+        sg.entries.forEach((entry: any) => {
+            gradesMap[sg.semesterId][entry.subjectId] = entry.score;
+        });
+    });
+
     return (
-        <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
+        <div className="p-6 w-full max-w-[1400px] mx-auto flex flex-col gap-6">
             <div className="mb-2">
-                <a href="/admin/students" className="text-slate-500 hover:text-primary flex items-center gap-1 text-sm font-medium transition-colors w-fit">
+                <Link href="/admin/verification" className="text-slate-500 hover:text-primary flex items-center gap-1 text-sm font-medium transition-colors w-fit">
                     <span className="material-symbols-outlined text-[18px]">arrow_back</span>
                     Kembali ke Data Pendaftar
-                </a>
+                </Link>
             </div>
 
             {/* Header */}
@@ -20,126 +111,160 @@ export default function VerificationDetailPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className="px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold uppercase tracking-wider">
-                        Status: Pending
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
+                        student.statusVerifikasi === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                        }`}>
+                        Status: {student.statusVerifikasi || 'Pending'}
                     </span>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Data Siswa Card */}
-                <div className="lg:col-span-1 flex flex-col gap-6">
-                    <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                            <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary">person</span>
-                                Data Siswa
-                            </h3>
+            {/* Split View Container for Grades */}
+            <div className="flex flex-col gap-6">
+                <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
+                        <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                            <span className="material-symbols-outlined text-purple-600">analytics</span>
+                            Verifikasi Nilai Raport
+                        </h3>
+                        <div className="text-sm text-slate-500">
+                            Total Rata-Rata: <span className="font-bold text-slate-900 dark:text-white">{student.grades?.rataRataNilai?.toFixed(2) || "-"}</span>
                         </div>
-                        <div className="p-6">
-                            <div className="flex flex-col items-center mb-6">
-                                <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mb-3">
-                                    <span className="material-symbols-outlined text-4xl text-slate-400">person</span>
+                    </div>
+
+                    <div className="p-0 grid grid-cols-1 xl:grid-cols-2 h-[600px] divide-y xl:divide-y-0 xl:divide-x divide-slate-200 dark:divide-slate-700">
+                        {/* Left: PDF Viewer */}
+                        <div className="relative h-[600px] w-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
+                            {student.documents?.fileRaport ? (
+                                <iframe
+                                    src={`${student.documents.fileRaport}#toolbar=0`}
+                                    className="w-full h-full"
+                                    title="Raport PDF"
+                                />
+                            ) : (
+                                <div className="text-center p-8">
+                                    <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">picture_as_pdf</span>
+                                    <p className="text-slate-500">Dokumen Raport (PDF) belum diunggah.</p>
                                 </div>
-                                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Siti Aminah</h2>
-                                <p className="text-slate-500 text-sm">ID: REG-2024-045</p>
+                            )}
+                        </div>
+
+                        {/* Right: Grades Table */}
+                        <div className="p-6 overflow-auto h-full">
+                            <p className="text-sm text-slate-500 mb-4 px-1">
+                                Cocokkan nilai yang diinput di bawah ini dengan dokumen di samping.
+                            </p>
+
+                            <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+                                <table className="w-full text-sm text-left">
+                                    <thead className="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
+                                        <tr>
+                                            <th className="px-4 py-3 sticky left-0 bg-slate-50 dark:bg-slate-800 z-10 border-r border-slate-200 dark:border-slate-700">Mata Pelajaran</th>
+                                            {/* Dynamic Headers */}
+                                            {semesters.map((sem: any) => (
+                                                <th key={sem.id} className="px-4 py-3 text-center whitespace-nowrap min-w-[80px]">
+                                                    {sem.name}
+                                                </th>
+                                            ))}
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                        {/* Dynamic Subjects */}
+                                        {subjects.map((subj: any) => (
+                                            <tr key={subj.id} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                                <th className="px-4 py-2 font-medium text-slate-900 dark:text-white sticky left-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 truncate max-w-[150px]" title={subj.name}>
+                                                    {subj.name}
+                                                </th>
+                                                {semesters.map((sem: any) => {
+                                                    const score = gradesMap[sem.id]?.[subj.id];
+                                                    return (
+                                                        <td key={sem.id} className={`px-4 py-2 text-center ${score !== undefined ? 'text-slate-600 dark:text-slate-300' : 'text-slate-300 dark:text-slate-600'}`}>
+                                                            {score !== undefined ? score : "-"}
+                                                        </td>
+                                                    );
+                                                })}
+                                            </tr>
+                                        ))}
+
+                                        {/* Semester Average Row */}
+                                        <tr className="bg-slate-50 dark:bg-slate-800/50 font-bold border-t-2 border-slate-200 dark:border-slate-700">
+                                            <td className="px-4 py-3 sticky left-0 bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700">Rata-Rata</td>
+                                            {semesters.map((sem: any) => (
+                                                <td key={sem.id} className="px-4 py-3 text-center text-primary">
+                                                    {semesterAverageMap[sem.id]?.toFixed(2) || "-"}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                            <dl className="grid grid-cols-1 gap-y-4">
-                                <div>
-                                    <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">NISN</dt>
-                                    <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">0087654321</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Tempat, Tanggal Lahir</dt>
-                                    <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Bandung, 15 Maret 2012</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Asal Sekolah</dt>
-                                    <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">MI Nurul Huda</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Jalur Pendaftaran</dt>
-                                    <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Prestasi</dd>
-                                </div>
-                                <div>
-                                    <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Alamat</dt>
-                                    <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">Jl. Mawar No. 10, RT 01 RW 05, Kec. Melati</dd>
-                                </div>
-                            </dl>
                         </div>
                     </div>
                 </div>
 
-                {/* Document Verification List */}
-                <div className="lg:col-span-2 flex flex-col gap-6">
-                    <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                            <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                                <span className="material-symbols-outlined text-primary">description</span>
-                                Dokumen Persyaratan
-                            </h3>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Data Siswa Card */}
+                    <div className="lg:col-span-1 flex flex-col gap-6">
+                        <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                                <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">person</span>
+                                    Data Siswa
+                                </h3>
+                            </div>
+                            <div className="p-6">
+                                <div className="flex flex-col items-center mb-6">
+                                    <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mb-3 overflow-hidden">
+                                        {student.documents?.pasFoto ? (
+                                            /* eslint-disable-next-line @next/next/no-img-element */
+                                            <img src={student.documents.pasFoto} alt="Pas Foto" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <span className="material-symbols-outlined text-4xl text-slate-400">person</span>
+                                        )}
+                                    </div>
+                                    <h2 className="text-lg font-bold text-slate-900 dark:text-white text-center">{student.namaLengkap}</h2>
+                                    <p className="text-slate-500 text-sm">NISN: {student.nisn}</p>
+                                </div>
+                                <dl className="grid grid-cols-1 gap-y-4">
+                                    <div>
+                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">NISN</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.nisn}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Tempat, Tanggal Lahir</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+                                            {student.tempatLahir}, {student.tanggalLahir ? new Date(student.tanggalLahir).toLocaleDateString('id-ID') : '-'}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Asal Sekolah</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.asalSekolah || '-'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Jalur Pendaftaran</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white uppercase">{student.jalur?.replace('_', ' ') || '-'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Alamat</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.alamatLengkap || '-'}</dd>
+                                    </div>
+                                </dl>
+                            </div>
                         </div>
-                        <div className="p-6 space-y-6">
-                            {/* Doc Item 1 */}
-                            <div className="flex flex-col md:flex-row gap-4 justify-between items-start p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                <div className="flex items-start gap-3">
-                                    <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg">
-                                        <span className="material-symbols-outlined">badge</span>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-slate-900 dark:text-white text-base">Kartu Keluarga (KK)</p>
-                                        <p className="text-xs text-slate-500 mb-1">kk_siti_2024.pdf (1.5 MB)</p>
-                                        <span className="inline-flex items-center gap-1 text-xs font-bold text-green-600">
-                                            <span className="material-symbols-outlined text-[14px]">check_circle</span> Valid
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button className="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-primary border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                                        Lihat
-                                    </button>
-                                    <div className="flex items-center bg-slate-100 rounded-lg p-1">
-                                        <button title="Valid" className="p-1 rounded text-green-600 bg-white shadow-sm"><span className="material-symbols-outlined text-[20px]">check</span></button>
-                                        <button title="Invalid" className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-sm"><span className="material-symbols-outlined text-[20px]">close</span></button>
-                                    </div>
-                                </div>
+                    </div>
+
+                    {/* Document Verification List */}
+                    <div className="lg:col-span-2 flex flex-col gap-6">
+                        <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                                <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-primary">description</span>
+                                    Dokumen Persyaratan
+                                </h3>
                             </div>
 
-                            {/* Doc Item 2 */}
-                            <div className="flex flex-col md:flex-row gap-4 justify-between items-start p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                <div className="flex items-start gap-3">
-                                    <div className="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-lg">
-                                        <span className="material-symbols-outlined">child_care</span>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold text-slate-900 dark:text-white text-base">Akta Kelahiran</p>
-                                        <p className="text-xs text-slate-500 mb-1">akta_siti.jpg (800 KB)</p>
-                                        <span className="inline-flex items-center gap-1 text-xs font-bold text-yellow-600">
-                                            <span className="material-symbols-outlined text-[14px]">help</span> Belum Diperiksa
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <button className="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-primary border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
-                                        Lihat
-                                    </button>
-                                    <div className="flex items-center bg-slate-100 rounded-lg p-1">
-                                        <button title="Valid" className="p-1 rounded text-slate-400 hover:text-green-600 hover:bg-white hover:shadow-sm"><span className="material-symbols-outlined text-[20px]">check</span></button>
-                                        <button title="Invalid" className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-white hover:shadow-sm"><span className="material-symbols-outlined text-[20px]">close</span></button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Actions */}
-                            <div className="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-end gap-3">
-                                <button className="px-5 py-2.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-bold text-sm transition-colors">
-                                    Tolak dengan Catatan
-                                </button>
-                                <button className="px-5 py-2.5 rounded-lg bg-primary hover:bg-blue-700 text-white font-bold text-sm shadow-md transition-colors flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[20px]">verified</span>
-                                    Verifikasi Semua
-                                </button>
-                            </div>
+                            <DocumentList student={student} docList={docList} studentId={student.id} />
                         </div>
                     </div>
                 </div>

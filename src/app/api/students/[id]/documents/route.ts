@@ -17,9 +17,10 @@ export async function PATCH(
         }
 
         const body = await req.json();
+        console.log("Documents PATCH Body:", body);
 
         // Validate body keys
-        const allowedKeys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto"];
+        const allowedKeys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto", "filePrestasi"];
         const updates: any = {};
 
         for (const key of allowedKeys) {
@@ -29,7 +30,7 @@ export async function PATCH(
         }
 
         if (Object.keys(updates).length === 0) {
-            return NextResponse.json({ message: "No valid fields to update" }, { status: 400 });
+            return NextResponse.json({ message: "No valid fields to update", body }, { status: 400 });
         }
 
         // Check verification status
@@ -43,19 +44,53 @@ export async function PATCH(
         }
 
         // Create or update documents
-        const documents = await db.documents.upsert({
-            where: { studentId },
-            create: {
-                studentId,
-                ...updates
-            },
-            update: updates,
-        });
+        if (body.filePrestasi) {
+            // Special handling for array push
+            const currentDocs = await db.documents.findUnique({
+                where: { studentId: studentId },
+                select: { filePrestasi: true }
+            });
 
-        return NextResponse.json({ message: "Documents updated", documents }, { status: 200 });
+            const currentFiles = currentDocs?.filePrestasi || [];
+
+            // Check if already in array to avoid duplicates if accidentally re-sent
+            if (!currentFiles.includes(body.filePrestasi)) {
+                await db.documents.upsert({
+                    where: {
+                        studentId: studentId,
+                    },
+                    update: {
+                        filePrestasi: {
+                            push: body.filePrestasi
+                        }
+                    },
+                    create: {
+                        studentId: studentId,
+                        filePrestasi: [body.filePrestasi]
+                    },
+                });
+            }
+        } else {
+            // Standard single file update
+            await db.documents.upsert({
+                where: {
+                    studentId: studentId,
+                },
+                update: {
+                    ...body,
+                },
+                create: {
+                    studentId: studentId,
+                    ...body,
+                },
+            });
+        }
+
+        return NextResponse.json({ message: "Document updated" });
 
     } catch (error) {
         console.error("Update documents error:", error);
         return NextResponse.json({ message: "Internal server error" }, { status: 500 });
     }
 }
+

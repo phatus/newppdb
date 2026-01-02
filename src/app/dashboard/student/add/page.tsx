@@ -21,7 +21,10 @@ function AddStudentForm() {
         asalSekolah: "",
         alamatLengkap: "",
         kota: "",
-        kecamatan: ""
+        kecamatan: "",
+        jalur: "REGULER", // Default
+        catatanPenolakan: "", // New state
+        telepon: "", // New field
     });
 
     useEffect(() => {
@@ -33,6 +36,19 @@ function AddStudentForm() {
                     return res.json();
                 })
                 .then((data) => {
+                    const addressParts = (data.alamatLengkap || "").split(", ");
+                    let loadedAlamat = data.alamatLengkap || "";
+                    let loadedKecamatan = "";
+                    let loadedKota = "";
+
+                    // Attempt to parse standard format: "Address, Kecamatan, Kota"
+                    if (addressParts.length >= 3) {
+                        loadedKota = addressParts[addressParts.length - 1];
+                        loadedKecamatan = addressParts[addressParts.length - 2];
+                        // Re-join the rest as the street address
+                        loadedAlamat = addressParts.slice(0, addressParts.length - 2).join(", ");
+                    }
+
                     setFormData({
                         namaLengkap: data.namaLengkap || "",
                         nisn: data.nisn || "",
@@ -40,9 +56,13 @@ function AddStudentForm() {
                         tempatLahir: data.tempatLahir || "",
                         tanggalLahir: data.tanggalLahir ? new Date(data.tanggalLahir).toISOString().split('T')[0] : "",
                         asalSekolah: data.asalSekolah || "",
-                        alamatLengkap: data.alamatLengkap || "",
-                        kota: "", // Not stored separately
-                        kecamatan: "" // Not stored separately
+                        alamatLengkap: loadedAlamat,
+                        kota: loadedKota,
+                        kecamatan: loadedKecamatan,
+
+                        jalur: data.jalur || "REGULER",
+                        catatanPenolakan: data.catatanPenolakan || "", // Load it
+                        telepon: data.telepon || "",
                     });
                 })
                 .catch((err) => {
@@ -85,7 +105,9 @@ function AddStudentForm() {
                     asalSekolah: formData.asalSekolah,
                     alamatLengkap: formData.alamatLengkap,
                     kota: formData.kota,
-                    kecamatan: formData.kecamatan
+                    kecamatan: formData.kecamatan,
+                    jalur: formData.jalur,
+                    telepon: formData.telepon
                 }),
             });
 
@@ -96,7 +118,12 @@ function AddStudentForm() {
             }
 
             // Success, redirect
-            router.push("/dashboard");
+            // Success, redirect to documents
+            if (data.student && data.student.id) {
+                router.push(`/dashboard/student/documents?studentId=${data.student.id}`);
+            } else {
+                router.push("/dashboard");
+            }
             router.refresh();
 
         } catch (err: any) {
@@ -151,8 +178,121 @@ function AddStudentForm() {
                     </div>
                 )}
 
+                {/* Rejection Alert */}
+                {isEditMode && formData.catatanPenolakan && (
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 flex flex-col md:flex-row items-start gap-4 animate-in slide-in-from-top-2">
+                        <div className="p-3 bg-red-100 dark:bg-red-900/40 rounded-full flex-shrink-0 text-red-600 dark:text-red-400">
+                            <span className="material-symbols-outlined text-2xl">
+                                report_problem
+                            </span>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-lg font-bold text-red-800 dark:text-red-200 mb-1">
+                                Pendaftaran Perlu Perbaikan
+                            </h3>
+                            <p className="text-red-700 dark:text-red-300 text-sm leading-relaxed">
+                                Admin telah meninjau data Anda dan memberikan catatan perbaikan berikut:
+                            </p>
+                            <div className="mt-3 p-4 bg-white dark:bg-red-950/30 rounded-lg border border-red-100 dark:border-red-900/50">
+                                <p className="font-medium text-red-800 dark:text-red-200 text-sm">
+                                    "{formData.catatanPenolakan}"
+                                </p>
+                            </div>
+                            <p className="mt-3 text-xs text-red-600 dark:text-red-400">
+                                Silakan perbaiki data sesuai catatan di atas dan simpan kembali formulir ini.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Main Form Card */}
                 <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    {/* Section 0: Jalur Pendaftaran (Centered & Top) */}
+                    <div className="p-6 md:p-8 space-y-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-700">
+                        <div className="text-center max-w-2xl mx-auto space-y-2">
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                                Pilih Jalur Pendaftaran
+                            </h3>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm">
+                                Tentukan jalur yang sesuai dengan kualifikasi Anda.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                            {[
+                                {
+                                    id: "REGULER",
+                                    label: "Reguler",
+                                    desc: "Pendaftaran umum.",
+                                    icon: "home_pin",
+                                    color: "blue"
+                                },
+                                {
+                                    id: "PRESTASI_AKADEMIK",
+                                    label: "Prestasi Akademik",
+                                    desc: "Menggunakan nilai rapor dan sertifikat akademik.",
+                                    icon: "school",
+                                    color: "amber"
+                                },
+                                {
+                                    id: "PRESTASI_NON_AKADEMIK",
+                                    label: "Prestasi Non-Akademik",
+                                    desc: "Menggunakan sertifikat kejuaraan olahraga/seni.",
+                                    icon: "emoji_events",
+                                    color: "emerald"
+                                }
+                            ].map((option) => {
+                                const isSelected = formData.jalur === option.id;
+                                return (
+                                    <div
+                                        key={option.id}
+                                        onClick={() => setFormData(prev => ({ ...prev, jalur: option.id }))}
+                                        className={`
+                                            cursor-pointer relative overflow-hidden rounded-xl border-2 p-5 transition-all duration-200 text-left
+                                            ${isSelected
+                                                ? `border-${option.color}-500 bg-${option.color}-50 dark:bg-${option.color}-900/20 shadow-md transform scale-[1.02]`
+                                                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                            }
+                                        `}
+                                    >
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex items-start justify-between">
+                                                <div className={`
+                                                    w-12 h-12 rounded-xl flex items-center justify-center
+                                                    ${isSelected
+                                                        ? `bg-${option.color}-100 text-${option.color}-600 dark:bg-${option.color}-900/40 dark:text-${option.color}-400`
+                                                        : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'
+                                                    }
+                                                `}>
+                                                    <span className="material-symbols-outlined text-[24px]">
+                                                        {option.icon}
+                                                    </span>
+                                                </div>
+                                                {isSelected && (
+                                                    <div className={`text-${option.color}-500`}>
+                                                        <span className="material-symbols-outlined text-[24px]">
+                                                            check_circle
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <h4 className={`font-bold text-base mb-1 ${isSelected ? `text-${option.color}-700 dark:text-${option.color}-300` : 'text-slate-900 dark:text-white'}`}>
+                                                    {option.label}
+                                                </h4>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                                                    {option.desc}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <input type="hidden" name="jalur" value={formData.jalur} />
+                    </div>
+
                     {/* Section 1: Data Pribadi */}
                     <div className="p-6 md:p-8 space-y-8">
                         <div className="pb-4 border-b border-slate-200 dark:border-slate-700">
@@ -202,9 +342,10 @@ function AddStudentForm() {
                                     placeholder="10 digit nomor"
                                 />
                             </div>
-                            {/* Jenis Kelamin */}
-                            <div className="col-span-1">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+
+
+                            <div className="flex flex-col gap-2">
+                                <label htmlFor="gender" className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                                     Jenis Kelamin
                                 </label>
                                 <div className="flex gap-4 h-[42px] items-center">
@@ -373,23 +514,29 @@ function AddStudentForm() {
                                     placeholder="Contoh: Arjosari"
                                 />
                             </div>
+                            {/* Telepon */}
+                            <div className="col-span-1">
+                                <label
+                                    htmlFor="telepon"
+                                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+                                >
+                                    Nomor Telepon / WhatsApp
+                                </label>
+                                <input
+                                    type="tel"
+                                    name="telepon"
+                                    id="telepon"
+                                    value={formData.telepon}
+                                    onChange={handleChange}
+                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
+                                    placeholder="Contoh: 081234567890"
+                                />
+                            </div>
                         </div>
                     </div>
                     {/* Footer Actions */}
-                    <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-5 md:px-8 border-t border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-between gap-4">
-                        {!isEditMode && (
-                            <label className="inline-flex items-center cursor-pointer select-none">
-                                <input
-                                    type="checkbox"
-                                    defaultChecked
-                                    className="rounded border-slate-300 text-primary shadow-sm focus:border-primary focus:ring focus:ring-primary focus:ring-opacity-50"
-                                />
-                                <span className="ml-2 text-sm text-slate-600 dark:text-slate-400">
-                                    Tambah siswa lain setelah menyimpan
-                                </span>
-                            </label>
-                        )}
-                        <div className={`flex items-center gap-3 w-full md:w-auto ${isEditMode ? 'ml-auto' : ''}`}>
+                    <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-5 md:px-8 border-t border-slate-200 dark:border-slate-700 flex flex-col md:flex-row items-center justify-end gap-4">
+                        <div className="flex items-center gap-3 w-full md:w-auto">
                             <button
                                 type="button"
                                 onClick={() => router.back()}
@@ -412,7 +559,7 @@ function AddStudentForm() {
                                         <span className="material-symbols-outlined text-[18px]">
                                             save
                                         </span>
-                                        {isEditMode ? "Simpan Perubahan" : "Simpan Data"}
+                                        {isEditMode ? "Simpan Perubahan" : "Simpan & Lanjut"}
                                     </>
                                 )}
                             </button>

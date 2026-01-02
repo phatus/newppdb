@@ -22,11 +22,56 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
+  phoneNumber String?
   role      Role     @default(USER)
+  
+  emailVerified           DateTime?
+  verificationToken       String?
+  verificationTokenExpiry DateTime?
+  resetPasswordToken      String?
+  resetPasswordTokenExpiry DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   students  Student[]
+  announcements Announcement[]
+  auditLogs     AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String   // CREATE, UPDATE, DELETE, LOGIN, VERIFY, REJECT
+  entity    String   // STUDENT, USER, SETTINGS, ANNOUNCEMENT, GRADE
+  entityId  String?
+  details   String?  @db.Text // JSON string or description
+  ipAddress String?
+  userAgent String?
+  
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  createdAt DateTime @default(now())
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  type      String   @default("INFO") // INFO, WARNING, IMPORTANT
+  target    String   @default("ALL")  // ALL, USER, VERIFIED
+  isActive  Boolean  @default(true)
+  
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum JalurPendaftaran {
+  REGULER
+  PRESTASI_AKADEMIK
+  PRESTASI_NON_AKADEMIK
 }
 
 model Student {
@@ -41,9 +86,13 @@ model Student {
   tanggalLahir     DateTime?
   asalSekolah      String?
   alamatLengkap    String?
+  jalur            JalurPendaftaran   @default(REGULER) // Added field
   statusVerifikasi VerificationStatus @default(PENDING)
+  statusKelulusan  String             @default("PENDING") // PENDING, LULUS, TIDAK_LULUS
   catatanPenolakan String?
   nomorUjian       String?
+  telepon          String?
+  passwordCbt      String?
   
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
@@ -58,13 +107,64 @@ model Documents {
   studentId       String   @unique
   
   fileAkta        String?
+  statusAkta      VerificationStatus @default(PENDING)
+  
   fileKK          String?
+  statusKK        VerificationStatus @default(PENDING)
+
   fileSKL         String?
+  statusSKL       VerificationStatus @default(PENDING)
+
   fileRaport      String?
+  statusRaport    VerificationStatus @default(PENDING)
+
+  filePrestasi    String[] // Array for multiple files
+  statusPrestasi  VerificationStatus @default(PENDING)
+
   pasFoto         String?
+  statusPasFoto   VerificationStatus @default(PENDING)
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+
+
+// Master Data for Dynamic Curriculum
+model Subject {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // "UMUM", "AGAMA", "MULOK"
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  gradeEntries GradeEntry[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Semester {
+  id          String   @id @default(cuid())
+  name        String   // e.g., "Kelas 5 Semester 1"
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  semesterGrades SemesterGrade[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AchievementWeight {
+  id          String   @id @default(cuid())
+  category    String   // "Akademik", "Non-Akademik"
+  level       String   // "Nasional", "Provinsi", "Kabupaten", "Kecamatan"
+  rank        Int      // 1, 2, 3
+  points      Float    
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Grades {
@@ -72,8 +172,71 @@ model Grades {
   student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId       String   @unique
   
-  rataRataNilai   Float?
+  rataRataNilai   Float? // Average of all semesters
+  nilaiUjianTeori Float?
+  nilaiUjianSKUA  Float?
+  nilaiPrestasi   Float? // Calculated from verified documents using AchievementWeight
+  finalScore      Float? // Total score for ranking
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  semesterGrades  SemesterGrade[]
+}
+
+model SemesterGrade {
+  id              String       @id @default(cuid())
+  grade           Grades       @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  gradeId         String
+  
+  semester        Semester     @relation(fields: [semesterId], references: [id])
+  semesterId      String
+  
+  rataRataSemester Float       @default(0)
+  
+  entries         GradeEntry[]
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  @@unique([gradeId, semesterId])
+}
+
+model GradeEntry {
+  id              String        @id @default(cuid())
+  semesterGrade   SemesterGrade @relation(fields: [semesterGradeId], references: [id], onDelete: Cascade)
+  semesterGradeId String
+  
+  subject         Subject       @relation(fields: [subjectId], references: [id])
+  subjectId       String
+  
+  score           Float
+  
+  @@unique([semesterGradeId, subjectId])
+}
+
+model SchoolSettings {
+  id                String   @id @default(cuid())
+  schoolName        String   @default("Nama Sekolah")
+  schoolAddress     String?
+  schoolLogo        String?  // URL to logo
+  academicYear      String   @default("2025/2026")
+  isRegistrationOpen Boolean @default(true)
+  ppdbSchedule      Json?    // Array of { id, title, date, description, icon, color }
+  
+  // Ranking Weights
+  weightRapor       Int      @default(40)
+  weightUjian       Int      @default(30)
+  weightSKUA        Int      @default(30) // Assuming SKUA is the third component if not explicit in "Nilai Tes"
+
+  // Committee Info
+  committeeName     String?  @default("Ketua Panitia")
+  committeeSignature String? // URL to signature image
+
+  // WhatsApp Gateway Settings
+  waGatewayToken     String?
+  waGatewayUrl       String?   @default("https://api.fonnte.com/send")
+  isWaEnabled        Boolean   @default(false)
+
+  updatedAt         DateTime @updatedAt
 }

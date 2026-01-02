@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { sendWhatsApp } from "@/lib/whatsapp";
 
 export async function POST(req: Request) {
     try {
@@ -12,49 +13,54 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const {
-            namaLengkap,
-            nisn,
-            gender,
-            tempatLahir,
-            tanggalLahir,
-            asalSekolah,
-            alamatLengkap,
-            kota,
-            kecamatan
-        } = body;
+        const { namaLengkap, nisn, gender, tempatLahir, tanggalLahir, asalSekolah, alamatLengkap, kota, kecamatan, jalur, telepon } = body;
 
+        // Validasi input dasar
         if (!namaLengkap || !nisn) {
-            return NextResponse.json({ message: "Nama Lengkap and NISN are required" }, { status: 400 });
+            return NextResponse.json(
+                { message: "Nama Lengkap dan NISN wajib diisi" },
+                { status: 400 }
+            );
         }
 
-        // Check duplicate NISN
+        // Cek NISN duplikat
         const existingStudent = await db.student.findUnique({
             where: { nisn },
         });
 
         if (existingStudent) {
-            return NextResponse.json({ message: "NISN has already been registered" }, { status: 409 });
+            return NextResponse.json(
+                { message: "NISN sudah terdaftar" },
+                { status: 400 }
+            );
         }
 
-        // Combine address parts
-        const fullAddress = [alamatLengkap, kecamatan, kota].filter(Boolean).join(", ");
+        // Gabungkan Alamat
+        const fullAddress = `${alamatLengkap}, ${kecamatan}, ${kota}`;
 
-        const student = await db.student.create({
+        const newStudent = await db.student.create({
             data: {
                 userId: session.user.id,
                 namaLengkap,
                 nisn,
-                gender,
+                gender: gender as string,
                 tempatLahir,
                 tanggalLahir: tanggalLahir ? new Date(tanggalLahir) : null,
                 asalSekolah,
                 alamatLengkap: fullAddress,
+                jalur: jalur || "REGULER", // Default to REGULER
                 statusVerifikasi: "PENDING",
+                telepon,
             },
         });
 
-        return NextResponse.json({ message: "Student created successfully", student }, { status: 201 });
+        // Send WhatsApp Notification
+        if (telepon) {
+            const message = `Halo ${namaLengkap}, pendaftaran Anda di PPDB Online telah berhasil. Silakan lengkapi dokumen dan nilai di dashboard. Terima kasih.`;
+            await sendWhatsApp(telepon, message);
+        }
+
+        return NextResponse.json({ message: "Student created successfully", student: newStudent }, { status: 201 });
 
     } catch (error) {
         console.error("Create student error:", error);

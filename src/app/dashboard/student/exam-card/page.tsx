@@ -58,8 +58,14 @@ export default async function ExamCardPage({
     const selectedStudent = students.find((s) => s.id === selectedStudentId) || students[0];
     const isVerified = selectedStudent.statusVerifikasi === "VERIFIED";
 
-    // Generate dummy nomor ujian if not exists (in real app, this should be from DB)
-    const nomorUjian = selectedStudent.nomorUjian || `24-01-${selectedStudent.nisn.slice(-4)}`;
+    // Use assigned nomorUjian from DB
+    const nomorUjian = selectedStudent.nomorUjian || "Belum Terbit";
+
+    // Fetch school settings
+    const settings = await db.schoolSettings.findFirst();
+    const schoolName = settings?.schoolName || "SMP Merdeka";
+    const academicYear = settings?.academicYear || "2025/2026";
+    const schoolLogo = settings?.schoolLogo;
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white">
@@ -139,13 +145,17 @@ export default async function ExamCardPage({
                                             {/* Header */}
                                             <div className="flex items-center justify-between border-b-[3px] border-double border-slate-800 pb-4 mb-6">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="size-16 flex items-center justify-center border-2 border-slate-800 rounded-full">
-                                                        <span className="material-symbols-outlined text-4xl">school</span>
+                                                    <div className="size-16 flex items-center justify-center overflow-hidden border-2 border-slate-800 rounded-full">
+                                                        {schoolLogo ? (
+                                                            <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
+                                                        ) : (
+                                                            <span className="material-symbols-outlined text-4xl">school</span>
+                                                        )}
                                                     </div>
                                                     <div>
                                                         <h3 className="font-bold text-lg uppercase leading-none">Panitia PPDB</h3>
-                                                        <h2 className="font-black text-2xl uppercase leading-tight tracking-wide">SMP Merdeka</h2>
-                                                        <p className="text-sm font-medium tracking-wider">Tahun Pelajaran 2025/2026</p>
+                                                        <h2 className="font-black text-2xl uppercase leading-tight tracking-wide">{schoolName}</h2>
+                                                        <p className="text-sm font-medium tracking-wider">Tahun Pelajaran {academicYear}</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
@@ -165,6 +175,10 @@ export default async function ExamCardPage({
                                                     <div className="flex">
                                                         <span className="w-32 font-semibold">Nomor Ujian</span>
                                                         <span className="font-bold font-mono text-lg tracking-wide">: {nomorUjian}</span>
+                                                    </div>
+                                                    <div className="flex">
+                                                        <span className="w-32 font-semibold">Password CBT</span>
+                                                        <span className="font-bold font-mono text-lg tracking-wide text-slate-900 border px-2 border-slate-900 bg-slate-200 print:bg-transparent">: {selectedStudent.passwordCbt || "Belum ada"}</span>
                                                     </div>
                                                     <div className="flex">
                                                         <span className="w-32 font-semibold">Nama Lengkap</span>
