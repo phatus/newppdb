@@ -63,9 +63,15 @@ export default async function ExamCardPage({
 
     // Fetch school settings
     const settings = await db.schoolSettings.findFirst();
-    const schoolName = settings?.schoolName || "SMP Merdeka";
+    const schoolName = settings?.schoolName || "MTsN 1 Pacitan";
     const academicYear = settings?.academicYear || "2025/2026";
     const schoolLogo = settings?.schoolLogo;
+    const committeeName = settings?.committeeName || "Ketua Panitia";
+
+    // Fetch Exam Schedule
+    const examSchedules = await db.examSchedule.findMany({
+        orderBy: { order: 'asc' }
+    });
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white">
@@ -149,25 +155,25 @@ export default async function ExamCardPage({
                                                         {schoolLogo ? (
                                                             <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
                                                         ) : (
-                                                            <span className="material-symbols-outlined text-4xl">school</span>
+                                                            <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <h3 className="font-bold text-lg uppercase leading-none">Panitia PPDB</h3>
-                                                        <h2 className="font-black text-2xl uppercase leading-tight tracking-wide">{schoolName}</h2>
+                                                        <h3 className="font-bold text-lg leading-none">Panitia PPDB</h3>
+                                                        <h2 className="font-black text-2xl leading-tight">{schoolName}</h2>
                                                         <p className="text-sm font-medium tracking-wider">Tahun Pelajaran {academicYear}</p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right">
-                                                    <div className="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 inline-block mb-1 tracking-wider uppercase print:bg-black print:text-white">
+                                                    <div className="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 inline-block mb-1 print:bg-black print:text-white">
                                                         Kartu Peserta
                                                     </div>
-                                                    <p className="text-[10px] font-mono">No. Dok: 001/PPDB/2025</p>
+                                                    <p className="text-[10px] font-mono">No. Dok: 001/PPDB/{new Date().getFullYear()}</p>
                                                 </div>
                                             </div>
 
                                             {/* Title */}
-                                            <h2 className="text-center font-bold text-xl underline underline-offset-4 mb-6 uppercase tracking-wide">KARTU PESERTA UJIAN</h2>
+                                            <h2 className="text-center font-bold text-xl underline underline-offset-4 mb-6">KARTU PESERTA UJIAN</h2>
 
                                             {/* Content */}
                                             <div className="flex gap-8">
@@ -182,7 +188,7 @@ export default async function ExamCardPage({
                                                     </div>
                                                     <div className="flex">
                                                         <span className="w-32 font-semibold">Nama Lengkap</span>
-                                                        <span className="uppercase font-bold">: {selectedStudent.namaLengkap}</span>
+                                                        <span className="font-bold">: {selectedStudent.namaLengkap}</span>
                                                     </div>
                                                     <div className="flex">
                                                         <span className="w-32 font-semibold">NISN</span>
@@ -192,10 +198,7 @@ export default async function ExamCardPage({
                                                         <span className="w-32 font-semibold">Asal Sekolah</span>
                                                         <span>: {selectedStudent.asalSekolah || "-"}</span>
                                                     </div>
-                                                    <div className="flex">
-                                                        <span className="w-32 font-semibold">Lokasi Ujian</span>
-                                                        <span className="leading-snug">: Ruang 04 (Lab Komputer)<br /> Gedung Utama, Lantai 2</span>
-                                                    </div>
+                                                    {/* Lokasi Ujian REMOVED as requested */}
                                                 </div>
                                                 <div className="w-32 h-40 border border-slate-400 bg-slate-50 flex flex-col items-center justify-center shrink-0 print:border-slate-800 overflow-hidden relative">
                                                     {selectedStudent.documents?.pasFoto ? (
@@ -220,40 +223,37 @@ export default async function ExamCardPage({
                                                 <table className="w-full text-sm border-collapse border border-slate-800">
                                                     <thead>
                                                         <tr className="bg-slate-100 print:bg-slate-200 text-left">
+                                                            <th className="border border-slate-800 p-2 text-center w-8 font-bold">No</th>
                                                             <th className="border border-slate-800 p-2 text-center w-32 font-bold">Hari/Tanggal</th>
                                                             <th className="border border-slate-800 p-2 text-center w-32 font-bold">Waktu</th>
                                                             <th className="border border-slate-800 p-2 font-bold">Mata Pelajaran</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td className="border border-slate-800 p-2 text-center font-medium">Senin, 20 Jun</td>
-                                                            <td className="border border-slate-800 p-2 text-center">08:00 - 10:00</td>
-                                                            <td className="border border-slate-800 p-2">Tes Potensi Akademik (TPA)</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td className="border border-slate-800 p-2 text-center font-medium">Senin, 20 Jun</td>
-                                                            <td className="border border-slate-800 p-2 text-center">10:30 - 12:00</td>
-                                                            <td className="border border-slate-800 p-2">Bahasa Inggris & Umum</td>
-                                                        </tr>
+                                                        {examSchedules.length > 0 ? (
+                                                            examSchedules.map((schedule, idx) => (
+                                                                <tr key={schedule.id}>
+                                                                    <td className="border border-slate-800 p-2 text-center">{idx + 1}</td>
+                                                                    <td className="border border-slate-800 p-2 text-center font-medium">{schedule.dayDate}</td>
+                                                                    <td className="border border-slate-800 p-2 text-center">{schedule.time}</td>
+                                                                    <td className="border border-slate-800 p-2">{schedule.subject}</td>
+                                                                </tr>
+                                                            ))
+                                                        ) : (
+                                                            <tr>
+                                                                <td colSpan={4} className="border border-slate-800 p-4 text-center text-slate-500 italic">
+                                                                    Jadwal belum tersedia.
+                                                                </td>
+                                                            </tr>
+                                                        )}
                                                     </tbody>
                                                 </table>
                                             </div>
 
-                                            {/* Disclaimer & Footer */}
                                             <div className="mt-8 flex justify-between items-end pt-4 border-t border-slate-300 print:border-slate-800">
                                                 <div className="text-[10px] text-slate-600 max-w-xs italic leading-tight print:text-black">
                                                     * Kartu ini adalah bukti sah mengikuti ujian seleksi.<br />
                                                     * Harap dibawa saat pelaksanaan ujian beserta alat tulis.
-                                                </div>
-                                                <div className="text-center relative">
-                                                    <p className="text-xs mb-10">
-                                                        Kota Merdeka, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />
-                                                        Ketua Panitia,
-                                                    </p>
-                                                    {/* Stamps/Signatures can go here */}
-                                                    <div className="h-0 border-b border-slate-800 w-32 mx-auto"></div>
-                                                    <p className="text-xs font-bold mt-1">Drs. H. Pendidik M.Pd</p>
                                                 </div>
                                             </div>
                                         </div>

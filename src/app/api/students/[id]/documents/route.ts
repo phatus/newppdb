@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { unlink } from "fs/promises";
+import path from "path";
 
 export async function PATCH(
     req: Request,
@@ -72,6 +74,31 @@ export async function PATCH(
             }
         } else {
             // Standard single file update
+
+            // Check for existing files to delete
+            if (student.documents) {
+                for (const key of Object.keys(updates)) {
+                    // Type assertion to access properties safely
+                    const docKey = key as keyof typeof student.documents;
+                    const oldFileUrl = student.documents[docKey];
+
+                    // Only delete if it's a string, exists, and is a local upload path
+                    if (typeof oldFileUrl === 'string' && oldFileUrl.startsWith("/uploads/")) {
+                        try {
+                            // Construct absolute path
+                            const absolutePath = path.join(process.cwd(), "public", oldFileUrl);
+                            await unlink(absolutePath);
+                            console.log(`Deleted old file: ${absolutePath}`);
+                        } catch (err: any) {
+                            // Ignore error if file doesn't exist (ENOENT), but log others
+                            if (err.code !== 'ENOENT') {
+                                console.error(`Failed to delete old file ${oldFileUrl}:`, err);
+                            }
+                        }
+                    }
+                }
+            }
+
             await db.documents.upsert({
                 where: {
                     studentId: studentId,

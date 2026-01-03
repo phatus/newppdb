@@ -23,15 +23,15 @@ export default async function GradesPage() {
 
     return (
         <div className="p-6">
-            <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="mb-6 flex flex-col items-start gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Olah Nilai Siswa</h1>
-                    <p className="text-slate-500 dark:text-slate-400">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">
                         Input nilai ujian teori, SKUA, dan nilai raport siswa yang telah terverifikasi.
                     </p>
                 </div>
-                <Link href="/admin/grades/import">
-                    <button className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-bold transition-colors shadow">
+                <Link href="/admin/grades/import" className="w-full md:w-auto">
+                    <button className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-bold transition-colors shadow">
                         <span className="material-symbols-outlined">upload_file</span>
                         Import Nilai CBT
                     </button>

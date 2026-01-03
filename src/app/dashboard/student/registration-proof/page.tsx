@@ -66,10 +66,20 @@ export default async function RegistrationProofPage({
     // Actually the button is on the card, so they exist.
 
     // Fetch school settings
-    const settings = await db.schoolSettings.findFirst();
-    const schoolName = settings?.schoolName || "SMP Merdeka";
+    // Use Raw Query to fetch settings to avoid stale Prisma Client issues
+    const settingsRaw: any[] = await db.$queryRaw`SELECT * FROM "SchoolSettings" LIMIT 1`;
+    const settings = settingsRaw[0] || {};
+    const schoolName = settings?.schoolName || "MTsN 1 Pacitan";
     const academicYear = settings?.academicYear || "2025/2026";
     const schoolLogo = settings?.schoolLogo;
+    const schoolCity = settings?.schoolCity || "Kota";
+
+    // Signature Info
+    const principalName = settings?.principalName || "Nama Kepala Sekolah";
+    const principalNip = settings?.principalNip;
+    const committeeName = settings?.committeeName || "Ketua Panitia";
+    const committeeNip = settings?.committeeNip;
+    const signatureUrl = settings?.committeeSignature;
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white">
@@ -97,7 +107,7 @@ export default async function RegistrationProofPage({
                                     Simpan dokumen ini sebagai bukti pendaftaran yang sah.
                                 </p>
                             </div>
-                            <PrintButton />
+                            <PrintButton label="Cetak Bukti" />
                         </div>
 
                         {/* The Document Container */}
@@ -111,17 +121,17 @@ export default async function RegistrationProofPage({
                                             {schoolLogo ? (
                                                 <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
                                             ) : (
-                                                <span className="material-symbols-outlined text-5xl text-slate-800 print:text-4xl">school</span>
+                                                <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
                                             )}
                                         </div>
                                         <div className="space-y-1 print:space-y-0">
-                                            <h3 className="font-bold text-lg uppercase text-slate-700 leading-none tracking-wide print:text-base">Panitia PPDB</h3>
-                                            <h2 className="font-black text-3xl uppercase leading-none tracking-tight text-slate-900 print:text-2xl">{schoolName}</h2>
+                                            <h3 className="font-bold text-lg text-slate-700 leading-none print:text-base">Panitia PPDB</h3>
+                                            <h2 className="font-black text-3xl leading-none text-slate-900 print:text-2xl">{schoolName}</h2>
                                             <p className="text-sm font-medium text-slate-600 tracking-wide print:text-xs">Tahun Pelajaran {academicYear}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
-                                        <div className="bg-slate-900 text-white text-xs font-bold px-4 py-1.5 mb-2 tracking-widest uppercase print:bg-black print:text-white print:px-3 print:py-1 print:mb-1 print:text-[10px]">
+                                        <div className="bg-slate-900 text-white text-xs font-bold px-4 py-1.5 mb-2 print:bg-black print:text-white print:px-3 print:py-1 print:mb-1 print:text-[10px]">
                                             Bukti Pendaftaran
                                         </div>
                                         <div className="text-right font-medium text-sm text-slate-600 print:text-xs">
@@ -131,7 +141,7 @@ export default async function RegistrationProofPage({
                                 </div>
 
                                 {/* Title */}
-                                <h2 className="text-center font-bold text-2xl mb-8 uppercase tracking-wide text-slate-900 print:text-xl print:mb-4">TANDA TERIMA PENDAFTARAN</h2>
+                                <h2 className="text-center font-bold text-2xl mb-8 text-slate-900 print:text-xl print:mb-4">TANDA TERIMA PENDAFTARAN</h2>
 
                                 {/* Content */}
                                 <div className="space-y-8 print:space-y-4">
@@ -143,7 +153,7 @@ export default async function RegistrationProofPage({
                                         <div className="grid grid-cols-[180px_10px_1fr] border-b border-slate-100 pb-2 print:grid-cols-[140px_10px_1fr] print:pb-1">
                                             <span className="font-bold text-slate-700">Nama Lengkap</span>
                                             <span>:</span>
-                                            <span className="font-bold uppercase text-slate-900">{selectedStudent.namaLengkap}</span>
+                                            <span className="font-bold text-slate-900">{selectedStudent.namaLengkap}</span>
                                         </div>
                                         <div className="grid grid-cols-[180px_10px_1fr] border-b border-slate-100 pb-2 print:grid-cols-[140px_10px_1fr] print:pb-1">
                                             <span className="font-bold text-slate-700">NISN</span>
@@ -175,7 +185,7 @@ export default async function RegistrationProofPage({
                                         <div className="grid grid-cols-[180px_10px_1fr] border-b border-slate-100 pb-2 print:grid-cols-[140px_10px_1fr] print:pb-1">
                                             <span className="font-bold text-slate-700">Jalur Pendaftaran</span>
                                             <span>:</span>
-                                            <span className="text-slate-900 font-bold uppercase">
+                                            <span className="text-slate-900 font-bold">
                                                 {selectedStudent.jalur === "REGULER" ? "Reguler / Zonasi" :
                                                     selectedStudent.jalur === "PRESTASI_AKADEMIK" ? "Prestasi Akademik" :
                                                         selectedStudent.jalur === "PRESTASI_NON_AKADEMIK" ? "Prestasi Non-Akademik" :
@@ -190,7 +200,7 @@ export default async function RegistrationProofPage({
                                     </div>
 
                                     <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl print:bg-slate-50 print:border-slate-300 print:p-4">
-                                        <h4 className="font-bold text-sm text-slate-900 mb-4 tracking-wide uppercase print:mb-2 text-xs">Kelengkapan Dokumen:</h4>
+                                        <h4 className="font-bold text-sm text-slate-900 mb-4 print:mb-2 text-xs">Kelengkapan Dokumen:</h4>
                                         <div className="grid grid-cols-2 gap-y-3 gap-x-8 print:gap-y-2 print:gap-x-4">
                                             <div className="flex items-center gap-3 print:gap-2">
                                                 <div className={`flex items-center justify-center size-5 rounded border ${selectedStudent.documents?.fileAkta ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-300'}`}>
@@ -243,14 +253,48 @@ export default async function RegistrationProofPage({
                                 </div>
 
                                 {/* Footer */}
-                                <div className="mt-16 flex justify-end print:mt-8">
-                                    <div className="text-center">
-                                        <p className="text-sm font-medium text-slate-700 mb-16 print:mb-12 print:text-xs">
-                                            Kota Merdeka, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />
-                                            Petugas Pendaftaran,
+                                {/* Footer */}
+                                {/* Footer Signature */}
+                                <div className="mt-16 flex justify-between items-end print:mt-12">
+                                    {/* Principal */}
+                                    <div className="text-center w-64">
+                                        <p className="text-sm font-medium text-slate-700 mb-20 print:mb-16 print:text-xs">
+                                            Mengetahui,<br />
+                                            Kepala Sekolah
                                         </p>
-                                        <div className="h-0 border-b-[1.5px] border-slate-900 w-48 mx-auto mb-2 print:w-32"></div>
-                                        <p className="text-[10px] font-mono text-slate-400">Dicetak Otomatis oleh Sistem PPDB</p>
+                                        <p className="font-bold underline underline-offset-2 text-slate-900 print:text-sm">
+                                            {principalName}
+                                        </p>
+                                        {principalNip && (
+                                            <p className="text-sm text-slate-600 print:text-xs">
+                                                NIP. {principalNip}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Committee */}
+                                    <div className="text-center w-64">
+                                        <p className="text-sm font-medium text-slate-700 mb-4 print:text-xs">
+                                            {schoolCity}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />
+                                            Ketua Panitia PPDB
+                                        </p>
+
+                                        <div className="h-16 flex items-center justify-center mb-0">
+                                            {signatureUrl ? (
+                                                <img src={signatureUrl} alt="TTD" className="h-full object-contain" />
+                                            ) : (
+                                                <div className="h-12"></div>
+                                            )}
+                                        </div>
+
+                                        <p className="font-bold underline underline-offset-2 text-slate-900 print:text-sm">
+                                            {committeeName}
+                                        </p>
+                                        {committeeNip && (
+                                            <p className="text-sm text-slate-600 print:text-xs">
+                                                NIP. {committeeNip}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </div>

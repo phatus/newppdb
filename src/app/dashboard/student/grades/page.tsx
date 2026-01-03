@@ -245,7 +245,7 @@ function GradeInputForm() {
                     <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white dark:bg-[#1c2936]">
                         {/* School Type Toggle */}
                         <div className="flex items-center gap-3">
-                            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
+                            <span className="text-xs font-bold text-slate-500 shrink-0">
                                 Jenjang Asal:
                             </span>
                             <div className="flex gap-2">
@@ -277,7 +277,7 @@ function GradeInputForm() {
                     </div>
 
                     {/* Tabs (Semesters) */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-50 dark:bg-slate-800/30 p-4 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex overflow-x-auto pb-2 md:pb-0 md:grid md:grid-cols-4 gap-2 bg-slate-50 dark:bg-slate-800/30 p-4 border-b border-slate-100 dark:border-slate-800 snap-x">
                         {semesters.map((sem) => {
                             const parts = sem.name.split(" ");
                             const classNum = parts[1] || "";
@@ -289,12 +289,12 @@ function GradeInputForm() {
                                 <button
                                     key={sem.id}
                                     onClick={() => setActiveSemesterId(sem.id)}
-                                    className={`flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all relative overflow-hidden ${isActive
+                                    className={`flex-none w-28 md:w-auto flex flex-col items-center justify-center py-3 px-2 rounded-xl border transition-all relative overflow-hidden snap-start ${isActive
                                         ? "border-primary/50 bg-white dark:bg-slate-800 shadow-sm ring-1 ring-primary/20"
                                         : "border-transparent bg-slate-100 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-800 text-slate-500"
                                         }`}
                                 >
-                                    <span className={`text-[10px] uppercase font-bold tracking-wider mb-0.5 ${isActive ? "text-primary" : "text-slate-400"}`}>
+                                    <span className={`text-[10px] font-bold mb-0.5 ${isActive ? "text-primary" : "text-slate-400"}`}>
                                         Smt {semNum}
                                     </span>
                                     <span className={`text-sm md:text-base font-black leading-tight ${isActive ? "text-slate-900 dark:text-white" : "text-slate-500"}`}>
@@ -306,7 +306,7 @@ function GradeInputForm() {
                     </div>
 
                     {/* Content */}
-                    <div className="p-6 md:p-8">
+                    <div className="p-6 md:p-8 pb-32">
                         {isSetupLoading ? (
                             <div className="flex items-center justify-center py-20">
                                 <div className="flex flex-col items-center gap-4">
@@ -338,7 +338,7 @@ function GradeInputForm() {
                                     return (
                                         <div key={category}>
                                             <div className="flex items-center gap-2 mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">
-                                                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+                                                <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                                                     {category === 'AGAMA' ? 'Mata Pelajaran Agama' : category === 'MULOK' ? 'Muatan Lokal' : 'Mata Pelajaran Umum'}
                                                 </h3>
                                             </div>
@@ -367,7 +367,7 @@ function GradeInputForm() {
                                 <span className="material-symbols-outlined text-[20px]">analytics</span>
                             </div>
                             <div>
-                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rata-rata Semester Ini</p>
+                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">Rata-rata Semester Ini</p>
                                 <p className="text-xl font-black text-slate-900 dark:text-white leading-none mt-0.5">{calculateSemesterAverage(activeSemesterId)}</p>
                             </div>
                         </div>

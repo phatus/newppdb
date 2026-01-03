@@ -239,8 +239,8 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
                                 key={sem.id}
                                 onClick={() => setActiveSemesterId(sem.id)}
                                 className={`flex flex-col items-center justify-center py-2 px-1 rounded-lg border transition-all relative overflow-hidden ${isActive
-                                        ? "border-primary/50 bg-white dark:bg-slate-800 shadow-sm"
-                                        : "border-transparent bg-slate-100 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-800 text-slate-500"
+                                    ? "border-primary/50 bg-white dark:bg-slate-800 shadow-sm"
+                                    : "border-transparent bg-slate-100 dark:bg-slate-700/50 hover:bg-white dark:hover:bg-slate-800 text-slate-500"
                                     }`}
                             >
                                 <span className={`text-[10px] uppercase font-bold tracking-wider ${isActive ? "text-primary" : "text-slate-400"}`}>
@@ -263,8 +263,8 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
                         <button
                             onClick={() => setSchoolType('SD')}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all ${schoolType === 'SD'
-                                    ? 'border-primary/50 bg-primary/5 text-primary'
-                                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                ? 'border-primary/50 bg-primary/5 text-primary'
+                                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                                 }`}
                         >
                             <span className="material-symbols-outlined text-[18px]">school</span>
@@ -275,8 +275,8 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
                         <button
                             onClick={() => setSchoolType('MI')}
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all ${schoolType === 'MI'
-                                    ? 'border-primary/50 bg-primary/5 text-primary'
-                                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                ? 'border-primary/50 bg-primary/5 text-primary'
+                                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                                 }`}
                         >
                             <span className="material-symbols-outlined text-[18px]">mosque</span>
@@ -315,7 +315,7 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
 
                                 return (
                                     <div key={category}>
-                                        <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
+                                        <h3 className="text-xs font-bold text-slate-500 mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
                                             {category === 'AGAMA' ? 'Mata Pelajaran Agama' : category === 'MULOK' ? 'Muatan Lokal' : 'Mata Pelajaran Umum'}
                                         </h3>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

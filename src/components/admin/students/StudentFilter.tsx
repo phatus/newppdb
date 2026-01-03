@@ -79,7 +79,7 @@ export default function StudentFilter() {
 
                     <div className="space-y-4">
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Jalur Pendaftaran</label>
+                            <label className="text-xs font-semibold text-slate-500">Jalur Pendaftaran</label>
                             <select
                                 value={jalur}
                                 onChange={(e) => setJalur(e.target.value)}
@@ -93,7 +93,7 @@ export default function StudentFilter() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-xs font-semibold text-slate-500 uppercase">Status Verifikasi</label>
+                            <label className="text-xs font-semibold text-slate-500">Status Verifikasi</label>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}

@@ -5,7 +5,14 @@ import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/audit";
 import { sendWhatsApp } from "@/lib/whatsapp";
 
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+
 export async function verifyStudent(studentId: string) {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+        return { success: false, error: "Unauthorized" };
+    }
     try {
         // Check if student already has number
         const student = await db.student.findUnique({
@@ -66,6 +73,10 @@ export async function verifyStudent(studentId: string) {
 }
 
 export async function rejectStudent(studentId: string, note: string) {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+        return { success: false, error: "Unauthorized" };
+    }
     try {
         await db.student.update({
             where: { id: studentId },
@@ -103,6 +114,10 @@ export async function verifyDocument(
     docKey: string,
     status: "VERIFIED" | "REJECTED" | "PENDING"
 ) {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+        return { success: false, error: "Unauthorized" };
+    }
     try {
         const student = await db.student.findUnique({
             where: { id: studentId },
@@ -145,6 +160,10 @@ export async function verifyDocument(
 }
 
 export async function updateAdmissionStatus(studentId: string, status: "LULUS" | "TIDAK_LULUS" | "PENDING") {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+        return { success: false, error: "Unauthorized" };
+    }
     try {
         // Use Raw SQL due to stale Prisma Client
         await db.$executeRawUnsafe(`

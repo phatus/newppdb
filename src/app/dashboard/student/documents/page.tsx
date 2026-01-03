@@ -203,7 +203,7 @@ export default async function DocumentUploadPage({
                                     NISN: {selectedStudent.nisn}
                                 </p>
                             </div>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${isComplete ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${isComplete ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}`}>
                                 {isComplete ? "Dokumen Lengkap" : "Dokumen Belum Lengkap"}
                             </span>
                         </div>

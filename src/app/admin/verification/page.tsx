@@ -78,7 +78,7 @@ export default async function VerificationListPage({
                                     <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
                                 </div>
                             </div>
-                            <span className={`text-[10px] font-bold px-2 py-1 rounded uppercase ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
                                 student.statusVerifikasi === 'REJECTED' ? 'bg-red-100 text-red-800' :
                                     'bg-yellow-100 text-yellow-800'
                                 }`}>

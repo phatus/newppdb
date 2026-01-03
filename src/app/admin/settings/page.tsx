@@ -1,9 +1,7 @@
 import { db } from "@/lib/db";
 import { getSettings } from "@/app/actions/settings";
-import { getUsers } from "@/app/actions/users";
 import GeneralSettings from "@/components/admin/settings/GeneralSettings";
 import AcademicSettings from "@/components/admin/settings/AcademicSettings";
-import UserManagement from "@/components/admin/settings/UserManagement";
 import ScheduleSettings from "@/components/admin/settings/ScheduleSettings";
 import RankingSettings from "@/components/admin/settings/RankingSettings";
 import CommitteeSettings from "@/components/admin/settings/CommitteeSettings";
@@ -11,9 +9,6 @@ import WASettings from "@/components/admin/settings/WASettings";
 
 export default async function SettingsPage() {
     const settings = await db.schoolSettings.findFirst();
-    const users = await db.user.findMany({
-        orderBy: { createdAt: 'desc' }
-    });
 
     return (
         <div className="p-6 lg:p-10 max-w-[1600px] mx-auto space-y-8">
@@ -77,15 +72,6 @@ export default async function SettingsPage() {
                         </h2>
                         <WASettings initialData={settings} />
                     </section>
-
-                    {/* User Management */}
-                    <section id="users" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary">group</span>
-                            Manajemen Pengguna
-                        </h2>
-                        <UserManagement initialUsers={users} />
-                    </section>
                 </div>
 
                 {/* Quick Navigation (Optional Sidebar) */}
@@ -116,10 +102,6 @@ export default async function SettingsPage() {
                             <a href="#whatsapp" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-colors">
                                 <span className="material-symbols-outlined text-[18px]">chat</span>
                                 WhatsApp Gateway
-                            </a>
-                            <a href="#users" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-colors">
-                                <span className="material-symbols-outlined text-[18px]">group</span>
-                                Manajemen Pengguna
                             </a>
                         </nav>
                     </div>

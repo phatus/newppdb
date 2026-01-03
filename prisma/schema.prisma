@@ -93,6 +93,23 @@ model Student {
   nomorUjian       String?
   telepon          String?
   passwordCbt      String?
+
+  // EMIS Data Fields
+  nik              String?            @unique
+  noKk             String?
+  namaAyah         String?
+  pekerjaanAyah    String?
+  namaIbu          String?
+  pekerjaanIbu     String?
+  penghasilanOrtu  String?
+  alamatJalan      String?
+  alamatRt         String?
+  alamatRw         String?
+  alamatDesa       String?
+  alamatKecamatan  String?
+  alamatKabupaten  String?
+  alamatProvinsi   String?
+  kodePos          String?
   
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
@@ -229,9 +246,20 @@ model SchoolSettings {
   weightUjian       Int      @default(30)
   weightSKUA        Int      @default(30) // Assuming SKUA is the third component if not explicit in "Nilai Tes"
 
+  // Quota
+  studentQuota      Int      @default(100)
+
   // Committee Info
   committeeName     String?  @default("Ketua Panitia")
+  committeeNip      String?  
   committeeSignature String? // URL to signature image
+
+  // Principal Info
+  principalName     String?  @default("Nama Kepala Sekolah")
+  principalNip      String?
+
+  // Location for Signature Date
+  schoolCity        String?  @default("Kota")
 
   // WhatsApp Gateway Settings
   waGatewayToken     String?
@@ -239,4 +267,14 @@ model SchoolSettings {
   isWaEnabled        Boolean   @default(false)
 
   updatedAt         DateTime @updatedAt
+}
+
+model ExamSchedule {
+  id        String   @id @default(cuid())
+  dayDate   String   // e.g., "Senin, 20 Juni 2025"
+  time      String   // e.g., "08:00 - 10:00"
+  subject   String   // e.g., "Matematika"
+  order     Int      @default(0)
+  
+  updatedAt DateTime @updatedAt
 }

@@ -15,16 +15,33 @@ function AddStudentForm() {
     const [formData, setFormData] = useState({
         namaLengkap: "",
         nisn: "",
+        nik: "", // New
+        noKk: "", // New
         gender: "",
         tempatLahir: "",
         tanggalLahir: "",
         asalSekolah: "",
-        alamatLengkap: "",
-        kota: "",
-        kecamatan: "",
-        jalur: "REGULER", // Default
-        catatanPenolakan: "", // New state
-        telepon: "", // New field
+
+        // Parent Data
+        namaAyah: "",
+        pekerjaanAyah: "",
+        namaIbu: "",
+        pekerjaanIbu: "",
+        penghasilanOrtu: "",
+
+        // Address Data
+        alamatJalan: "",
+        alamatRt: "",
+        alamatRw: "",
+        alamatDesa: "",
+        alamatKecamatan: "",
+        alamatKabupaten: "",
+        alamatProvinsi: "",
+        kodePos: "",
+
+        jalur: "REGULER",
+        catatanPenolakan: "",
+        telepon: "",
     });
 
     useEffect(() => {
@@ -52,16 +69,32 @@ function AddStudentForm() {
                     setFormData({
                         namaLengkap: data.namaLengkap || "",
                         nisn: data.nisn || "",
+                        nik: data.nik || "",
+                        noKk: data.noKk || "",
                         gender: data.gender || "",
                         tempatLahir: data.tempatLahir || "",
                         tanggalLahir: data.tanggalLahir ? new Date(data.tanggalLahir).toISOString().split('T')[0] : "",
                         asalSekolah: data.asalSekolah || "",
-                        alamatLengkap: loadedAlamat,
-                        kota: loadedKota,
-                        kecamatan: loadedKecamatan,
+
+                        // Parents
+                        namaAyah: data.namaAyah || "",
+                        pekerjaanAyah: data.pekerjaanAyah || "",
+                        namaIbu: data.namaIbu || "",
+                        pekerjaanIbu: data.pekerjaanIbu || "",
+                        penghasilanOrtu: data.penghasilanOrtu || "",
+
+                        // Address
+                        alamatJalan: data.alamatJalan || "",
+                        alamatRt: data.alamatRt || "",
+                        alamatRw: data.alamatRw || "",
+                        alamatDesa: data.alamatDesa || "",
+                        alamatKecamatan: data.alamatKecamatan || "",
+                        alamatKabupaten: data.alamatKabupaten || "",
+                        alamatProvinsi: data.alamatProvinsi || "",
+                        kodePos: data.kodePos || "",
 
                         jalur: data.jalur || "REGULER",
-                        catatanPenolakan: data.catatanPenolakan || "", // Load it
+                        catatanPenolakan: data.catatanPenolakan || "",
                         telepon: data.telepon || "",
                     });
                 })
@@ -99,13 +132,28 @@ function AddStudentForm() {
                 body: JSON.stringify({
                     namaLengkap: formData.namaLengkap,
                     nisn: formData.nisn,
+                    nik: formData.nik,
+                    noKk: formData.noKk,
                     gender: formData.gender,
                     tempatLahir: formData.tempatLahir,
                     tanggalLahir: formData.tanggalLahir,
                     asalSekolah: formData.asalSekolah,
-                    alamatLengkap: formData.alamatLengkap,
-                    kota: formData.kota,
-                    kecamatan: formData.kecamatan,
+
+                    namaAyah: formData.namaAyah,
+                    pekerjaanAyah: formData.pekerjaanAyah,
+                    namaIbu: formData.namaIbu,
+                    pekerjaanIbu: formData.pekerjaanIbu,
+                    penghasilanOrtu: formData.penghasilanOrtu,
+
+                    alamatJalan: formData.alamatJalan,
+                    alamatRt: formData.alamatRt,
+                    alamatRw: formData.alamatRw,
+                    alamatDesa: formData.alamatDesa,
+                    alamatKecamatan: formData.alamatKecamatan,
+                    alamatKabupaten: formData.alamatKabupaten,
+                    alamatProvinsi: formData.alamatProvinsi,
+                    kodePos: formData.kodePos,
+
                     jalur: formData.jalur,
                     telepon: formData.telepon
                 }),
@@ -342,6 +390,14 @@ function AddStudentForm() {
                                     placeholder="10 digit nomor"
                                 />
                             </div>
+                            <div className="col-span-1">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">NIK</label>
+                                <input type="number" name="nik" required value={formData.nik} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="16 digit NIK" />
+                            </div>
+                            <div className="col-span-1">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">No. KK</label>
+                                <input type="number" name="noKk" value={formData.noKk} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="16 digit KK" />
+                            </div>
 
 
                             <div className="flex flex-col gap-2">
@@ -452,6 +508,51 @@ function AddStudentForm() {
                             </div>
                         </div>
                     </div>
+                    {/* Section: Data Orang Tua */}
+                    <div className="p-6 md:p-8 space-y-8 border-t border-slate-200 dark:border-slate-700">
+                        <div className="pb-2">
+                            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <span className="material-symbols-outlined text-primary">family_restroom</span>
+                                Data Orang Tua
+                            </h3>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Ayah */}
+                            <div className="space-y-4">
+                                <h4 className="font-semibold text-slate-900 dark:text-white border-b pb-2">Data Ayah</h4>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Nama Ayah</label>
+                                    <input type="text" name="namaAyah" value={formData.namaAyah} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Lengkap Ayah" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Pekerjaan Ayah</label>
+                                    <input type="text" name="pekerjaanAyah" value={formData.pekerjaanAyah} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Pekerjaan Ayah" />
+                                </div>
+                            </div>
+                            {/* Ibu */}
+                            <div className="space-y-4">
+                                <h4 className="font-semibold text-slate-900 dark:text-white border-b pb-2">Data Ibu</h4>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Nama Ibu</label>
+                                    <input type="text" name="namaIbu" value={formData.namaIbu} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Lengkap Ibu" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Pekerjaan Ibu</label>
+                                    <input type="text" name="pekerjaanIbu" value={formData.pekerjaanIbu} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Pekerjaan Ibu" />
+                                </div>
+                            </div>
+                            <div className="col-span-1 md:col-span-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Penghasilan Orang Tua (Gabungan)</label>
+                                <select name="penghasilanOrtu" value={formData.penghasilanOrtu} onChange={handleChange} className="form-select w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3">
+                                    <option value="">Pilih Penghasilan</option>
+                                    <option value="< 1 Juta">Kurang dari 1 Juta</option>
+                                    <option value="1 - 3 Juta">1 - 3 Juta</option>
+                                    <option value="3 - 5 Juta">3 - 5 Juta</option>
+                                    <option value="> 5 Juta">Lebih dari 5 Juta</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     {/* Section 3: Data Alamat */}
                     <div className="p-6 md:p-8 space-y-8 border-t border-slate-200 dark:border-slate-700">
                         <div className="pb-2">
@@ -464,55 +565,38 @@ function AddStudentForm() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="col-span-1 md:col-span-2">
-                                <label
-                                    htmlFor="alamat_lengkap"
-                                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
-                                >
-                                    Alamat Lengkap
-                                </label>
-                                <textarea
-                                    name="alamatLengkap"
-                                    id="alamat_lengkap"
-                                    rows={3}
-                                    value={formData.alamatLengkap}
-                                    onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3 resize-none"
-                                    placeholder="Nama Jalan, No. Rumah, RT/RW"
-                                ></textarea>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Jalan / Dusun</label>
+                                <input type="text" name="alamatJalan" value={formData.alamatJalan} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Jalan / Dusun" />
                             </div>
-                            <div className="col-span-1">
-                                <label
-                                    htmlFor="kota"
-                                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
-                                >
-                                    Kabupaten / Kota
-                                </label>
-                                <input
-                                    type="text"
-                                    name="kota"
-                                    id="kota"
-                                    value={formData.kota}
-                                    onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
-                                    placeholder="Contoh: Pacitan"
-                                />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">RT</label>
+                                    <input type="text" name="alamatRt" value={formData.alamatRt} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="001" />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">RW</label>
+                                    <input type="text" name="alamatRw" value={formData.alamatRw} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="001" />
+                                </div>
                             </div>
-                            <div className="col-span-1">
-                                <label
-                                    htmlFor="kecamatan"
-                                    className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
-                                >
-                                    Kecamatan
-                                </label>
-                                <input
-                                    type="text"
-                                    name="kecamatan"
-                                    id="kecamatan"
-                                    value={formData.kecamatan}
-                                    onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
-                                    placeholder="Contoh: Arjosari"
-                                />
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Desa / Kelurahan</label>
+                                <input type="text" name="alamatDesa" value={formData.alamatDesa} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Desa" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Kecamatan</label>
+                                <input type="text" name="alamatKecamatan" value={formData.alamatKecamatan} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Kecamatan" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Kabupaten / Kota</label>
+                                <input type="text" name="alamatKabupaten" value={formData.alamatKabupaten} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Kabupaten" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Provinsi</label>
+                                <input type="text" name="alamatProvinsi" value={formData.alamatProvinsi} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Provinsi" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Kode Pos</label>
+                                <input type="text" name="kodePos" value={formData.kodePos} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Kode Pos" />
                             </div>
                             {/* Telepon */}
                             <div className="col-span-1">

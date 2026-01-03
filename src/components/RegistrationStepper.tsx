@@ -14,7 +14,7 @@ export default function RegistrationStepper({ student }: StepperProps) {
 
     // 2. Check Grade Completeness (Assuming 4 semesters required for SD/MI -> SMP)
     const gradeCount = student.grades?.semesterGrades?.length || 0;
-    const gradesComplete = gradeCount >= 4;
+    const gradesComplete = gradeCount >= 3;
 
     // 3. Determine Current Step
     // Steps: 0:Daftar, 1:Docs, 2:Grades, 3:Verification, 4:Done/Card

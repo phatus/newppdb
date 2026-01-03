@@ -60,7 +60,7 @@ export async function PUT(
         }
 
         // Combine address parts
-        const fullAddress = [body.alamatLengkap, body.kecamatan, body.kota].filter(Boolean).join(", ");
+        const fullAddress = [body.alamatJalan, "RT " + body.alamatRt, "RW " + body.alamatRw, body.alamatDesa, body.alamatKecamatan, body.alamatKabupaten].filter(Boolean).join(", ");
 
         const updatedStudent = await db.student.update({
             where: {
@@ -69,11 +69,31 @@ export async function PUT(
             data: {
                 namaLengkap: body.namaLengkap,
                 nisn: body.nisn,
+                nik: body.nik,
+                noKk: body.noKk,
                 gender: body.gender,
                 tempatLahir: body.tempatLahir,
                 tanggalLahir: body.tanggalLahir ? new Date(body.tanggalLahir) : null,
                 asalSekolah: body.asalSekolah,
+
+                // Parent Info
+                namaAyah: body.namaAyah,
+                pekerjaanAyah: body.pekerjaanAyah,
+                namaIbu: body.namaIbu,
+                pekerjaanIbu: body.pekerjaanIbu,
+                penghasilanOrtu: body.penghasilanOrtu,
+
+                // Address Info
+                alamatJalan: body.alamatJalan,
+                alamatRt: body.alamatRt,
+                alamatRw: body.alamatRw,
+                alamatDesa: body.alamatDesa,
+                alamatKecamatan: body.alamatKecamatan,
+                alamatKabupaten: body.alamatKabupaten,
+                alamatProvinsi: body.alamatProvinsi,
+                kodePos: body.kodePos,
                 alamatLengkap: fullAddress,
+
                 jalur: body.jalur || undefined, // Only update if provided
                 telepon: body.telepon,
             },

@@ -85,3 +85,59 @@ export async function updateStudentScore(studentId: string, data: {
         return { success: false, error: "Gagal update nilai" };
     }
 }
+
+export async function autoSelectStudents() {
+    try {
+        // 1. Get Quota and Settings
+        // Use Raw Query for Settings to be safe
+        const settingsRaw: any[] = await db.$queryRaw`SELECT * FROM "SchoolSettings" LIMIT 1`;
+        const settings = settingsRaw[0] || {};
+        const quota = settings.studentQuota || 100;
+
+        // 2. Get All Verified Students with Ranking Data
+        const students = await getRankingData();
+
+        if (students.length === 0) {
+            return { success: false, error: "Tidak ada data siswa terverifikasi." };
+        }
+
+        // 3. Separate Passed and Failed
+        // The list is already sorted by Final Score DESC in getRankingData
+        const passedStudents = students.slice(0, quota);
+        const failedStudents = students.slice(quota);
+
+        // 4. Update Database
+
+        // Update Passed Students
+        if (passedStudents.length > 0) {
+            await db.student.updateMany({
+                where: {
+                    id: { in: passedStudents.map((s: any) => s.id) }
+                },
+                data: { statusKelulusan: "LULUS" }
+            });
+        }
+
+        // Update Failed Students
+        if (failedStudents.length > 0) {
+            await db.student.updateMany({
+                where: {
+                    id: { in: failedStudents.map((s: any) => s.id) }
+                },
+                data: { statusKelulusan: "TIDAK_LULUS" }
+            });
+        }
+
+        revalidatePath("/admin/reports/ranking");
+        revalidatePath("/dashboard"); // For the announcement banner
+
+        return {
+            success: true,
+            message: `Seleksi otomatis selesai. Diterima: ${passedStudents.length}, Tidak Diterima: ${failedStudents.length} (Kuota: ${quota})`
+        };
+
+    } catch (error) {
+        console.error("Auto selection error:", error);
+        return { success: false, error: "Terjadi kesalahan saat seleksi otomatis." };
+    }
+}

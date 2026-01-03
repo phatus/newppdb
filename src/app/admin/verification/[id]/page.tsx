@@ -111,7 +111,7 @@ export default async function VerificationDetailPage({ params }: any) {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
                         student.statusVerifikasi === 'REJECTED' ? 'bg-red-100 text-red-800' :
                             'bg-yellow-100 text-yellow-800'
                         }`}>
@@ -158,7 +158,7 @@ export default async function VerificationDetailPage({ params }: any) {
 
                             <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
                                 <table className="w-full text-sm text-left">
-                                    <thead className="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
+                                    <thead className="text-xs text-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
                                         <tr>
                                             <th className="px-4 py-3 sticky left-0 bg-slate-50 dark:bg-slate-800 z-10 border-r border-slate-200 dark:border-slate-700">Mata Pelajaran</th>
                                             {/* Dynamic Headers */}
@@ -228,25 +228,25 @@ export default async function VerificationDetailPage({ params }: any) {
                                 </div>
                                 <dl className="grid grid-cols-1 gap-y-4">
                                     <div>
-                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">NISN</dt>
+                                        <dt className="text-xs font-medium text-slate-500">NISN</dt>
                                         <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.nisn}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Tempat, Tanggal Lahir</dt>
+                                        <dt className="text-xs font-medium text-slate-500">Tempat, Tanggal Lahir</dt>
                                         <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                                             {student.tempatLahir}, {student.tanggalLahir ? new Date(student.tanggalLahir).toLocaleDateString('id-ID') : '-'}
                                         </dd>
                                     </div>
                                     <div>
-                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Asal Sekolah</dt>
+                                        <dt className="text-xs font-medium text-slate-500">Asal Sekolah</dt>
                                         <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.asalSekolah || '-'}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Jalur Pendaftaran</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white uppercase">{student.jalur?.replace('_', ' ') || '-'}</dd>
+                                        <dt className="text-xs font-medium text-slate-500">Jalur Pendaftaran</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.jalur?.replace('_', ' ') || '-'}</dd>
                                     </div>
                                     <div>
-                                        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">Alamat</dt>
+                                        <dt className="text-xs font-medium text-slate-500">Alamat</dt>
                                         <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.alamatLengkap || '-'}</dd>
                                     </div>
                                 </dl>

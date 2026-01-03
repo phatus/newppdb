@@ -11,8 +11,17 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "PPDB SMP Merdeka",
-  description: "Sistem Penerimaan Peserta Didik Baru SMP Merdeka",
+  title: "PPDB MTsN 1 Pacitan",
+  description: "Sistem Penerimaan Peserta Didik Baru MTsN 1 Pacitan",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/uploads/school_logo_1767362065250.png",
+    apple: "/uploads/school_logo_1767362065250.png",
+  },
+};
+
+export const viewport = {
+  themeColor: "#15803d",
 };
 
 export default function RootLayout({

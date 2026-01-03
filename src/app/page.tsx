@@ -54,7 +54,7 @@ export default async function Home() {
                 {settings?.schoolLogo ? (
                   <img src={settings.schoolLogo} alt="Logo" className="w-full h-full object-contain" />
                 ) : (
-                  <span className="material-symbols-outlined text-3xl sm:text-4xl">school</span>
+                  <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
                 )}
               </div>
               <div className="flex flex-col">
@@ -107,19 +107,19 @@ export default async function Home() {
           <div
             className="rounded-2xl overflow-hidden relative min-h-[500px] flex items-center justify-center text-center p-8 sm:p-12 bg-cover bg-center"
             style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXH3T0Kc3oF0WSspypHx4F9-fPp3nLBIzVrbcpYGt386xkq6ZjuOgiqO17gprCtDErMYI9xBU-VJGNK_7otA_svZNkSMgtueQFR5xpK44z9APlm4mCmvm_9uDQHEUPzBcNu377BiSz7Y1Yg0cYs3l5ILZk8iWLFnSR0MrrBh1XhcpiUHmqlkOdP_X1HeDBLZd49CSwqOr9bknT4YFjusaUVOfibwr4o3EadKh1YrKVxccA-5G-o64RZNXc16L3H5PKKmcAJg9l6Yg')`,
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('/uploads/madrasah_bg_modern_v2.jpg')`,
             }}
           >
             <div className="relative z-10 max-w-3xl flex flex-col items-center gap-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-bold uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-bold">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                Portal Resmi PPDB {settings?.academicYear || "2024"}
+                Portal Resmi PPDB {settings?.academicYear || "2026"}
               </div>
               <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight drop-shadow-sm">
                 Masa Depan Cerah Dimulai Di Sini
               </h1>
               <p className="text-slate-200 text-base sm:text-lg font-normal leading-relaxed max-w-2xl drop-shadow-sm">
-                Selamat datang di portal Penerimaan Peserta Didik Baru {settings?.schoolName || "SMP"}. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.
+                Selamat datang di portal Penerimaan Peserta Didik Baru {settings?.schoolName || "MTs"}. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.
               </p>
               <div className="flex flex-wrap justify-center gap-4 mt-4">
                 <Link href="/auth/register">
@@ -249,7 +249,7 @@ export default async function Home() {
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Nilai Rapor</h3>
               <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                Rapor 5 semester terakhir (kelas 4, 5, dan 6 semester 1) untuk jalur prestasi nilai akademik.
+                Rapor dari kelas 5 semester 1,2 & kelas 6 semester 1.
               </p>
             </div>
             {/* Card 6 */}
@@ -270,7 +270,7 @@ export default async function Home() {
       <section className="py-12 sm:py-20 bg-white dark:bg-[#101a22]" id="alur">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-primary font-bold text-sm tracking-widest uppercase mb-2 block">
+            <span className="text-primary font-bold text-sm mb-2 block">
               Panduan Pendaftaran
             </span>
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
@@ -293,7 +293,7 @@ export default async function Home() {
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Membuat Akun</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Calon siswa membuat akun baru menggunakan NISN dan data diri dasar.
+                  Calon siswa/ Wali Murid membuat akun baru menggunakan email aktif dan password.
                 </p>
               </div>
               {/* Step 2 */}
@@ -358,7 +358,7 @@ export default async function Home() {
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Verifikasi Admin</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Admin sekolah memverifikasi kesesuaian data dan dokumen yang diunggah.
+                  Admin Madrasah memverifikasi kesesuaian data dan dokumen yang diunggah.
                 </p>
               </div>
               {/* Step 7 */}
@@ -398,7 +398,7 @@ export default async function Home() {
             Siap untuk Masa Depanmu?
           </h2>
           <p className="text-blue-100 text-lg mb-8 max-w-2xl mx-auto">
-            Jangan lewatkan kesempatan untuk bergabung dengan sekolah impianmu. Pendaftaran sudah dibuka, segera siapkan berkasmu.
+            Jangan lewatkan kesempatan untuk bergabung dengan Madrasah impianmu. Pendaftaran sudah dibuka, segera siapkan berkasmu.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/auth/register">
@@ -446,7 +446,6 @@ export default async function Home() {
               <ul className="flex flex-col gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <li><a className="hover:text-primary transition-colors" href="#">Reguler</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Afirmasi</a></li>
-                <li><a className="hover:text-primary transition-colors" href="#">Perpindahan Tugas Orang Tua</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Prestasi</a></li>
               </ul>
             </div>
@@ -455,7 +454,7 @@ export default async function Home() {
               <ul className="flex flex-col gap-3 text-sm text-slate-500 dark:text-slate-400">
                 <li className="flex items-start gap-2">
                   <span className="material-symbols-outlined text-lg shrink-0">location_on</span>
-                  <span>Jl. Samanhudi No 15 </span>
+                  <span>Jl. Samanhudi No 15 Pacitan</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-lg shrink-0">call</span>
@@ -469,7 +468,7 @@ export default async function Home() {
             </div>
           </div>
           <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-slate-400 dark:text-slate-500 text-sm">© 2024 Kementerian Agama Kabupaten Pacitan. All rights reserved.</p>
+            <p className="text-slate-400 dark:text-slate-500 text-sm">© 2026 Madrasah Tsanawiyah Negeri 1 Pacitan. All rights reserved.</p>
             <div className="flex gap-4">
               <a className="text-slate-400 hover:text-primary transition-colors" href="#">
                 <span className="sr-only">Facebook</span>

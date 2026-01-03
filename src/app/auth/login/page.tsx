@@ -141,7 +141,7 @@ function LoginForm() {
                 <p className="text-[#4c759a] dark:text-slate-400 text-sm">
                     Belum punya akun?{" "}
                     <Link
-                        href="/"
+                        href="/auth/register"
                         className="text-primary font-bold hover:underline hover:text-blue-700 transition-colors"
                     >
                         Daftar Sekarang
@@ -158,11 +158,11 @@ export default function LoginPage() {
             {/* Top Navbar */}
             <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7eef3] dark:border-b-slate-800 bg-white dark:bg-[#1A2632] px-10 py-3 shadow-sm">
                 <div className="flex items-center gap-4 text-[#0d151b] dark:text-white">
-                    <div className="size-8 flex items-center justify-center rounded bg-primary text-white">
-                        <span className="material-symbols-outlined text-xl">school</span>
+                    <div className="size-10 flex items-center justify-center rounded overflow-hidden">
+                        <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
                     </div>
                     <h2 className="text-[#0d151b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        PPDB SMP 2024
+                        PPDB MTsN 1 Pacitan
                     </h2>
                 </div>
                 <div className="flex flex-1 justify-end gap-8 hidden md:flex">
@@ -219,7 +219,7 @@ export default function LoginPage() {
             {/* Footer */}
             <footer className="w-full py-6 text-center border-t border-[#e7eef3] dark:border-slate-800 bg-white dark:bg-[#1A2632] mt-auto">
                 <p className="text-[#4c759a] dark:text-slate-500 text-sm">
-                    © 2024 Dinas Pendidikan Kabupaten Contoh. All rights reserved.
+                    © 2026 MTsN 1 Pacitan. All rights reserved.
                 </p>
             </footer>
         </div>

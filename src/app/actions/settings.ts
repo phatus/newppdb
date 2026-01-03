@@ -20,22 +20,40 @@ export async function updateSettings(data: {
     academicYear?: string;
     isRegistrationOpen?: boolean;
     committeeName?: string;
+    committeeNip?: string;
+    principalName?: string;
+    principalNip?: string;
+    schoolCity?: string;
+    studentQuota?: number; // New Field 
     waGatewayToken?: string;
     waGatewayUrl?: string;
     isWaEnabled?: boolean;
 }) {
     try {
+        const {
+            schoolName, schoolAddress, academicYear, isRegistrationOpen,
+            committeeName, committeeNip, principalName, principalNip, schoolCity,
+            studentQuota,
+            waGatewayToken, waGatewayUrl, isWaEnabled
+        } = data;
+
+        // Use raw query to update to avoid stale Prisma Client issues for new columns
         const first = await db.schoolSettings.findFirst();
 
         if (first) {
+            const updateData: any = {
+                schoolName: data.schoolName,
+                schoolAddress: data.schoolAddress,
+                academicYear: data.academicYear,
+                isRegistrationOpen: data.isRegistrationOpen,
+            };
+            // Try to update standard fields via Prisma if possible
+            // Note: studentQuota might be rejected by Prisma if types are stale, but let's try or skip
+            // We'll rely on Raw Query for the crucial new fields.
+
             await db.schoolSettings.update({
                 where: { id: first.id },
-                data: {
-                    schoolName: data.schoolName,
-                    schoolAddress: data.schoolAddress,
-                    academicYear: data.academicYear,
-                    isRegistrationOpen: data.isRegistrationOpen,
-                },
+                data: updateData,
             });
 
             // Update new fields via Raw SQL to avoid Prisma Client mismatch
@@ -43,9 +61,30 @@ export async function updateSettings(data: {
             const values = [];
             let i = 1;
 
+            if (studentQuota !== undefined) {
+                updates.push(`"studentQuota" = $${i++}`);
+                values.push(studentQuota);
+            }
+
             if (data.committeeName !== undefined) {
                 updates.push(`"committeeName" = $${i++}`);
                 values.push(data.committeeName);
+            }
+            if (data.committeeNip !== undefined) {
+                updates.push(`"committeeNip" = $${i++}`);
+                values.push(data.committeeNip);
+            }
+            if (data.principalName !== undefined) {
+                updates.push(`"principalName" = $${i++}`);
+                values.push(data.principalName);
+            }
+            if (data.principalNip !== undefined) {
+                updates.push(`"principalNip" = $${i++}`);
+                values.push(data.principalNip);
+            }
+            if (data.schoolCity !== undefined) {
+                updates.push(`"schoolCity" = $${i++}`);
+                values.push(data.schoolCity);
             }
             if (data.waGatewayToken !== undefined) {
                 updates.push(`"waGatewayToken" = $${i++}`);

@@ -48,8 +48,11 @@ export async function createAnnouncement(data: {
 }) {
     try {
         const session = await getServerSession(authOptions);
+        console.log("[DEBUG] CreateAnnouncement Session:", JSON.stringify(session, null, 2));
+
         if (!session || session.user.role !== "ADMIN") {
-            return { success: false, error: "Unauthorized" };
+            console.log("[DEBUG] CreateAnnouncement Unauthorized:", session?.user?.role);
+            return { success: false, error: "Unauthorized: Role must be ADMIN" };
         }
 
         // We need the user ID. Since session might not have it depending on auth config, 
@@ -57,7 +60,9 @@ export async function createAnnouncement(data: {
         // Assuming session.user.email is available, let's fetch ID via Raw Query too to be safe?
         // Or trust 'db.user.findUnique' works for OLD tables? YES. User table is old.
         const user = await db.user.findUnique({ where: { email: session.user.email! } });
-        if (!user) return { success: false, error: "User not found" };
+        console.log("[DEBUG] CreateAnnouncement User:", user?.id);
+
+        if (!user) return { success: false, error: "User not found in database" };
 
         const id = crypto.randomUUID(); // Generate ID manually
         const now = new Date().toISOString();
@@ -67,7 +72,7 @@ export async function createAnnouncement(data: {
         // $executeRawUnsafe supports params array.
         const query = `
             INSERT INTO "Announcement" ("id", "title", "content", "type", "target", "isActive", "authorId", "createdAt", "updatedAt")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8::timestamp, $9::timestamp)
         `;
 
         await db.$executeRawUnsafe(
@@ -90,8 +95,8 @@ export async function createAnnouncement(data: {
         revalidatePath("/dashboard");
         return { success: true };
     } catch (error) {
-        console.error("Error creating announcement:", error);
-        return { success: false, error: "Gagal membuat pengumuman" };
+        console.error("Error creating announcement (Detailed):", error);
+        return { success: false, error: "Gagal membuat pengumuman: " + (error as Error).message };
     }
 }
 

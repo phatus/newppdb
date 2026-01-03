@@ -15,12 +15,23 @@ export async function logActivity(
         if (!actorId) {
             const session = await getServerSession(authOptions);
             if (session?.user?.email) {
-                // We need ID. Since we are in Raw SQL mode mental model, let's try to get ID if needed,
-                // but for performance, we might want to store User ID in session.
-                // For now, fetch generic user.
-                const user = await db.user.findUnique({ where: { email: session.user.email } });
+                // We need ID. Use findFirst with insensitive mode to handle case differences
+                const user = await db.user.findFirst({
+                    where: {
+                        email: {
+                            equals: session.user.email,
+                            mode: 'insensitive'
+                        }
+                    }
+                });
                 actorId = user?.id;
             }
+        }
+
+        // Fallback: If still no actorId, try to find ANY admin to attribute (system action)
+        if (!actorId) {
+            const admin = await db.user.findFirst({ where: { role: "ADMIN" } });
+            actorId = admin?.id;
         }
 
         if (!actorId) {

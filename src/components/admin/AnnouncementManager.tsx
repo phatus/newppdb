@@ -86,7 +86,7 @@ export default function AnnouncementManager({ announcements }: { announcements: 
                         <div key={item.id} className={`p-4 rounded-xl border bg-white dark:bg-slate-900 shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center justify-between ${item.isActive ? 'border-slate-200 dark:border-slate-700' : 'border-slate-100 opacity-70 bg-slate-50'}`}>
                             <div className="flex-1 space-y-2">
                                 <div className="flex items-center gap-3 flex-wrap">
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border uppercase ${getTypeColor(item.type)}`}>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${getTypeColor(item.type)}`}>
                                         {item.type}
                                     </span>
                                     <span className="text-xs text-slate-500 flex items-center gap-1">

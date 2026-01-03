@@ -96,7 +96,7 @@ export default function SubjectList({ initialSubjects }: SubjectListProps) {
 
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left">
-                    <thead className="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
+                    <thead className="text-xs text-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
                         <tr>
                             <th className="px-6 py-3 w-16 text-center">Urutan</th>
                             <th className="px-6 py-3">Nama Mata Pelajaran</th>
@@ -116,8 +116,8 @@ export default function SubjectList({ initialSubjects }: SubjectListProps) {
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2 py-1 rounded text-xs font-bold ${subject.category === 'AGAMA' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
-                                            subject.category === 'MULOK' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
-                                                'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                        subject.category === 'MULOK' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' :
+                                            'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
                                         }`}>
                                         {subject.category}
                                     </span>

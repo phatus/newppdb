@@ -13,7 +13,12 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { namaLengkap, nisn, gender, tempatLahir, tanggalLahir, asalSekolah, alamatLengkap, kota, kecamatan, jalur, telepon } = body;
+        const {
+            namaLengkap, nisn, nik, noKk, gender, tempatLahir, tanggalLahir, asalSekolah,
+            namaAyah, pekerjaanAyah, namaIbu, pekerjaanIbu, penghasilanOrtu,
+            alamatJalan, alamatRt, alamatRw, alamatDesa, alamatKecamatan, alamatKabupaten, alamatProvinsi, kodePos,
+            jalur, telepon
+        } = body;
 
         // Validasi input dasar
         if (!namaLengkap || !nisn) {
@@ -35,19 +40,53 @@ export async function POST(req: Request) {
             );
         }
 
-        // Gabungkan Alamat
-        const fullAddress = `${alamatLengkap}, ${kecamatan}, ${kota}`;
+        // Cek NIK Duplikat if NIK is provided
+        if (nik) {
+            const existingNik = await db.student.findUnique({
+                where: { nik },
+            });
+            if (existingNik) {
+                return NextResponse.json(
+                    { message: "NIK sudah terdaftar" },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Gabungkan Alamat for backwards compatibility if needed, or just use specific fields
+        // We will store specific fields now. alamatLengkap can be a summary string.
+        const fullAddress = `${alamatJalan}, RT ${alamatRt}/RW ${alamatRw}, ${alamatDesa}, ${alamatKecamatan}, ${alamatKabupaten}`;
 
         const newStudent = await db.student.create({
             data: {
                 userId: session.user.id,
                 namaLengkap,
                 nisn,
+                nik,
+                noKk,
                 gender: gender as string,
                 tempatLahir,
                 tanggalLahir: tanggalLahir ? new Date(tanggalLahir) : null,
                 asalSekolah,
-                alamatLengkap: fullAddress,
+
+                // Parent Info
+                namaAyah,
+                pekerjaanAyah,
+                namaIbu,
+                pekerjaanIbu,
+                penghasilanOrtu,
+
+                // Address Info
+                alamatJalan,
+                alamatRt,
+                alamatRw,
+                alamatDesa,
+                alamatKecamatan,
+                alamatKabupaten,
+                alamatProvinsi,
+                kodePos,
+                alamatLengkap: fullAddress, // Maintain backward comp if needed
+
                 jalur: jalur || "REGULER", // Default to REGULER
                 statusVerifikasi: "PENDING",
                 telepon,

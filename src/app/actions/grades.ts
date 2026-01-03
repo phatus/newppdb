@@ -8,7 +8,12 @@ import { logActivity } from "@/lib/audit";
 export async function getGradeFormSetup() {
     try {
         const semesters = await db.semester.findMany({
-            where: { isActive: true },
+            where: {
+                isActive: true,
+                NOT: {
+                    name: { contains: "Kelas 6 Semester 2" }
+                }
+            },
             orderBy: { order: 'asc' }
         });
 

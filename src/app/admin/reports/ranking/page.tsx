@@ -2,11 +2,15 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { getRankingData } from "@/app/actions/ranking";
 import PrintButton from "@/components/admin/PrintButton";
+import AutoSelectionButton from "@/components/admin/AutoSelectionButton";
 
 export default async function RankingReportPage() {
     // Reuse existing ranking logic
     const rankedStudents = await getRankingData();
-    const settings: any = await db.schoolSettings.findFirst();
+
+    // Use Raw Query to fetch settings to avoid stale Prisma Client issues
+    const settingsRaw: any[] = await db.$queryRaw`SELECT * FROM "SchoolSettings" LIMIT 1`;
+    const settings = settingsRaw[0] || {};
 
     const dateStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
@@ -21,7 +25,10 @@ export default async function RankingReportPage() {
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                     Berita Acara Ranking
                 </h1>
-                <PrintButton />
+                <div className="flex gap-2">
+                    <AutoSelectionButton quota={settings?.studentQuota || 100} />
+                    <PrintButton />
+                </div>
             </div>
 
             {/* Printable Document */}
@@ -33,8 +40,8 @@ export default async function RankingReportPage() {
                         <img src={settings.schoolLogo} alt="Logo" className="h-24 w-24 object-contain" />
                     )}
                     <div className="flex flex-col items-center gap-1 flex-1">
-                        <h2 className="text-xl font-bold uppercase tracking-wider">Panitia Penerimaan Peserta Didik Baru</h2>
-                        <h1 className="text-2xl font-black uppercase tracking-widest">{settings?.schoolName || "SDIT Insan Kamil Karanganyar"}</h1>
+                        <h2 className="text-xl font-bold">Panitia Penerimaan Peserta Didik Baru</h2>
+                        <h1 className="text-2xl font-black">{settings?.schoolName || "SDIT Insan Kamil Karanganyar"}</h1>
                         <p className="text-sm font-serif italic">{settings?.schoolAddress || "Jl. Soekarno-Hatta, Karanganyar"}</p>
                     </div>
                 </div>
@@ -98,11 +105,11 @@ export default async function RankingReportPage() {
                 <div className="flex justify-between mt-16 px-12 break-inside-avoid">
                     <div className="text-center">
                         <p className="mb-20">Mengetahui,<br />Kepala Sekolah</p>
-                        <p className="font-bold underline">Nama Kepala Sekolah, S.Pd</p>
-                        <p>NIP. 19800101 200001 1 001</p>
+                        <p className="font-bold underline">{settings?.principalName || "Nama Kepala Sekolah"}</p>
+                        <p>NIP. {settings?.principalNip || "-"}</p>
                     </div>
                     <div className="text-center">
-                        <p className="mb-4">Ditetapkan di: Karanganyar<br />Ketua Panitia PPDB</p>
+                        <p className="mb-4">Ditetapkan di: {settings?.schoolCity || "Kota"}<br />Ketua Panitia PPDB</p>
                         {settings?.committeeSignature ? (
                             <div className="h-20 flex items-center justify-center mb-2">
                                 <img src={settings.committeeSignature} alt="Signature" className="h-full object-contain" />
@@ -110,8 +117,8 @@ export default async function RankingReportPage() {
                         ) : (
                             <div className="h-20" />
                         )}
-                        <p className="font-bold underline">{settings?.committeeName || "Nama Ketua Panitia, S.Pd"}</p>
-                        <p>NIP. -</p>
+                        <p className="font-bold underline">{settings?.committeeName || "Nama Ketua Panitia"}</p>
+                        <p>NIP. {settings?.committeeNip || "-"}</p>
                     </div>
                 </div>
 
