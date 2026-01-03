@@ -5,7 +5,7 @@ import WABlastPanel from "@/components/admin/WABlastPanel";
 
 export default async function RankingPage() {
     const students = await getRankingData();
-    const settings: any = await db.schoolSettings.findFirst();
+    const settings = await db.schoolSettings.findFirst();
 
     const wRapor = settings?.weightRapor ?? 40;
     const wUjian = settings?.weightUjian ?? 30;
@@ -20,7 +20,9 @@ export default async function RankingPage() {
                         Daftar peringkat berdasarkan kalkulasi nilai Rapor, Ujian Teori, SKUA, dan Prestasi.
                     </p>
                 </div>
-                <WABlastPanel />
+                <div className="flex flex-wrap items-center gap-3">
+                    <WABlastPanel />
+                </div>
             </div>
 
             <div className="bg-white dark:bg-[#1c2936] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { updateAdmissionStatus } from "@/app/actions/verification";
 import Swal from "sweetalert2";
+import RankingExportButton from "./RankingExportButton";
 
 export default function RankingTable({ initialData }: { initialData: any[] }) {
     const router = useRouter();
@@ -76,7 +77,8 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
 
     return (
         <div>
-            <div className="p-4 flex justify-end bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+            <div className="p-4 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <RankingExportButton data={initialData} />
                 <button
                     onClick={handleGenerate}
                     className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
@@ -92,6 +94,7 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                             <th className="p-4 w-16 text-center">#</th>
                             <th className="p-4">Nama Siswa</th>
                             <th className="p-4">Asal Sekolah</th>
+                            <th className="p-4">Jalur</th>
                             <th className="p-4 text-center">Rapor (Avg)</th>
                             <th className="p-4 text-center">Teori</th>
                             <th className="p-4 text-center">SKUA</th>
@@ -115,6 +118,17 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                                         <div className="text-xs text-slate-500">{student.nisn}</div>
                                     </td>
                                     <td className="p-4 text-slate-600 dark:text-slate-300 text-sm">{student.asalSekolah}</td>
+                                    <td className="p-4 text-sm font-medium">
+                                        <span className={`px-2 py-1 rounded text-xs ${student.jalur?.includes('PRESTASI') ? 'bg-amber-100 text-amber-800' :
+                                            student.jalur === 'AFIRMASI' ? 'bg-purple-100 text-purple-800' :
+                                                'bg-blue-100 text-blue-800'
+                                            }`}>
+                                            {student.jalur === 'PRESTASI_AKADEMIK' ? 'Prestasi Akd' :
+                                                student.jalur === 'PRESTASI_NON_AKADEMIK' ? 'Prestasi Non-Akd' :
+                                                    student.jalur === 'REGULER' ? 'Reguler' :
+                                                        student.jalur === 'AFIRMASI' ? 'Afirmasi' : student.jalur}
+                                        </span>
+                                    </td>
 
                                     <td className="p-4 text-center font-mono text-slate-700 dark:text-slate-300">
                                         {student.grades?.rataRataNilai?.toFixed(2) || "-"}

@@ -151,7 +151,7 @@ export default async function ExamCardPage({
                                             {/* Header */}
                                             <div className="flex items-center justify-between border-b-[3px] border-double border-slate-800 pb-4 mb-6">
                                                 <div className="flex items-center gap-4">
-                                                    <div className="size-16 flex items-center justify-center overflow-hidden border-2 border-slate-800 rounded-full">
+                                                    <div className="size-16 flex items-center justify-center overflow-hidden">
                                                         {schoolLogo ? (
                                                             <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
                                                         ) : (

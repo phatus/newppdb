@@ -89,7 +89,7 @@ export default async function DashboardPage() {
                                         Selamat! {student.namaLengkap} Dinyatakan LULUS
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                                        Selamat, Anda dinyatakan <strong>LULUS</strong> seleksi Penerimaan Peserta Didik Baru Tahun Pelajaran 2025/2026.
+                                        Selamat, Anda dinyatakan <strong>LULUS</strong> seleksi Penerimaan Peserta Didik Baru Tahun Pelajaran 2025/2026 pada Jalur <strong>{student.jalur.replace(/_/g, " ")}</strong>.
                                         Silakan cek menu pengumuman secara berkala untuk informasi daftar ulang.
                                     </p>
                                 </div>

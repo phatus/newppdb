@@ -90,6 +90,7 @@ export async function POST(req: Request) {
                 jalur: jalur || "REGULER", // Default to REGULER
                 statusVerifikasi: "PENDING",
                 telepon,
+                waveId: body.waveId,
             },
         });
 

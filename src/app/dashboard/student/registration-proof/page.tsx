@@ -117,7 +117,7 @@ export default async function RegistrationProofPage({
                                 {/* Header */}
                                 <div className="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-6 print:pb-2 print:mb-4">
                                     <div className="flex items-center gap-4 print:gap-3">
-                                        <div className="size-20 flex items-center justify-center overflow-hidden border-[2.5px] border-slate-800 rounded-full shrink-0 print:size-16 print:border-2">
+                                        <div className="size-20 flex items-center justify-center overflow-hidden shrink-0 print:size-16">
                                             {schoolLogo ? (
                                                 <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
                                             ) : (
@@ -255,46 +255,26 @@ export default async function RegistrationProofPage({
                                 {/* Footer */}
                                 {/* Footer */}
                                 {/* Footer Signature */}
-                                <div className="mt-16 flex justify-between items-end print:mt-12">
-                                    {/* Principal */}
-                                    <div className="text-center w-64">
-                                        <p className="text-sm font-medium text-slate-700 mb-20 print:mb-16 print:text-xs">
-                                            Mengetahui,<br />
-                                            Kepala Sekolah
+                                {/* Digital Validation Note */}
+                                {/* Digital Validation Note */}
+                                <div className="mt-12 pt-4 border-t-2 border-slate-100 print:mt-8 print:pt-2">
+                                    <div className="flex flex-col gap-1 text-left">
+                                        <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                                            Dokumen Sah
                                         </p>
-                                        <p className="font-bold underline underline-offset-2 text-slate-900 print:text-sm">
-                                            {principalName}
+                                        <p className="text-[10px] text-slate-600 leading-relaxed max-w-lg italic">
+                                            Dokumen ini adalah bukti cetakan komputer dan sah tanpa tanda tangan basah.
+                                            Keaslian dokumen dapat divalidasi oleh panitia menggunakan Nomor Registrasi yang tertera di pojok kanan atas.
                                         </p>
-                                        {principalNip && (
-                                            <p className="text-sm text-slate-600 print:text-xs">
-                                                NIP. {principalNip}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Committee */}
-                                    <div className="text-center w-64">
-                                        <p className="text-sm font-medium text-slate-700 mb-4 print:text-xs">
-                                            {schoolCity}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />
-                                            Ketua Panitia PPDB
+                                        <p className="text-[10px] text-slate-400 mt-1">
+                                            Dicetak pada: {new Date().toLocaleString("id-ID", {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
                                         </p>
-
-                                        <div className="h-16 flex items-center justify-center mb-0">
-                                            {signatureUrl ? (
-                                                <img src={signatureUrl} alt="TTD" className="h-full object-contain" />
-                                            ) : (
-                                                <div className="h-12"></div>
-                                            )}
-                                        </div>
-
-                                        <p className="font-bold underline underline-offset-2 text-slate-900 print:text-sm">
-                                            {committeeName}
-                                        </p>
-                                        {committeeNip && (
-                                            <p className="text-sm text-slate-600 print:text-xs">
-                                                NIP. {committeeNip}
-                                            </p>
-                                        )}
                                     </div>
                                 </div>
                             </div>

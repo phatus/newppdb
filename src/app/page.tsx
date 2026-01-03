@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import QuotaInfo from "@/components/public/QuotaInfo";
 
 // Helper to get icon based on title keywords or index
 const getIcon = (title: string, index: number) => {
@@ -135,6 +136,13 @@ export default async function Home() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Pengumuman Section */}
+      <section className="py-12 bg-slate-50 dark:bg-slate-900" id="pengumuman">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+          <QuotaInfo />
         </div>
       </section>
 

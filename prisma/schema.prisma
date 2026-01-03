@@ -72,6 +72,24 @@ enum JalurPendaftaran {
   REGULER
   PRESTASI_AKADEMIK
   PRESTASI_NON_AKADEMIK
+  AFIRMASI
+}
+
+model Wave {
+  id          String   @id @default(cuid())
+  name        String   // e.g. "Gelombang 1"
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(true)
+  
+  // Array of allowed jalurs for this wave stored as JSON
+  jalurAllowed Json    // ["PRESTASI_AKADEMIK", "AFIRMASI"]
+  
+  students    Student[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Student {
@@ -86,13 +104,17 @@ model Student {
   tanggalLahir     DateTime?
   asalSekolah      String?
   alamatLengkap    String?
-  jalur            JalurPendaftaran   @default(REGULER) // Added field
+  jalur            JalurPendaftaran   @default(REGULER)
   statusVerifikasi VerificationStatus @default(PENDING)
   statusKelulusan  String             @default("PENDING") // PENDING, LULUS, TIDAK_LULUS
   catatanPenolakan String?
   nomorUjian       String?
   telepon          String?
   passwordCbt      String?
+
+  // Wave Relation
+  wave             Wave?              @relation(fields: [waveId], references: [id])
+  waveId           String?
 
   // EMIS Data Fields
   nik              String?            @unique
@@ -137,6 +159,9 @@ model Documents {
 
   filePrestasi    String[] // Array for multiple files
   statusPrestasi  VerificationStatus @default(PENDING)
+  
+  fileSKTM        String?    // Added for Afirmasi
+  statusSKTM      VerificationStatus @default(PENDING)
 
   pasFoto         String?
   statusPasFoto   VerificationStatus @default(PENDING)
@@ -144,8 +169,6 @@ model Documents {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
-
-
 
 // Master Data for Dynamic Curriculum
 model Subject {
@@ -244,10 +267,13 @@ model SchoolSettings {
   // Ranking Weights
   weightRapor       Int      @default(40)
   weightUjian       Int      @default(30)
-  weightSKUA        Int      @default(30) // Assuming SKUA is the third component if not explicit in "Nilai Tes"
+  weightSKUA        Int      @default(30)
 
-  // Quota
+  // Quotas (Target Adoption)
   studentQuota      Int      @default(100)
+  quotaReguler      Int      @default(50)
+  quotaPrestasi     Int      @default(30)
+  quotaAfirmasi     Int      @default(20)
 
   // Committee Info
   committeeName     String?  @default("Ketua Panitia")

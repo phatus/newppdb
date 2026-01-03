@@ -9,7 +9,7 @@ export default async function RankingReportPage() {
     const rankedStudents = await getRankingData();
 
     // Use Raw Query to fetch settings to avoid stale Prisma Client issues
-    const settingsRaw: any[] = await db.$queryRaw`SELECT * FROM "SchoolSettings" LIMIT 1`;
+    const settingsRaw = await db.$queryRaw<import("@prisma/client").SchoolSettings[]>`SELECT * FROM "SchoolSettings" LIMIT 1`;
     const settings = settingsRaw[0] || {};
 
     const dateStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -71,6 +71,7 @@ export default async function RankingReportPage() {
                                 <th className="border border-black py-2 px-3 text-left">Nama Lengkap</th>
                                 <th className="border border-black py-2 px-3 text-left">NISN</th>
                                 <th className="border border-black py-2 px-3 text-left">Asal Sekolah</th>
+                                <th className="border border-black py-2 px-3 text-left">Jalur</th>
                                 <th className="border border-black py-2 px-2 w-20">Total Skor</th>
                                 <th className="border border-black py-2 px-2 text-center w-24">Keterangan</th>
                             </tr>
@@ -81,7 +82,7 @@ export default async function RankingReportPage() {
                                     <td colSpan={6} className="border border-black py-8 text-center italic">Tidak ada data siswa untuk ditampilkan.</td>
                                 </tr>
                             ) : (
-                                rankedStudents.map((s: any, idx: number) => (
+                                rankedStudents.map((s, idx) => (
                                     <tr key={s.id}>
                                         <td className="border border-black py-2 px-2 text-center font-bold">{idx + 1}</td>
                                         <td className="border border-black py-2 px-3">
@@ -89,6 +90,12 @@ export default async function RankingReportPage() {
                                         </td>
                                         <td className="border border-black py-2 px-3">{s.nisn}</td>
                                         <td className="border border-black py-2 px-3">{s.asalSekolah}</td>
+                                        <td className="border border-black py-2 px-3">
+                                            {s.jalur === 'PRESTASI_AKADEMIK' ? 'Prestasi Akd' :
+                                                s.jalur === 'PRESTASI_NON_AKADEMIK' ? 'Prestasi Non-Akd' :
+                                                    s.jalur === 'REGULER' ? 'Reguler' :
+                                                        s.jalur === 'AFIRMASI' ? 'Afirmasi' : s.jalur}
+                                        </td>
                                         <td className="border border-black py-2 px-2 text-center font-bold">{s.grades?.finalScore?.toFixed(2)}</td>
                                         <td className="border border-black py-2 px-2 text-center">
                                             {/* Dummy Logic: LULUS if within Top X */}

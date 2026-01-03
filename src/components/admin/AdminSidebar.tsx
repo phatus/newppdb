@@ -41,6 +41,7 @@ export default function AdminSidebar({
                 { href: "/admin/schedule", icon: "calendar_month", label: "Jadwal Ujian" },
                 { href: "/admin/grades", icon: "edit_note", label: "Olah Nilai" },
                 { href: "/admin/ranking", icon: "leaderboard", label: "Rangking" },
+                { href: "/admin/document-validation", icon: "qr_code_scanner", label: "Validasi Dokumen" },
             ]
         },
         {
@@ -57,6 +58,7 @@ export default function AdminSidebar({
                 { href: "/admin/reports", icon: "print", label: "Laporan" },
                 { href: "/admin/logs", icon: "history", label: "Audit Log" },
                 { href: "/admin/accounts", icon: "manage_accounts", label: "Manajemen Akun" },
+                { href: "/admin/settings/waves", icon: "alt_route", label: "Gelombang" },
                 { href: "/admin/settings", icon: "settings", label: "Pengaturan" },
             ]
         }

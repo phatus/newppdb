@@ -25,6 +25,9 @@ export async function updateSettings(data: {
     principalNip?: string;
     schoolCity?: string;
     studentQuota?: number; // New Field 
+    quotaReguler?: number;
+    quotaPrestasi?: number;
+    quotaAfirmasi?: number;
     waGatewayToken?: string;
     waGatewayUrl?: string;
     isWaEnabled?: boolean;
@@ -33,7 +36,7 @@ export async function updateSettings(data: {
         const {
             schoolName, schoolAddress, academicYear, isRegistrationOpen,
             committeeName, committeeNip, principalName, principalNip, schoolCity,
-            studentQuota,
+            studentQuota, quotaReguler, quotaPrestasi, quotaAfirmasi,
             waGatewayToken, waGatewayUrl, isWaEnabled
         } = data;
 
@@ -64,6 +67,18 @@ export async function updateSettings(data: {
             if (studentQuota !== undefined) {
                 updates.push(`"studentQuota" = $${i++}`);
                 values.push(studentQuota);
+            }
+            if (quotaReguler !== undefined) {
+                updates.push(`"quotaReguler" = $${i++}`);
+                values.push(quotaReguler);
+            }
+            if (quotaPrestasi !== undefined) {
+                updates.push(`"quotaPrestasi" = $${i++}`);
+                values.push(quotaPrestasi);
+            }
+            if (quotaAfirmasi !== undefined) {
+                updates.push(`"quotaAfirmasi" = $${i++}`);
+                values.push(quotaAfirmasi);
             }
 
             if (data.committeeName !== undefined) {

@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 interface DocumentUploadButtonProps {
     studentId: string;
-    documentType: "fileAkta" | "fileKK" | "fileSKL" | "fileRaport" | "pasFoto" | "filePrestasi";
+    documentType: "fileAkta" | "fileKK" | "fileSKL" | "fileRaport" | "pasFoto" | "filePrestasi" | "fileSKTM";
     label: string;
     onUploadSuccess?: () => void;
 }

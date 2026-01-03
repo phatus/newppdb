@@ -19,12 +19,9 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
         const formData = new FormData(e.currentTarget);
         const schoolName = formData.get("schoolName") as string;
         const schoolAddress = formData.get("schoolAddress") as string;
-        const studentQuota = formData.get("studentQuota") as string;
-
         const res = await updateSettings({
             schoolName,
-            schoolAddress,
-            studentQuota: parseInt(studentQuota)
+            schoolAddress
         });
 
         if (res.success) {
@@ -94,23 +91,7 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
                 </div>
             </div>
 
-            {/* Quota Section */}
-            <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                    Kuota Penerimaan Siswa
-                </label>
-                <input
-                    name="studentQuota"
-                    type="number"
-                    min="1"
-                    defaultValue={initialData?.studentQuota || 100}
-                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 transition-all font-mono"
-                    placeholder="100"
-                />
-                <p className="text-[11px] text-slate-500 mt-1">
-                    Jumlah siswa yang akan diterima secara otomatis berdasarkan ranking tertinggi.
-                </p>
-            </div>
+
 
             <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">

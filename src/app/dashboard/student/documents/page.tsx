@@ -78,7 +78,7 @@ export default async function DocumentUploadPage({
 
     // Helper to check if file already exists
     const renderUploadSection = (
-        type: "fileAkta" | "fileKK" | "fileSKL" | "fileRaport" | "pasFoto",
+        type: "fileAkta" | "fileKK" | "fileSKL" | "fileRaport" | "pasFoto" | "fileSKTM",
         title: string,
         desc: string,
         icon: string,
@@ -157,7 +157,7 @@ export default async function DocumentUploadPage({
         );
     };
 
-    const isComplete = docs.fileAkta && docs.fileKK && docs.fileSKL && docs.fileRaport && docs.pasFoto;
+    const isComplete = docs.fileAkta && docs.fileKK && docs.fileSKL && docs.fileRaport && docs.pasFoto && (selectedStudent.jalur !== "AFIRMASI" || docs.fileSKTM);
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8">
@@ -267,6 +267,14 @@ export default async function DocumentUploadPage({
                         "Nilai Raport Kelas 5 & 6",
                         "Semua Semester digabung dalam 1 file PDF.",
                         "analytics"
+                    )}
+
+                    {/* Affirmation SKTM Section */}
+                    {selectedStudent.jalur === "AFIRMASI" && renderUploadSection(
+                        "fileSKTM",
+                        "Kartu Indonesia Pintar (KIP) / PKH / KPS / SKTM",
+                        "Wajib bagi pendaftar jalur Afirmasi. Format PDF/JPG, Max 2MB.",
+                        "volunteer_activism"
                     )}
 
                     {/* Prestasi Section */}

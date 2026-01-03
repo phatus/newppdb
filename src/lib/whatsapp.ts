@@ -2,7 +2,7 @@ import { db } from "./db";
 
 export async function sendWhatsApp(target: string, message: string) {
     try {
-        const settings: any = await db.schoolSettings.findFirst();
+        const settings = await db.schoolSettings.findFirst();
 
         if (!settings?.isWaEnabled || !settings?.waGatewayToken) {
             console.log("WA Gateway is disabled or token not set.");

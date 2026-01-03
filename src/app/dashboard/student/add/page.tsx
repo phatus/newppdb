@@ -2,6 +2,8 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { getActiveWave } from "@/app/actions/waves";
+import toast from "react-hot-toast";
 
 function AddStudentForm() {
     const router = useRouter();
@@ -12,6 +14,8 @@ function AddStudentForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetching, setIsFetching] = useState(false);
     const [error, setError] = useState("");
+    const [activeWave, setActiveWave] = useState<any>(null);
+    const [waveLoading, setWaveLoading] = useState(true);
     const [formData, setFormData] = useState({
         namaLengkap: "",
         nisn: "",
@@ -107,6 +111,13 @@ function AddStudentForm() {
         }
     }, [studentId, isEditMode]);
 
+    useEffect(() => {
+        getActiveWave().then((wave) => {
+            setActiveWave(wave);
+            setWaveLoading(false);
+        });
+    }, []);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -155,7 +166,8 @@ function AddStudentForm() {
                     kodePos: formData.kodePos,
 
                     jalur: formData.jalur,
-                    telepon: formData.telepon
+                    telepon: formData.telepon,
+                    waveId: activeWave?.id // Include active wave ID
                 }),
             });
 
@@ -181,10 +193,28 @@ function AddStudentForm() {
         }
     };
 
-    if (isFetching) {
+    if (isFetching || waveLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent"></div>
+            </div>
+        );
+    }
+
+    // If no active wave and not editing, show closed message
+    if (!activeWave && !isEditMode) {
+        return (
+            <div className="p-8 max-w-2xl mx-auto text-center space-y-4">
+                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400">
+                    <span className="material-symbols-outlined text-4xl">event_busy</span>
+                </div>
+                <h2 className="text-2xl font-bold text-slate-800">Pendaftaran Ditutup</h2>
+                <p className="text-slate-600">
+                    Saat ini tidak ada gelombang pendaftaran yang aktif. Silakan hubungi panitia untuk informasi lebih lanjut.
+                </p>
+                <button onClick={() => router.push("/dashboard")} className="mt-4 px-6 py-2 bg-primary text-white rounded-lg font-bold">
+                    Kembali ke Dashboard
+                </button>
             </div>
         );
     }
@@ -288,8 +318,20 @@ function AddStudentForm() {
                                     desc: "Menggunakan sertifikat kejuaraan olahraga/seni.",
                                     icon: "emoji_events",
                                     color: "emerald"
+                                },
+                                {
+                                    id: "AFIRMASI",
+                                    label: "Afirmasi",
+                                    desc: "Untuk siswa dari keluarga kurang mampu (SKTM).",
+                                    icon: "volunteer_activism",
+                                    color: "purple"
                                 }
-                            ].map((option) => {
+                            ].filter(opt =>
+                                // If editing, allow currently selected option even if not available in active wave (so checking current status works)
+                                // But prevent selecting NEW options that are not in active wave
+                                (!activeWave?.jalurAllowed || activeWave.jalurAllowed.includes(opt.id)) ||
+                                (isEditMode && formData.jalur === opt.id)
+                            ).map((option) => {
                                 const isSelected = formData.jalur === option.id;
                                 return (
                                     <div

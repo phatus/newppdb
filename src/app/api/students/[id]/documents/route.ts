@@ -22,7 +22,7 @@ export async function PATCH(
         console.log("Documents PATCH Body:", body);
 
         // Validate body keys
-        const allowedKeys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto", "filePrestasi"];
+        const allowedKeys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto", "filePrestasi", "fileSKTM"];
         const updates: any = {};
 
         for (const key of allowedKeys) {

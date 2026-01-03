@@ -6,6 +6,7 @@ import ScheduleSettings from "@/components/admin/settings/ScheduleSettings";
 import RankingSettings from "@/components/admin/settings/RankingSettings";
 import CommitteeSettings from "@/components/admin/settings/CommitteeSettings";
 import WASettings from "@/components/admin/settings/WASettings";
+import QuotaSettings from "@/components/admin/settings/QuotaSettings";
 
 export default async function SettingsPage() {
     const settings = await db.schoolSettings.findFirst();
@@ -62,6 +63,15 @@ export default async function SettingsPage() {
                             Bobot Perangkingan
                         </h2>
                         <RankingSettings initialData={settings} />
+                    </section>
+
+                    {/* Quota Settings */}
+                    <section id="quota" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary">pie_chart</span>
+                            Kuota Penerimaan
+                        </h2>
+                        <QuotaSettings settings={settings} />
                     </section>
 
                     {/* WhatsApp Settings */}

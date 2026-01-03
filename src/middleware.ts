@@ -7,7 +7,6 @@ export default withAuth(
         const isAuth = !!token;
         const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
         const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
-        const isDashboardPage = req.nextUrl.pathname.startsWith("/dashboard");
 
         if (isAuthPage) {
             if (isAuth) {

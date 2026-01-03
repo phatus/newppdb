@@ -8,7 +8,7 @@ import { logActivity } from "@/lib/audit";
 export async function blastFinalStatus(quota: number) {
     try {
         const students = await getRankingData();
-        const settings: any = await db.schoolSettings.findFirst();
+        const settings = await db.schoolSettings.findFirst();
 
         if (!settings?.isWaEnabled) {
             return { success: false, error: "WA Gateway dinonaktifkan." };
@@ -18,7 +18,7 @@ export async function blastFinalStatus(quota: number) {
         let failCount = 0;
 
         for (let i = 0; i < students.length; i++) {
-            const student: any = students[i];
+            const student = students[i];
             const isAccepted = i < quota;
             const phone = student.telepon;
             const statusKelulusan = isAccepted ? "LULUS" : "TIDAK_LULUS";
