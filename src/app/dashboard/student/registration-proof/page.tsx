@@ -146,7 +146,7 @@ export default async function RegistrationProofPage({
                                 {/* Content */}
                                 <div className="space-y-8 print:space-y-4">
                                     <p className="text-base leading-relaxed text-slate-700 print:text-sm">
-                                        Telah terima berkas pendaftaran Peserta Didik Baru Tahun Pelajaran 2025/2026 dengan data sebagai berikut:
+                                        Telah terima berkas pendaftaran Peserta Didik Baru Tahun Pelajaran {academicYear} dengan data sebagai berikut:
                                     </p>
 
                                     <div className="space-y-4 print:space-y-2">

@@ -38,6 +38,11 @@ export default async function DashboardPage() {
     // Fetch Active Announcements
     const announcements = await getAnnouncements(false); // only active
 
+    // Fetch School Settings
+    const settings = await db.schoolSettings.findFirst();
+    const academicYear = settings?.academicYear || "2024/2025";
+
+
     const studentList = user?.students || [];
 
     // Calculate Stats
@@ -56,7 +61,7 @@ export default async function DashboardPage() {
                         Selamat Datang, <span className="text-primary">{welcomeName}</span>
                     </h2>
                     <p className="text-slate-500 dark:text-slate-400 text-sm font-normal leading-normal max-w-xl">
-                        Tahun Pelajaran 2024/2025 • Pantau status pendaftaran secara berkala.
+                        Tahun Pelajaran {academicYear} • Pantau status pendaftaran secara berkala.
                     </p>
                 </div>
                 <Link href="/dashboard/student/add">
@@ -89,7 +94,7 @@ export default async function DashboardPage() {
                                         Selamat! {student.namaLengkap} Dinyatakan LULUS
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                                        Selamat, Anda dinyatakan <strong>LULUS</strong> seleksi Penerimaan Peserta Didik Baru Tahun Pelajaran 2025/2026 pada Jalur <strong>{student.jalur.replace(/_/g, " ")}</strong>.
+                                        Selamat, Anda dinyatakan <strong>LULUS</strong> seleksi Penerimaan Peserta Didik Baru Tahun Pelajaran {academicYear} pada Jalur <strong>{student.jalur.replace(/_/g, " ")}</strong>.
                                         Silakan cek menu pengumuman secara berkala untuk informasi daftar ulang.
                                     </p>
                                 </div>
