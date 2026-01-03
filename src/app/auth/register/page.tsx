@@ -1,12 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { getSettings } from "@/app/actions/settings";
 
 export default function RegisterPage() {
     const router = useRouter();
+    const [logoUrl, setLogoUrl] = useState("/icons/icon-192x192.png");
+    const [schoolName, setSchoolName] = useState("PPDB MTsN 1 Pacitan");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,6 +17,17 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+
+    useEffect(() => {
+        getSettings().then((settings) => {
+            if (settings?.schoolLogo) {
+                setLogoUrl(settings.schoolLogo);
+            }
+            if (settings?.schoolName) {
+                setSchoolName(`PPDB ${settings.schoolName}`);
+            }
+        });
+    }, []);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,10 +71,17 @@ export default function RegisterPage() {
             <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7eef3] dark:border-b-slate-800 bg-white dark:bg-[#1A2632] px-10 py-3 shadow-sm">
                 <div className="flex items-center gap-4 text-[#0d151b] dark:text-white">
                     <div className="size-10 flex items-center justify-center rounded overflow-hidden">
-                        <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
+                        <img
+                            src={logoUrl}
+                            alt={`${schoolName} Logo`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/icons/icon-192x192.png";
+                            }}
+                        />
                     </div>
                     <h2 className="text-[#0d151b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        PPDB MTsN 1 Pacitan
+                        {schoolName}
                     </h2>
                 </div>
                 <div className="flex flex-1 justify-end gap-8 hidden md:flex">

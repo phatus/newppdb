@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
+import { getSettings } from "@/app/actions/settings";
 
 function LoginForm() {
     const router = useRouter();
@@ -29,9 +30,6 @@ function LoginForm() {
             });
 
             if (res?.error) {
-                // If the error is the default "CredentialsSignin", keep generic. 
-                // But our custom errors should come through if they are simple strings.
-                // We'll trust res.error but map "CredentialsSignin" just in case.
                 const errorMessage = res.error === "CredentialsSignin"
                     ? "Email atau password salah."
                     : res.error;
@@ -39,7 +37,6 @@ function LoginForm() {
                 setError(errorMessage);
                 setIsLoading(false);
             } else if (res?.ok) {
-                // Fetch the session to check the role
                 const sessionRes = await fetch("/api/auth/session");
                 const session = await sessionRes.json();
 
@@ -153,16 +150,37 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
+    const [logoUrl, setLogoUrl] = useState("/icons/icon-192x192.png");
+    const [schoolName, setSchoolName] = useState("PPDB MTsN 1 Pacitan");
+
+    useEffect(() => {
+        getSettings().then((settings) => {
+            if (settings?.schoolLogo) {
+                setLogoUrl(settings.schoolLogo);
+            }
+            if (settings?.schoolName) {
+                setSchoolName(`PPDB ${settings.schoolName}`);
+            }
+        });
+    }, []);
+
     return (
         <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-sans text-slate-900 dark:text-slate-100">
             {/* Top Navbar */}
             <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#e7eef3] dark:border-b-slate-800 bg-white dark:bg-[#1A2632] px-10 py-3 shadow-sm">
                 <div className="flex items-center gap-4 text-[#0d151b] dark:text-white">
                     <div className="size-10 flex items-center justify-center rounded overflow-hidden">
-                        <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
+                        <img
+                            src={logoUrl}
+                            alt={`${schoolName} Logo`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/icons/icon-192x192.png";
+                            }}
+                        />
                     </div>
                     <h2 className="text-[#0d151b] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        PPDB MTsN 1 Pacitan
+                        {schoolName}
                     </h2>
                 </div>
                 <div className="flex flex-1 justify-end gap-8 hidden md:flex">
