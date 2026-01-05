@@ -56,6 +56,7 @@ export async function verifyStudent(studentId: string) {
 
         revalidatePath(`/admin/verification/${studentId}`);
         revalidatePath("/admin/verification");
+        revalidatePath("/admin/grades");
 
         await logActivity("VERIFY_STUDENT", "STUDENT", studentId, "Student Verified");
 

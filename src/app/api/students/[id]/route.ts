@@ -20,6 +20,17 @@ export async function GET(
                 id: resolvedParams.id,
                 userId: session.user.id,
             },
+            include: {
+                grades: {
+                    include: {
+                        semesterGrades: {
+                            include: {
+                                entries: true
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         if (!student) {
