@@ -10,15 +10,23 @@ const publicSans = Public_Sans({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "PPDB MTsN 1 Pacitan",
-  description: "Sistem Penerimaan Peserta Didik Baru MTsN 1 Pacitan",
-  manifest: "/manifest.json",
-  icons: {
-    icon: "/uploads/school_logo_1767362065250.png",
-    apple: "/uploads/school_logo_1767362065250.png",
-  },
-};
+import { db } from "@/lib/db";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await db.schoolSettings.findFirst();
+  const schoolName = settings?.schoolName || "PPDB MTsN 1 Pacitan";
+  const schoolLogo = settings?.schoolLogo || "/logo_mts.png"; // Fallback to default if no logo
+
+  return {
+    title: schoolName,
+    description: `Sistem Penerimaan Peserta Didik Baru ${schoolName}`,
+    manifest: "/manifest.json",
+    icons: {
+      icon: schoolLogo,
+      apple: schoolLogo,
+    },
+  };
+}
 
 export const viewport = {
   themeColor: "#15803d",
