@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const schoolLogo = settings?.schoolLogo || "/logo_mts.png"; // Fallback to default if no logo
 
   return {
-    title: schoolName,
+    title: settings?.schoolName || "SPMB MTsN 1 Pacitan",
     description: `Sistem Penerimaan Peserta Didik Baru ${schoolName}`,
     manifest: "/manifest.json",
     icons: {

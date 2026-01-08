@@ -20,18 +20,20 @@ export default function AdminLayoutShell({
     return (
         <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-white">
             {/* Sidebar */}
-            <AdminSidebar
-                schoolName={schoolName}
-                schoolLogo={schoolLogo}
-                isCollapsed={isCollapsed}
-                isMobileOpen={isMobileOpen}
-                setIsMobileOpen={setIsMobileOpen}
-            />
+            <div className="print:hidden">
+                <AdminSidebar
+                    schoolName={schoolName}
+                    schoolLogo={schoolLogo}
+                    isCollapsed={isCollapsed}
+                    isMobileOpen={isMobileOpen}
+                    setIsMobileOpen={setIsMobileOpen}
+                />
+            </div>
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col h-full overflow-y-auto relative w-full transition-all duration-300">
                 {/* Header */}
-                <header className="w-full px-6 py-3.5 bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-700/50 sticky top-0 z-20">
+                <header className="w-full px-6 py-3.5 bg-white dark:bg-[#1e293b] border-b border-slate-200 dark:border-slate-700/50 sticky top-0 z-20 print:hidden">
                     <div className="max-w-[1240px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex items-center gap-4">
                             {/* Toggle Button */}
@@ -50,7 +52,7 @@ export default function AdminLayoutShell({
 
                             <div className="flex flex-col gap-0.5">
                                 <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight">
-                                    Overview PPDB
+                                    Overview SPMB
                                 </h2>
                                 <p className="text-slate-400 text-[10px] font-bold leading-none">
                                     {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}

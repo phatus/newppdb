@@ -126,7 +126,7 @@ export default function AdminSidebar({
                                         {schoolName}
                                     </h1>
                                     <p className="text-slate-400 text-[10px] font-bold truncate">
-                                        Administrator
+                                        SPMB Administrator
                                     </p>
                                 </div>
                             )}

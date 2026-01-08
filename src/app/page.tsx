@@ -20,7 +20,7 @@ const getIcon = (title: string, index: number) => {
 
 const getDefaultSchedule = () => [
   { id: "1", title: "Pendaftaran Online", date: "1 - 5 Juli 2024", description: "Calon peserta didik melakukan pembuatan akun dan pengisian formulir pendaftaran secara mandiri melalui laman website." },
-  { id: "2", title: "Verifikasi & Validasi Berkas", date: "2 - 6 Juli 2024", description: "Panitia PPDB sekolah melakukan verifikasi berkas yang telah diunggah oleh calon peserta didik." },
+  { id: "2", title: "Verifikasi & Validasi Berkas", date: "2 - 6 Juli 2024", description: "Panitia SPMB sekolah melakukan verifikasi berkas yang telah diunggah oleh calon peserta didik." },
   { id: "3", title: "Pengumuman Hasil Seleksi", date: "8 Juli 2024", description: "Pengumuman hasil seleksi dapat dilihat melalui akun masing-masing peserta atau di papan pengumuman sekolah." },
   { id: "4", title: "Daftar Ulang", date: "9 - 11 Juli 2024", description: "Peserta didik yang diterima wajib melakukan daftar ulang dengan membawa berkas fisik asli ke sekolah." },
 ];
@@ -60,7 +60,7 @@ export default async function Home() {
               </div>
               <div className="flex flex-col">
                 <h1 className="text-slate-900 dark:text-white text-lg sm:text-xl font-bold leading-tight tracking-tight">
-                  {settings?.schoolName || "PPDB SMP 2024"}
+                  {settings?.schoolName || "SPMB SMP 2024"}
                 </h1>
                 <span className="text-slate-500 dark:text-slate-400 text-xs font-medium hidden sm:block">
                   Kementerian Agama Kabupaten Pacitan
@@ -114,7 +114,7 @@ export default async function Home() {
             <div className="relative z-10 max-w-3xl flex flex-col items-center gap-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-white text-xs font-bold">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                Portal Resmi PPDB {settings?.academicYear || "2026"}
+                Portal Resmi SPMB {settings?.academicYear || "2026"}
               </div>
               <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight drop-shadow-sm">
                 Masa Depan Cerah Dimulai Di Sini
@@ -151,7 +151,7 @@ export default async function Home() {
         <div className="max-w-[960px] mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-4">
-              Jadwal Penting Pelaksanaan PPDB
+              Jadwal Penting Pelaksanaan SPMB
             </h2>
             <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
               Catat tanggal-tanggal penting berikut agar kamu tidak ketinggalan tahapan seleksi penerimaan peserta didik baru.
@@ -433,7 +433,7 @@ export default async function Home() {
                   <span className="material-symbols-outlined text-3xl">school</span>
                 </div>
                 <h2 className="text-slate-900 dark:text-white text-xl font-bold">
-                  PPDB MTsN 1 Pacitan 2026
+                  SPMB MTsN 1 Pacitan 2026
                 </h2>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">

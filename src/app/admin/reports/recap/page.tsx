@@ -16,6 +16,7 @@ export default async function RecapPage() {
     });
 
     const settings: any = await db.schoolSettings.findFirst();
+    const cityOnly = (settings?.schoolCity || "Karanganyar").split(',')[0].trim();
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
@@ -97,7 +98,7 @@ export default async function RecapPage() {
                 {/* Footer Signature for Print */}
                 <div className="hidden print:flex justify-end mt-12 pr-8">
                     <div className="text-center min-w-[200px]">
-                        <p className="mb-2">Karanganyar, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p className="mb-2">{cityOnly}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                         <p className="mb-2">Ketua Panitia,</p>
                         {settings?.committeeSignature ? (
                             <div className="h-16 flex items-center justify-center mb-2">
