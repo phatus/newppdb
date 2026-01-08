@@ -9,7 +9,7 @@ import { getSettings } from "@/app/actions/settings";
 export default function RegisterPage() {
     const router = useRouter();
     const [logoUrl, setLogoUrl] = useState("/icons/icon-192x192.png");
-    const [schoolName, setSchoolName] = useState("PPDB MTsN 1 Pacitan");
+    const [schoolName, setSchoolName] = useState("SPMB MTsN 1 Pacitan");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,7 +24,7 @@ export default function RegisterPage() {
                 setLogoUrl(settings.schoolLogo);
             }
             if (settings?.schoolName) {
-                setSchoolName(`PPDB ${settings.schoolName}`);
+                setSchoolName(`SPMB ${settings.schoolName}`);
             }
         });
     }, []);
@@ -126,7 +126,7 @@ export default function RegisterPage() {
                             Buat Akun Baru
                         </h2>
                         <p className="text-[#4c759a] dark:text-slate-400 text-base font-normal leading-normal pt-2">
-                            Lengkapi data untuk memulai pendaftaran PPDB.
+                            Lengkapi data untuk memulai pendaftaran SPMB.
                         </p>
                     </div>
 
