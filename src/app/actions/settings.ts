@@ -144,7 +144,7 @@ export async function updateSettings(data: {
         }
 
         revalidatePath("/admin/settings");
-        revalidatePath("/"); // Update public pages too
+        revalidatePath("/", "layout"); // Update public pages too
 
         await logActivity("UPDATE_SETTINGS", "SETTINGS", first?.id || "create", JSON.stringify(data));
 
@@ -211,7 +211,7 @@ export async function updateLogo(formData: FormData) {
         }
 
         revalidatePath("/admin/settings");
-        revalidatePath("/");
+        revalidatePath("/", "layout");
 
         return { success: true, url: logoUrl };
 
