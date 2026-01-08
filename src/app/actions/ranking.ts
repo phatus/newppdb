@@ -98,6 +98,7 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
         });
 
         revalidatePath("/admin/ranking");
+        revalidatePath("/admin/grades");
         return { success: true };
     } catch (error) {
         return { success: false, error: "Gagal update nilai" };
