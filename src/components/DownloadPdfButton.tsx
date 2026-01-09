@@ -41,9 +41,9 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
             pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
             pdf.save(`${fileName}.pdf`);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error generating PDF:", error);
-            alert("Gagal mengunduh PDF. Silakan coba lagi atau gunakan fitur Cetak biasa.");
+            alert(`Gagal mengunduh PDF: ${error.message || error}`);
         } finally {
             setLoading(false);
         }
