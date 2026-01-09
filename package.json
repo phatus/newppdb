@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:load": "artillery run load-test-config.yml",
+    "test:load:live": "artillery run load-test-live.yml"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",
@@ -42,6 +44,7 @@
     "@types/nodemailer": "^7.0.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "artillery": "^2.0.27",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "jest": "^30.2.0",

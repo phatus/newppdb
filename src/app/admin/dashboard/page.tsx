@@ -4,26 +4,25 @@ import { getDashboardAnalytics } from "@/app/actions/analytics";
 import DashboardCharts from "@/components/admin/DashboardCharts";
 
 export default async function AdminDashboardPage() {
-    // 1. Fetch Statistics
-    const totalStudents = await db.student.count();
-    const pendingCount = await db.student.count({
-        where: { statusVerifikasi: "PENDING" },
-    });
-    const verifiedCount = await db.student.count({
-        where: { statusVerifikasi: "VERIFIED" },
-    });
-    const rejectedCount = await db.student.count({
-        where: { statusVerifikasi: "REJECTED" },
-    });
-
-    // 2. Fetch Recent Activity
-    const recentStudents = await db.student.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-    });
-
-    // 3. Fetch Advanced Analytics
-    const analyticsData = await getDashboardAnalytics();
+    // 1. Fetch Key Metrics in Parallel
+    const [
+        totalStudents,
+        pendingCount,
+        verifiedCount,
+        rejectedCount,
+        recentStudents,
+        analyticsData
+    ] = await Promise.all([
+        db.student.count(),
+        db.student.count({ where: { statusVerifikasi: "PENDING" } }),
+        db.student.count({ where: { statusVerifikasi: "VERIFIED" } }),
+        db.student.count({ where: { statusVerifikasi: "REJECTED" } }),
+        db.student.findMany({
+            take: 5,
+            orderBy: { createdAt: "desc" },
+        }),
+        getDashboardAnalytics()
+    ]);
 
     // Helper for time formatting (simple relative time)
     const timeAgo = (date: Date) => {

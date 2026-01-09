@@ -5,14 +5,15 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import QuotaInfo from "@/components/public/QuotaInfo";
+import { getSchoolSettings } from "@/lib/cached-data";
 
 // Helper to get icon based on title keywords or index
 const getIcon = (title: string, index: number) => {
   const t = title.toLowerCase();
-  if (t.includes('daftar') || t.includes('regis')) return 'app_registration';
+  if (t.includes('daftar')) return 'app_registration';
   if (t.includes('verifikasi') || t.includes('validasi')) return 'fact_check';
   if (t.includes('pengumuman') || t.includes('hasil')) return 'campaign';
-  if (t.includes('ulang') || t.includes('masuk')) return 'school';
+  if (t.includes('ulang')) return 'school';
 
   const icons = ['event', 'schedule', 'today', 'calendar_month'];
   return icons[index % icons.length];
@@ -36,7 +37,7 @@ export default async function Home() {
     }
   }
 
-  const settings = await db.schoolSettings.findFirst();
+  const settings = await getSchoolSettings();
   // Safe cast or parsing
   const rawSchedule = settings?.ppdbSchedule;
   const schedule = (Array.isArray(rawSchedule) && rawSchedule.length > 0)

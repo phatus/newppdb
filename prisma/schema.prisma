@@ -138,6 +138,9 @@ model Student {
   
   documents        Documents?
   grades           Grades?
+
+  @@index([statusVerifikasi])
+  @@index([createdAt])
 }
 
 model Documents {
