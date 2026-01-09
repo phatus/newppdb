@@ -10,7 +10,9 @@ interface GradeInputModalProps {
     isOpen: boolean;
     onClose: () => void;
     initialData?: any;
+    isVerified?: boolean;
 }
+
 
 // Helper types for local state
 type Subject = {
@@ -28,7 +30,7 @@ type Semester = {
 
 type GradeState = Record<string, Record<string, number>>; // semesterId -> (subjectId -> score)
 
-export default function GradeInputModal({ studentId, isOpen, onClose, initialData }: GradeInputModalProps) {
+export default function GradeInputModal({ studentId, isOpen, onClose, initialData, isVerified = false }: GradeInputModalProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [isSetupLoading, setIsSetupLoading] = useState(true);
@@ -214,7 +216,14 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 dark:text-white">Input Nilai Raport</h2>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Masukkan nilai sesuai mata pelajaran yang aktif
+                            {isVerified ? (
+                                <span className="text-amber-600 font-bold flex items-center gap-1">
+                                    <span className="material-symbols-outlined text-[16px]">lock</span>
+                                    Nilai terkunci karena sudah diverifikasi
+                                </span>
+                            ) : (
+                                "Masukkan nilai sesuai mata pelajaran yang aktif"
+                            )}
                         </p>
                     </div>
                     <button
@@ -326,6 +335,7 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
                                                     label={sub.name}
                                                     value={getGradeValue(sub.id)}
                                                     onChange={(val) => handleInputChange(sub.id, val)}
+                                                    disabled={isVerified}
                                                 />
                                             ))}
                                         </div>
@@ -352,7 +362,7 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
                         </button>
                         <button
                             onClick={handleSave}
-                            disabled={loading || isSetupLoading}
+                            disabled={loading || isSetupLoading || isVerified}
                             className="px-6 py-2 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors shadow-lg shadow-primary/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 flex-1 sm:flex-none"
                         >
                             {loading ? (
@@ -369,7 +379,7 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
     );
 }
 
-function InputGroup({ id, label, value, onChange }: { id?: string, label: string, value: any, onChange: (val: string) => void }) {
+function InputGroup({ id, label, value, onChange, disabled }: { id?: string, label: string, value: any, onChange: (val: string) => void, disabled?: boolean }) {
     return (
         <div>
             <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5 truncate" title={label}>
@@ -383,7 +393,8 @@ function InputGroup({ id, label, value, onChange }: { id?: string, label: string
                 max="100"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400"
+                className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-slate-400 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-900"
+                disabled={disabled}
             />
         </div>
     );

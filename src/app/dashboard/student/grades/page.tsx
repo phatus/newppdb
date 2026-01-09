@@ -49,6 +49,7 @@ function GradeInputForm() {
     // UI State
     const [activeSemesterId, setActiveSemesterId] = useState<string>("");
     const [schoolType, setSchoolType] = useState<'SD' | 'MI'>('SD');
+    const [isVerified, setIsVerified] = useState(false);
 
     // Data State
     const [grades, setGrades] = useState<GradeState>({});
@@ -65,6 +66,13 @@ function GradeInputForm() {
                 ]);
 
                 const { semesters: semList, subjects: subList } = setupData;
+
+                // Check verification
+                if (studentRes.statusVerifikasi === 'VERIFIED') {
+                    setIsVerified(true);
+                    toast("Nilai terkunci karena sudah diverifikasi", { icon: "🔒" });
+                }
+
                 setSemesters(semList);
                 setSubjects(subList);
 
@@ -236,6 +244,7 @@ function GradeInputForm() {
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">
                         Lengkapi nilai raport dari Kelas 4 Semester 1 hingga Kelas 6 Semester 1.
+                        {isVerified && <span className="block mt-2 font-bold text-amber-600">🔒 Nilai telah diverifikasi dan tidak dapat diubah.</span>}
                     </p>
                 </div>
 
@@ -350,6 +359,7 @@ function GradeInputForm() {
                                                         label={sub.name}
                                                         value={getGradeValue(sub.id)}
                                                         onChange={(val) => handleInputChange(sub.id, val)}
+                                                        disabled={isVerified}
                                                     />
                                                 ))}
                                             </div>
@@ -382,7 +392,7 @@ function GradeInputForm() {
                             </Link>
                             <button
                                 onClick={handleSave}
-                                disabled={loading || isSetupLoading}
+                                disabled={loading || isSetupLoading || isVerified}
                                 className="w-full md:w-auto flex-1 md:flex-none px-8 py-3 text-sm font-bold text-white bg-primary hover:bg-blue-600 rounded-xl transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                             >
                                 {loading ? (
@@ -400,7 +410,7 @@ function GradeInputForm() {
     );
 }
 
-function InputGroup({ id, label, value, onChange }: { id?: string, label: string, value: any, onChange: (val: string) => void }) {
+function InputGroup({ id, label, value, onChange, disabled }: { id?: string, label: string, value: any, onChange: (val: string) => void, disabled?: boolean }) {
     return (
         <div className="group">
             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 mb-2 truncate group-focus-within:text-primary transition-colors" title={label}>
@@ -415,7 +425,8 @@ function InputGroup({ id, label, value, onChange }: { id?: string, label: string
                     max="100"
                     value={value}
                     onChange={(e) => onChange(e.target.value)}
-                    className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-lg focus:border-primary focus:ring-0 outline-none transition-all placeholder:text-slate-300"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold text-lg focus:border-primary focus:ring-0 outline-none transition-all placeholder:text-slate-300 disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-slate-900"
+                    disabled={disabled}
                 />
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-xs font-bold">
                     /100

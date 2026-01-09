@@ -35,6 +35,16 @@ export async function saveSemesterGrades(studentId: string, payload: {
     entries: { subjectId: string; score: number }[];
 }) {
     try {
+        // 0. Check Verification Status
+        const student = await db.student.findUnique({
+            where: { id: studentId },
+            select: { statusVerifikasi: true }
+        });
+
+        if (student?.statusVerifikasi === 'VERIFIED') {
+            return { success: false, error: "Nilai tidak dapat diubah karena data sudah diverifikasi." };
+        }
+
         // 1. Get or Create parent Grade record
         const gradeRecord = await db.grades.upsert({
             where: { studentId },
@@ -106,6 +116,16 @@ export async function saveAllSemesterGrades(studentId: string, payload: {
     entries: { subjectId: string; score: number }[];
 }[]) {
     try {
+        // 0. Check Verification Status
+        const student = await db.student.findUnique({
+            where: { id: studentId },
+            select: { statusVerifikasi: true }
+        });
+
+        if (student?.statusVerifikasi === 'VERIFIED') {
+            return { success: false, error: "Nilai tidak dapat diubah karena data sudah diverifikasi." };
+        }
+
         const gradeRecord = await db.grades.upsert({
             where: { studentId },
             create: { studentId },
