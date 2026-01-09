@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import StudentSelector from "@/components/StudentSelector";
 import PrintButton from "@/components/PrintButton";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface Student {
     id: string;
@@ -141,13 +142,20 @@ export default async function ExamCardPage({
                                                 Gunakan kertas A4 untuk mencetak kartu ini.
                                             </p>
                                         </div>
-                                        <PrintButton />
+                                        <div className="flex gap-2">
+                                            <PrintButton />
+                                            <DownloadPdfButton
+                                                targetId="printable-area"
+                                                fileName={`Kartu_Ujian_${selectedStudent.nisn}`}
+                                                label="Download PDF"
+                                            />
+                                        </div>
                                     </div>
 
                                     {/* The Card Container */}
                                     <div className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl overflow-x-auto print:bg-white print:border-none print:p-0 print:overflow-visible">
                                         {/* The Card Itself */}
-                                        <div className="bg-white text-slate-900 w-full min-w-[620px] max-w-[700px] border-2 border-slate-800 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-2">
+                                        <div id="printable-area" className="bg-white text-slate-900 w-full min-w-[620px] max-w-[700px] border-2 border-slate-800 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-2">
                                             {/* Header */}
                                             <div className="flex items-center justify-between border-b-[3px] border-double border-slate-800 pb-4 mb-6">
                                                 <div className="flex items-center gap-4">
@@ -159,7 +167,7 @@ export default async function ExamCardPage({
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <h3 className="font-bold text-lg leading-none">Panitia PPDB</h3>
+                                                        <h3 className="font-bold text-lg leading-none">Panitia SPMB</h3>
                                                         <h2 className="font-black text-2xl leading-tight">{schoolName}</h2>
                                                         <p className="text-sm font-medium tracking-wider">Tahun Pelajaran {academicYear}</p>
                                                     </div>
@@ -168,7 +176,7 @@ export default async function ExamCardPage({
                                                     <div className="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 inline-block mb-1 print:bg-black print:text-white">
                                                         Kartu Peserta
                                                     </div>
-                                                    <p className="text-[10px] font-mono">No. Dok: 001/PPDB/{new Date().getFullYear()}</p>
+                                                    <p className="text-[10px] font-mono">No. Dok: 001/SPMB/{new Date().getFullYear()}</p>
                                                 </div>
                                             </div>
 

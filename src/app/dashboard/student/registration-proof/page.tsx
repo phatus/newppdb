@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import PrintButton from "@/components/PrintButton";
+import DownloadPdfButton from "@/components/DownloadPdfButton";
 
 interface Student {
     id: string;
@@ -107,13 +108,20 @@ export default async function RegistrationProofPage({
                                     Simpan dokumen ini sebagai bukti pendaftaran yang sah.
                                 </p>
                             </div>
-                            <PrintButton label="Cetak Bukti" />
+                            <div className="flex gap-2">
+                                <PrintButton label="Cetak / PDF" />
+                                <DownloadPdfButton
+                                    targetId="printable-area"
+                                    fileName={`Bukti_Pendaftaran_${selectedStudent.nisn}`}
+                                    label="Download PDF"
+                                />
+                            </div>
                         </div>
 
                         {/* The Document Container */}
                         <div className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl overflow-x-auto print:bg-white print:border-none print:p-0 print:overflow-visible">
                             {/* The Document Itself */}
-                            <div className="bg-white text-slate-900 w-full md:w-[210mm] min-h-[297mm] border border-slate-300 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-none font-sans print:min-h-0 print:h-auto print:p-6 print:text-sm">
+                            <div id="printable-area" className="bg-white text-slate-900 w-full md:w-[210mm] min-h-[297mm] border border-slate-300 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-none font-sans print:min-h-0 print:h-auto print:p-6 print:text-sm">
                                 {/* Header */}
                                 <div className="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-6 print:pb-2 print:mb-4">
                                     <div className="flex items-center gap-4 print:gap-3">
@@ -125,7 +133,7 @@ export default async function RegistrationProofPage({
                                             )}
                                         </div>
                                         <div className="space-y-1 print:space-y-0">
-                                            <h3 className="font-bold text-lg text-slate-700 leading-none print:text-base">Panitia PPDB</h3>
+                                            <h3 className="font-bold text-lg text-slate-700 leading-none print:text-base">Panitia SPMB</h3>
                                             <h2 className="font-black text-3xl leading-none text-slate-900 print:text-2xl">{schoolName}</h2>
                                             <p className="text-sm font-medium text-slate-600 tracking-wide print:text-xs">Tahun Pelajaran {academicYear}</p>
                                         </div>
