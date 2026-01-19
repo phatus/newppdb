@@ -135,7 +135,7 @@ export async function autoSelectStudents() {
 
         // Quotas
         const quotaReguler = settings.quotaReguler || 50;
-        const quotaPrestasi = settings.quotaPrestasi || 30;
+        const quotaPrestasi = (settings.quotaPrestasiAkademik || 15) + (settings.quotaPrestasiNonAkademik || 15);
         const quotaAfirmasi = settings.quotaAfirmasi || 20;
 
         // 2. Get All Verified Students with Ranking Data
