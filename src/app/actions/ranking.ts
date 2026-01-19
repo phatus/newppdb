@@ -29,46 +29,56 @@ export async function getRankingData(): Promise<RankedStudent[]> {
         // 2. Fetch Settings for Weights
         const settings = await db.schoolSettings.findFirst();
 
-        // Default weights if not set
-        const wRapor = (settings?.weightRapor ?? 40) / 100;
-        const wUjian = (settings?.weightUjian ?? 30) / 100;
-        const wSKUA = (settings?.weightSKUA ?? 30) / 100;
+        // Default global weights if not set
+        const globalWRapor = (settings?.weightRapor ?? 40) / 100;
+        const globalWUjian = (settings?.weightUjian ?? 30) / 100;
+        const globalWSKUA = (settings?.weightSKUA ?? 30) / 100;
 
         // 3. Process Scores
         const rankedStudents: RankedStudent[] = students.map((student) => {
             const grades = student.grades;
 
-            // Base Scores - Explicitly force 0 based on path logic to be absolutely sure
-            const avgReport = (student.jalur === "REGULER" || student.jalur === "AFIRMASI" || student.jalur === "PRESTASI_NON_AKADEMIK") ? 0 : (grades?.rataRataNilai || 0);
+            // Determine Weights (Path-Specific or Global Fallback)
+            const pathWeights = settings?.pathWeights as Record<string, any> || {};
+            const specificWeights = pathWeights[student.jalur];
+
+            // Normalize weights to 0-1 range
+            const wRapor = (specificWeights?.rapor ?? settings?.weightRapor ?? 40) / 100;
+            const wUjian = (specificWeights?.ujian ?? settings?.weightUjian ?? 30) / 100;
+            const wSKUA = (specificWeights?.skua ?? settings?.weightSKUA ?? 30) / 100;
+            const wPrestasi = (specificWeights?.prestasi ?? 0) / 100; // Legacy global weight for bonus doesn't exist, legacy adds raw score
+
+            const avgReport = grades?.rataRataNilai || 0;
             const theory = grades?.nilaiUjianTeori || 0;
             const skua = grades?.nilaiUjianSKUA || 0;
-            const achievement = (student.jalur === "REGULER" || student.jalur === "AFIRMASI") ? 0 : (grades?.nilaiPrestasi || 0);
+            const achievement = grades?.nilaiPrestasi || 0;
 
-            // FORMULA BASED ON JALUR:
             let finalScore = 0;
 
-            switch (student.jalur) {
-                case "PRESTASI_AKADEMIK":
-                    // Raport + Teori + SKUA + Prestasi
-                    finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
-                    break;
-                case "PRESTASI_NON_AKADEMIK":
-                    // SKUA + Prestasi (No Rapor, No Teori)
-                    finalScore = (skua * wSKUA) + achievement;
-                    break;
-                case "REGULER":
-                    // Teori + SKUA (No Rapor)
-                    finalScore = (theory * wUjian) + (skua * wSKUA);
-                    break;
-                case "AFIRMASI":
-                    // Teori + SKUA (No Rapor)
-                    finalScore = (theory * wUjian) + (skua * wSKUA);
-                    break;
-                default:
-                    // Default fallback
-                    finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+            if (specificWeights) {
+                // New Configurable Mode: Weighted Sum
+                // IMPORTANT: In this mode, "Prestasi" is treated as a weighted component (0-100 score), not raw bonus points.
+                finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + (achievement * wPrestasi);
+            } else {
+                // Legacy Mode (Fixed Logic)
+                switch (student.jalur) {
+                    case "PRESTASI_AKADEMIK":
+                        // Raport + Teori + SKUA + Raw Prestasi Bonus
+                        finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+                        break;
+                    case "PRESTASI_NON_AKADEMIK":
+                        // SKUA + Raw Prestasi Bonus (No Rapor, No Teori)
+                        finalScore = (skua * wSKUA) + achievement;
+                        break;
+                    case "REGULER":
+                    case "AFIRMASI":
+                        // Teori + SKUA (Explicitly ignore others)
+                        finalScore = (theory * wUjian) + (skua * wSKUA);
+                        break;
+                    default:
+                        finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+                }
             }
-
             finalScore = parseFloat(finalScore.toFixed(2));
 
             return {

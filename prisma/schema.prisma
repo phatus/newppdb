@@ -272,6 +272,9 @@ model SchoolSettings {
   weightRapor       Int      @default(40)
   weightUjian       Int      @default(30)
   weightSKUA        Int      @default(30)
+  
+  // Path Specific Weights (Stored as JSON: { "REGULER": { RAPOR: 0, UJIAN: 50, SKUA: 50, PRESTASI: 0 }, ... })
+  pathWeights       Json?
 
   // Quotas (Target Adoption)
   studentQuota      Int      @default(100)

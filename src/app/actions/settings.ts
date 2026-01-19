@@ -34,6 +34,7 @@ export async function updateSettings(data: {
     isWaEnabled?: boolean;
     heroTitle?: string;
     heroDescription?: string;
+    pathWeights?: any;
 }) {
     try {
         const {
@@ -41,7 +42,7 @@ export async function updateSettings(data: {
             committeeName, committeeNip, principalName, principalNip, schoolCity,
             studentQuota, quotaReguler, quotaPrestasiAkademik, quotaPrestasiNonAkademik, quotaAfirmasi,
             waGatewayToken, waGatewayUrl, isWaEnabled,
-            heroTitle, heroDescription
+            heroTitle, heroDescription, pathWeights
         } = data;
 
         // Use raw query to update to avoid stale Prisma Client issues for new columns
@@ -125,6 +126,10 @@ export async function updateSettings(data: {
             if (data.heroDescription !== undefined) {
                 updates.push(`"heroDescription" = $${i++}`);
                 values.push(data.heroDescription);
+            }
+            if (data.pathWeights !== undefined) {
+                updates.push(`"pathWeights" = $${i++}::jsonb`);
+                values.push(JSON.stringify(data.pathWeights));
             }
 
             if (updates.length > 0) {
