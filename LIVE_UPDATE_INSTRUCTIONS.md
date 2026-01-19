@@ -16,7 +16,12 @@ Silakan jalankan perintah berikut secara berurutan di terminal server (aaPanel /
     npm install
     ```
 
-3.  **Build Ulang Aplikasi**
+3.  **Update Database Schema** (Wajib dilakukan karena ada perubahan kolom kuota)
+    ```bash
+    npx prisma db push
+    ```
+
+4.  **Build Ulang Aplikasi**
     ```bash
     npm run build
     ```
