@@ -131,7 +131,9 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                                     </td>
 
                                     <td className="p-4 text-center font-mono text-slate-700 dark:text-slate-300">
-                                        {student.grades?.rataRataNilai?.toFixed(2) || "-"}
+                                        {(student.jalur === "REGULER" || student.jalur === "AFIRMASI" || student.jalur === "PRESTASI_NON_AKADEMIK")
+                                            ? "-"
+                                            : (student.grades?.rataRataNilai?.toFixed(2) || "-")}
                                     </td>
 
                                     {/* Input / Display Columns */}
@@ -166,7 +168,11 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                                         <>
                                             <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianTeori || 0}</td>
                                             <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianSKUA || 0}</td>
-                                            <td className="p-4 text-center text-slate-600 dark:text-slate-400">+{student.grades?.nilaiPrestasi || 0}</td>
+                                            <td className="p-4 text-center text-slate-600 dark:text-slate-400">
+                                                {(student.jalur === "REGULER" || student.jalur === "AFIRMASI")
+                                                    ? "-"
+                                                    : `+${student.grades?.nilaiPrestasi || 0}`}
+                                            </td>
                                         </>
                                     )}
 

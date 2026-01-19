@@ -38,11 +38,11 @@ export async function getRankingData(): Promise<RankedStudent[]> {
         const rankedStudents: RankedStudent[] = students.map((student) => {
             const grades = student.grades;
 
-            // Base Scores
-            const avgReport = grades?.rataRataNilai || 0;
+            // Base Scores - Explicitly force 0 based on path logic to be absolutely sure
+            const avgReport = (student.jalur === "REGULER" || student.jalur === "AFIRMASI" || student.jalur === "PRESTASI_NON_AKADEMIK") ? 0 : (grades?.rataRataNilai || 0);
             const theory = grades?.nilaiUjianTeori || 0;
             const skua = grades?.nilaiUjianSKUA || 0;
-            const achievement = grades?.nilaiPrestasi || 0;
+            const achievement = (student.jalur === "REGULER" || student.jalur === "AFIRMASI") ? 0 : (grades?.nilaiPrestasi || 0);
 
             // FORMULA BASED ON JALUR:
             let finalScore = 0;
