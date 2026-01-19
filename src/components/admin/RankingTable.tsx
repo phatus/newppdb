@@ -107,136 +107,121 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {initialData.length === 0 ? (
                             <tr>
-                                <td colSpan={9} className="p-8 text-center text-slate-500">Belum ada siswa terverifikasi.</td>
+                                <td colSpan={11} className="p-8 text-center text-slate-500">Belum ada siswa terverifikasi.</td>
                             </tr>
                         ) : (
-                            initialData.map((student, idx) => (
-                                <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td className="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
-                                    <td className="p-4">
-                                        <div className="font-bold text-slate-900 dark:text-white">{student.namaLengkap}</div>
-                                        <div className="text-xs text-slate-500">{student.nisn}</div>
-                                    </td>
-                                    <td className="p-4 text-slate-600 dark:text-slate-300 text-sm">{student.asalSekolah}</td>
-                                    <td className="p-4 text-sm font-medium">
-                                        <span className={`px-2 py-1 rounded text-xs ${student.jalur?.includes('PRESTASI') ? 'bg-amber-100 text-amber-800' :
-                                            student.jalur === 'AFIRMASI' ? 'bg-purple-100 text-purple-800' :
-                                                'bg-blue-100 text-blue-800'
-                                            }`}>
-                                            {student.jalur === 'PRESTASI_AKADEMIK' ? 'Prestasi Akd' :
-                                                student.jalur === 'PRESTASI_NON_AKADEMIK' ? 'Prestasi Non-Akd' :
-                                                    student.jalur === 'REGULER' ? 'Reguler' :
-                                                        student.jalur === 'AFIRMASI' ? 'Afirmasi' : student.jalur}
-                                        </span>
-                                    </td>
+                            initialData.map((student, idx) => {
+                                const isRegulerLike = student.jalur === "REGULER" || student.jalur === "AFIRMASI";
+                                const isNoRaporPath = isRegulerLike || student.jalur === "PRESTASI_NON_AKADEMIK";
 
-                                    <td className="p-4 text-center font-mono text-slate-700 dark:text-slate-300">
-                                        {(student.jalur === "REGULER" || student.jalur === "AFIRMASI" || student.jalur === "PRESTASI_NON_AKADEMIK")
-                                            ? "-"
-                                            : (student.grades?.rataRataNilai?.toFixed(2) || "-")}
-                                    </td>
+                                return (
+                                    <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                        <td className="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
+                                        <td className="p-4">
+                                            <div className="font-bold text-slate-900 dark:text-white">{student.namaLengkap}</div>
+                                            <div className="text-xs text-slate-500">{student.nisn}</div>
+                                        </td>
+                                        <td className="p-4 text-slate-600 dark:text-slate-300 text-sm">{student.asalSekolah}</td>
+                                        <td className="p-4 text-sm font-medium">
+                                            <span className={`px-2 py-1 rounded text-xs ${student.jalur?.includes('PRESTASI') ? 'bg-amber-100 text-amber-800' :
+                                                student.jalur === 'AFIRMASI' ? 'bg-purple-100 text-purple-800' :
+                                                    'bg-blue-100 text-blue-800'
+                                                }`}>
+                                                {student.jalur === 'PRESTASI_AKADEMIK' ? 'Prestasi Akd' :
+                                                    student.jalur === 'PRESTASI_NON_AKADEMIK' ? 'Prestasi Non-Akd' :
+                                                        student.jalur === 'REGULER' ? 'Reguler' :
+                                                            student.jalur === 'AFIRMASI' ? 'Afirmasi' : student.jalur}
+                                            </span>
+                                        </td>
 
-                                    {/* Input / Display Columns */}
-                                    {editingId === student.id ? (
-                                        <>
-                                            <td className="p-2 text-center">
-                                                <input
-                                                    type="number"
-                                                    className="w-16 p-1 border rounded text-center text-sm"
-                                                    value={editForm.theory}
-                                                    onChange={e => setEditForm({ ...editForm, theory: parseFloat(e.target.value) })}
-                                                />
-                                            </td>
-                                            <td className="p-2 text-center">
-                                                <input
-                                                    type="number"
-                                                    className="w-16 p-1 border rounded text-center text-sm"
-                                                    value={editForm.skua}
-                                                    onChange={e => setEditForm({ ...editForm, skua: parseFloat(e.target.value) })}
-                                                />
-                                            </td>
-                                            <td className="p-2 text-center">
-                                                <input
-                                                    type="number"
-                                                    className="w-16 p-1 border rounded text-center text-sm"
-                                                    value={editForm.achievement}
-                                                    onChange={e => setEditForm({ ...editForm, achievement: parseFloat(e.target.value) })}
-                                                />
-                                            </td>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianTeori || 0}</td>
-                                            <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianSKUA || 0}</td>
-                                            <td className="p-4 text-center text-slate-600 dark:text-slate-400">
-                                                {(student.jalur === "REGULER" || student.jalur === "AFIRMASI")
-                                                    ? "-"
-                                                    : `+${student.grades?.nilaiPrestasi || 0}`}
-                                            </td>
-                                        </>
-                                    )}
+                                        {/* Rapor Average */}
+                                        <td className="p-4 text-center font-mono text-slate-700 dark:text-slate-300">
+                                            {isNoRaporPath ? "-" : (student.grades?.rataRataNilai?.toFixed(2) || "-")}
+                                        </td>
 
-                                    <td className="p-4 text-center font-black text-lg text-primary">
-                                        {student.grades?.finalScore || 0}
-                                    </td>
-
-                                    <td className="p-4 text-center">
+                                        {/* Theory/Exam Scores (Always visible, but might be 0 weight) */}
                                         {editingId === student.id ? (
-                                            <select
-                                                className="text-xs p-1 border rounded"
-                                                value={student.statusKelulusan}
-                                                onChange={async (e) => {
-                                                    const newStatus = e.target.value as any;
-                                                    const res = await updateAdmissionStatus(student.id, newStatus);
-                                                    if (res.success) {
-                                                        toast.success("Status diperbarui");
-                                                        router.refresh();
-                                                    }
-                                                }}
-                                            >
-                                                <option value="PENDING">Pending</option>
-                                                <option value="LULUS">Lulus</option>
-                                                <option value="TIDAK_LULUS">Tidak Lulus</option>
-                                            </select>
+                                            <>
+                                                <td className="p-2 text-center">
+                                                    <input
+                                                        type="number"
+                                                        className="w-16 p-1 border rounded text-center text-sm"
+                                                        value={editForm.theory}
+                                                        onChange={e => setEditForm({ ...editForm, theory: parseFloat(e.target.value) || 0 })}
+                                                    />
+                                                </td>
+                                                <td className="p-2 text-center">
+                                                    <input
+                                                        type="number"
+                                                        className="w-16 p-1 border rounded text-center text-sm"
+                                                        value={editForm.skua}
+                                                        onChange={e => setEditForm({ ...editForm, skua: parseFloat(e.target.value) || 0 })}
+                                                    />
+                                                </td>
+                                                <td className="p-2 text-center">
+                                                    {isRegulerLike ? "-" : (
+                                                        <input
+                                                            type="number"
+                                                            className="w-16 p-1 border rounded text-center text-sm"
+                                                            value={editForm.achievement}
+                                                            onChange={e => setEditForm({ ...editForm, achievement: parseFloat(e.target.value) || 0 })}
+                                                        />
+                                                    )}
+                                                </td>
+                                            </>
                                         ) : (
+                                            <>
+                                                <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianTeori || 0}</td>
+                                                <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianSKUA || 0}</td>
+                                                <td className="p-4 text-center text-slate-600 dark:text-slate-400">
+                                                    {isRegulerLike ? "-" : `+${student.grades?.nilaiPrestasi || 0}`}
+                                                </td>
+                                            </>
+                                        )}
+
+                                        <td className="p-4 text-center font-black text-lg text-primary">
+                                            {student.grades?.finalScore || 0}
+                                        </td>
+
+                                        <td className="p-4 text-center">
                                             <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${student.statusKelulusan === "LULUS" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
                                                 student.statusKelulusan === "TIDAK_LULUS" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
                                                     "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
                                                 }`}>
                                                 {student.statusKelulusan}
                                             </span>
-                                        )}
-                                    </td>
+                                        </td>
 
-                                    <td className="p-4 text-center">
-                                        {editingId === student.id ? (
-                                            <div className="flex justify-center gap-1">
+                                        <td className="p-4 text-center">
+                                            {editingId === student.id ? (
+                                                <div className="flex justify-center gap-1">
+                                                    <button
+                                                        onClick={handleSave}
+                                                        disabled={loading}
+                                                        className="p-1 bg-emerald-500 text-white rounded hover:bg-emerald-600"
+                                                    >
+                                                        <span className="material-symbols-outlined text-sm">check</span>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setEditingId(null)}
+                                                        className="p-1 bg-slate-200 text-slate-600 rounded hover:bg-slate-300"
+                                                    >
+                                                        <span className="material-symbols-outlined text-sm">close</span>
+                                                    </button>
+                                                </div>
+                                            ) : (
                                                 <button
-                                                    onClick={handleSave}
-                                                    disabled={loading}
-                                                    className="p-1 bg-emerald-500 text-white rounded hover:bg-emerald-600"
+                                                    onClick={() => handleEdit(student)}
+                                                    className="p-2 text-slate-400 hover:text-primary transition-colors"
+                                                    title="Input Nilai Tes"
                                                 >
-                                                    <span className="material-symbols-outlined text-sm">check</span>
+                                                    <span className="material-symbols-outlined text-[20px]">edit_square</span>
                                                 </button>
-                                                <button
-                                                    onClick={() => setEditingId(null)}
-                                                    className="p-1 bg-slate-200 text-slate-600 rounded hover:bg-slate-300"
-                                                >
-                                                    <span className="material-symbols-outlined text-sm">close</span>
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={() => handleEdit(student)}
-                                                className="p-2 text-slate-400 hover:text-primary transition-colors"
-                                                title="Input Nilai Tes"
-                                            >
-                                                <span className="material-symbols-outlined text-[20px]">edit_square</span>
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>

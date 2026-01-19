@@ -29,56 +29,42 @@ export async function getRankingData(): Promise<RankedStudent[]> {
         // 2. Fetch Settings for Weights
         const settings = await db.schoolSettings.findFirst();
 
-        // Default global weights if not set
-        const globalWRapor = (settings?.weightRapor ?? 40) / 100;
-        const globalWUjian = (settings?.weightUjian ?? 30) / 100;
-        const globalWSKUA = (settings?.weightSKUA ?? 30) / 100;
+        // Smart Defaults for each Path (sum to 100%)
+        const pathDefaults: Record<string, any> = {
+            "REGULER": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
+            "AFIRMASI": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
+            "PRESTASI_AKADEMIK": { rapor: 30, ujian: 30, skua: 30, prestasi: 10 },
+            "PRESTASI_NON_AKADEMIK": { rapor: 0, ujian: 30, skua: 30, prestasi: 40 },
+        };
 
         // 3. Process Scores
         const rankedStudents: RankedStudent[] = students.map((student) => {
             const grades = student.grades;
 
-            // Determine Weights (Path-Specific or Global Fallback)
-            const pathWeights = settings?.pathWeights as Record<string, any> || {};
+            // Determine Weights (Path-Specific or Smart Defaults)
+            const pathWeights = ((settings as any)?.pathWeights as Record<string, any>) || {};
             const specificWeights = pathWeights[student.jalur];
 
+            const defaultW = pathDefaults[student.jalur] || {
+                rapor: (settings as any)?.weightRapor ?? 40,
+                ujian: (settings as any)?.weightUjian ?? 30,
+                skua: (settings as any)?.weightSKUA ?? 30,
+                prestasi: 0
+            };
+
             // Normalize weights to 0-1 range
-            const wRapor = (specificWeights?.rapor ?? settings?.weightRapor ?? 40) / 100;
-            const wUjian = (specificWeights?.ujian ?? settings?.weightUjian ?? 30) / 100;
-            const wSKUA = (specificWeights?.skua ?? settings?.weightSKUA ?? 30) / 100;
-            const wPrestasi = (specificWeights?.prestasi ?? 0) / 100; // Legacy global weight for bonus doesn't exist, legacy adds raw score
+            const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
+            const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
+            const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
+            const wPrestasi = (specificWeights?.prestasi ?? defaultW.prestasi) / 100;
 
             const avgReport = grades?.rataRataNilai || 0;
             const theory = grades?.nilaiUjianTeori || 0;
             const skua = grades?.nilaiUjianSKUA || 0;
             const achievement = grades?.nilaiPrestasi || 0;
 
-            let finalScore = 0;
-
-            if (specificWeights) {
-                // New Configurable Mode: Weighted Sum
-                // IMPORTANT: In this mode, "Prestasi" is treated as a weighted component (0-100 score), not raw bonus points.
-                finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + (achievement * wPrestasi);
-            } else {
-                // Legacy Mode (Fixed Logic)
-                switch (student.jalur) {
-                    case "PRESTASI_AKADEMIK":
-                        // Raport + Teori + SKUA + Raw Prestasi Bonus
-                        finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
-                        break;
-                    case "PRESTASI_NON_AKADEMIK":
-                        // SKUA + Raw Prestasi Bonus (No Rapor, No Teori)
-                        finalScore = (skua * wSKUA) + achievement;
-                        break;
-                    case "REGULER":
-                    case "AFIRMASI":
-                        // Teori + SKUA (Explicitly ignore others)
-                        finalScore = (theory * wUjian) + (skua * wSKUA);
-                        break;
-                    default:
-                        finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
-                }
-            }
+            // Calculate Final Score
+            let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + (achievement * wPrestasi);
             finalScore = parseFloat(finalScore.toFixed(2));
 
             return {
@@ -139,7 +125,6 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
 export async function autoSelectStudents() {
     try {
         // 1. Get Quota and Settings
-        // Use Raw Query for Settings to be safe
         const settingsRaw = await db.$queryRaw<SchoolSettings[]>`SELECT * FROM "SchoolSettings" LIMIT 1`;
         const settings = settingsRaw[0] || {};
 
@@ -175,29 +160,22 @@ export async function autoSelectStudents() {
         const failedStudents = [...failedReguler, ...failedPrestasi, ...failedAfirmasi];
 
         // 5. Update Database
-
-        // Update Passed Students
         if (passedStudents.length > 0) {
             await db.student.updateMany({
-                where: {
-                    id: { in: passedStudents.map((s) => s.id) }
-                },
+                where: { id: { in: passedStudents.map((s) => s.id) } },
                 data: { statusKelulusan: "LULUS" }
             });
         }
 
-        // Update Failed Students
         if (failedStudents.length > 0) {
             await db.student.updateMany({
-                where: {
-                    id: { in: failedStudents.map((s) => s.id) }
-                },
+                where: { id: { in: failedStudents.map((s) => s.id) } },
                 data: { statusKelulusan: "TIDAK_LULUS" }
             });
         }
 
         revalidatePath("/admin/reports/ranking");
-        revalidatePath("/dashboard"); // For the announcement banner
+        revalidatePath("/dashboard");
 
         return {
             success: true,
@@ -213,4 +191,3 @@ export async function autoSelectStudents() {
         return { success: false, error: "Terjadi kesalahan saat seleksi otomatis." };
     }
 }
-

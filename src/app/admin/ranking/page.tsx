@@ -30,7 +30,7 @@ export default async function RankingPage() {
                     <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                         <span className="material-symbols-outlined text-primary">info</span>
                         <span>
-                            Rumus Skor Akhir: (Rapor x {wRapor}%) + (Ujian Teori x {wUjian}%) + (SKUA x {wSKUA}%) + Poin Prestasi
+                            Kalkulasi skor akhir menggunakan pembobotan spesifik sesuai <strong>Jalur Pendaftaran</strong>. Anda dapat menyesuaikan bobot (%) di menu <a href="/admin/settings#ranking" className="text-primary hover:underline font-bold">Pengaturan</a>.
                         </span>
                     </div>
                 </div>

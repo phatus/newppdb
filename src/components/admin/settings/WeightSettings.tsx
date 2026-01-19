@@ -24,6 +24,13 @@ const PATHS = [
     { key: "AFIRMASI", label: "Jalur Afirmasi" },
 ] as const;
 
+const PATH_DEFAULTS: Record<string, any> = {
+    "REGULER": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
+    "AFIRMASI": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
+    "PRESTASI_AKADEMIK": { rapor: 30, ujian: 30, skua: 30, prestasi: 10 },
+    "PRESTASI_NON_AKADEMIK": { rapor: 0, ujian: 30, skua: 30, prestasi: 40 },
+};
+
 export default function WeightSettings({ initialSettings }: WeightSettingsProps) {
     const [loading, setLoading] = useState(false);
 
@@ -36,12 +43,12 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
             if (existing[path.key]) {
                 defaults[path.key] = existing[path.key];
             } else {
-                // Default fallbacks based on global weights if not set
-                defaults[path.key] = {
-                    rapor: initialSettings.weightRapor || 0,
-                    ujian: initialSettings.weightUjian || 0,
-                    skua: initialSettings.weightSKUA || 0,
-                    prestasi: 0 // Default to 0 unless specified
+                // Specific Defaults for each path
+                defaults[path.key] = PATH_DEFAULTS[path.key] || {
+                    rapor: 40,
+                    ujian: 30,
+                    skua: 30,
+                    prestasi: 0
                 };
             }
         });
