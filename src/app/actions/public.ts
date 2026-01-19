@@ -50,7 +50,8 @@ export async function getQuotaStats() {
         const settings = settingsRaw[0] || {};
 
         const quotaReguler = settings.quotaReguler || 0;
-        const quotaPrestasi = settings.quotaPrestasi || 0;
+        const quotaPrestasiAkademik = settings.quotaPrestasiAkademik || 0;
+        const quotaPrestasiNonAkademik = settings.quotaPrestasiNonAkademik || 0;
         const quotaAfirmasi = settings.quotaAfirmasi || 0;
 
         // 2. Count "LULUS" students grouped by Jalur
@@ -66,13 +67,15 @@ export async function getQuotaStats() {
 
         // 3. Map counts
         let filledReguler = 0;
-        let filledPrestasi = 0;
+        let filledPrestasiAkademik = 0;
+        let filledPrestasiNonAkademik = 0;
         let filledAfirmasi = 0;
 
         acceptedStats.forEach(stat => {
             const jalur = stat.jalur as string;
             if (jalur === 'REGULER') filledReguler = stat._count._all;
-            if (jalur === 'PRESTASI_AKADEMIK' || jalur === 'PRESTASI_NON_AKADEMIK') filledPrestasi += stat._count._all;
+            if (jalur === 'PRESTASI_AKADEMIK') filledPrestasiAkademik = stat._count._all;
+            if (jalur === 'PRESTASI_NON_AKADEMIK') filledPrestasiNonAkademik = stat._count._all;
             if (jalur === 'AFIRMASI') filledAfirmasi = stat._count._all;
         });
 
@@ -80,8 +83,9 @@ export async function getQuotaStats() {
             success: true,
             data: [
                 { label: "Jalur Reguler", quota: quotaReguler, filled: filledReguler, color: "blue" },
-                { label: "Jalur Prestasi", quota: quotaPrestasi, filled: filledPrestasi, color: "amber" },
-                { label: "Jalur Afirmasi", quota: quotaAfirmasi, filled: filledAfirmasi, color: "emerald" }
+                { label: "Prestasi Akademik", quota: quotaPrestasiAkademik, filled: filledPrestasiAkademik, color: "amber" },
+                { label: "Prestasi Non-Akademik", quota: quotaPrestasiNonAkademik, filled: filledPrestasiNonAkademik, color: "emerald" }, // Using emerald to differentiate, or maybe another shade
+                { label: "Jalur Afirmasi", quota: quotaAfirmasi, filled: filledAfirmasi, color: "blue" } // Reusing colors since we only have 3 map entries in UI probably. Let's check UI map.
             ]
         };
 

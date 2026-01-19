@@ -24,20 +24,24 @@ export async function updateSettings(data: {
     principalName?: string;
     principalNip?: string;
     schoolCity?: string;
-    studentQuota?: number; // New Field 
+    studentQuota?: number;
     quotaReguler?: number;
-    quotaPrestasi?: number;
+    quotaPrestasiAkademik?: number;
+    quotaPrestasiNonAkademik?: number;
     quotaAfirmasi?: number;
     waGatewayToken?: string;
     waGatewayUrl?: string;
     isWaEnabled?: boolean;
+    heroTitle?: string;
+    heroDescription?: string;
 }) {
     try {
         const {
             schoolName, schoolAddress, academicYear, isRegistrationOpen,
             committeeName, committeeNip, principalName, principalNip, schoolCity,
-            studentQuota, quotaReguler, quotaPrestasi, quotaAfirmasi,
-            waGatewayToken, waGatewayUrl, isWaEnabled
+            studentQuota, quotaReguler, quotaPrestasiAkademik, quotaPrestasiNonAkademik, quotaAfirmasi,
+            waGatewayToken, waGatewayUrl, isWaEnabled,
+            heroTitle, heroDescription
         } = data;
 
         // Use raw query to update to avoid stale Prisma Client issues for new columns
@@ -50,9 +54,6 @@ export async function updateSettings(data: {
                 academicYear: data.academicYear,
                 isRegistrationOpen: data.isRegistrationOpen,
             };
-            // Try to update standard fields via Prisma if possible
-            // Note: studentQuota might be rejected by Prisma if types are stale, but let's try or skip
-            // We'll rely on Raw Query for the crucial new fields.
 
             await db.schoolSettings.update({
                 where: { id: first.id },
@@ -72,9 +73,13 @@ export async function updateSettings(data: {
                 updates.push(`"quotaReguler" = $${i++}`);
                 values.push(quotaReguler);
             }
-            if (quotaPrestasi !== undefined) {
-                updates.push(`"quotaPrestasi" = $${i++}`);
-                values.push(quotaPrestasi);
+            if (quotaPrestasiAkademik !== undefined) {
+                updates.push(`"quotaPrestasiAkademik" = $${i++}`);
+                values.push(quotaPrestasiAkademik);
+            }
+            if (quotaPrestasiNonAkademik !== undefined) {
+                updates.push(`"quotaPrestasiNonAkademik" = $${i++}`);
+                values.push(quotaPrestasiNonAkademik);
             }
             if (quotaAfirmasi !== undefined) {
                 updates.push(`"quotaAfirmasi" = $${i++}`);
@@ -112,6 +117,14 @@ export async function updateSettings(data: {
             if (data.isWaEnabled !== undefined) {
                 updates.push(`"isWaEnabled" = $${i++}`);
                 values.push(data.isWaEnabled);
+            }
+            if (data.heroTitle !== undefined) {
+                updates.push(`"heroTitle" = $${i++}`);
+                values.push(data.heroTitle);
+            }
+            if (data.heroDescription !== undefined) {
+                updates.push(`"heroDescription" = $${i++}`);
+                values.push(data.heroDescription);
             }
 
             if (updates.length > 0) {

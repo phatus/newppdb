@@ -157,7 +157,14 @@ export default async function DocumentUploadPage({
         );
     };
 
-    const isComplete = docs.fileAkta && docs.fileKK && docs.fileSKL && docs.fileRaport && docs.pasFoto && (selectedStudent.jalur !== "AFIRMASI" || docs.fileSKTM);
+    const isComplete =
+        docs.fileAkta &&
+        docs.fileKK &&
+        docs.fileSKL &&
+        docs.pasFoto &&
+        (selectedStudent.jalur === "PRESTASI_AKADEMIK" ? docs.fileRaport && docs.filePrestasi && docs.filePrestasi.length > 0 : true) &&
+        (selectedStudent.jalur === "PRESTASI_NON_AKADEMIK" ? docs.filePrestasi && docs.filePrestasi.length > 0 : true) &&
+        (selectedStudent.jalur === "AFIRMASI" ? docs.fileSKTM : true);
 
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8">
@@ -262,12 +269,15 @@ export default async function DocumentUploadPage({
                         "school"
                     )}
 
-                    {renderUploadSection(
+                    {/* Report Card - Only for Prestasi Akademik */}
+                    {selectedStudent.jalur === "PRESTASI_AKADEMIK" && renderUploadSection(
                         "fileRaport",
                         "Nilai Raport Kelas 5 & 6",
-                        "Semua Semester digabung dalam 1 file PDF.",
+                        "Semua Semester digabung dalam 1 file PDF. Wajib untuk Jalur Prestasi Akademik.",
                         "analytics"
                     )}
+
+
 
                     {/* Affirmation SKTM Section */}
                     {selectedStudent.jalur === "AFIRMASI" && renderUploadSection(
@@ -339,15 +349,27 @@ export default async function DocumentUploadPage({
                         Kembali
                     </a>
                     {isComplete ? (
-                        <a
-                            href={`/dashboard/student/grades?studentId=${selectedStudent.id}`}
-                            className="flex cursor-pointer items-center justify-center gap-2 rounded-lg h-12 px-8 bg-primary hover:bg-blue-600 text-white text-base font-bold leading-normal transition-colors shadow-md shadow-blue-500/20 w-full md:w-auto text-decoration-none"
-                        >
-                            <span>Lanjut Input Nilai</span>
-                            <span className="material-symbols-outlined text-[20px]">
-                                arrow_forward
-                            </span>
-                        </a>
+                        selectedStudent.jalur === "PRESTASI_AKADEMIK" ? (
+                            <a
+                                href={`/dashboard/student/grades?studentId=${selectedStudent.id}`}
+                                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg h-12 px-8 bg-primary hover:bg-blue-600 text-white text-base font-bold leading-normal transition-colors shadow-md shadow-blue-500/20 w-full md:w-auto text-decoration-none"
+                            >
+                                <span>Lanjut Input Nilai</span>
+                                <span className="material-symbols-outlined text-[20px]">
+                                    arrow_forward
+                                </span>
+                            </a>
+                        ) : (
+                            <a
+                                href="/dashboard"
+                                className="flex cursor-pointer items-center justify-center gap-2 rounded-lg h-12 px-8 bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold leading-normal transition-colors shadow-md shadow-emerald-500/20 w-full md:w-auto text-decoration-none"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">
+                                    check_circle
+                                </span>
+                                <span>Selesai</span>
+                            </a>
+                        )
                     ) : (
                         <button
                             disabled

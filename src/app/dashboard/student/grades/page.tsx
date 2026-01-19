@@ -73,6 +73,13 @@ function GradeInputForm() {
                     toast("Nilai terkunci karena sudah diverifikasi", { icon: "🔒" });
                 }
 
+                // Check Jalur (Access Control)
+                if (studentRes.jalur !== "PRESTASI_AKADEMIK") {
+                    toast.error("Halaman ini hanya untuk jalur Prestasi Akademik");
+                    router.push("/dashboard");
+                    return;
+                }
+
                 setSemesters(semList);
                 setSubjects(subList);
 

@@ -109,7 +109,7 @@ export default async function Home() {
           <div
             className="rounded-2xl overflow-hidden relative min-h-[500px] flex items-center justify-center text-center p-8 sm:p-12 bg-cover bg-center"
             style={{
-              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('/uploads/madrasah_bg_modern_v2.jpg')`,
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8)), url('${settings?.heroImage || '/uploads/madrasah_bg_modern_v2.jpg'}')`,
             }}
           >
             <div className="relative z-10 max-w-3xl flex flex-col items-center gap-6">
@@ -118,10 +118,10 @@ export default async function Home() {
                 Portal Resmi SPMB {settings?.academicYear || "2026"}
               </div>
               <h1 className="text-white text-4xl sm:text-5xl lg:text-6xl font-black leading-tight tracking-tight drop-shadow-sm">
-                Masa Depan Cerah Dimulai Di Sini
+                {settings?.heroTitle || "Masa Depan Cerah Dimulai Di Sini"}
               </h1>
               <p className="text-slate-200 text-base sm:text-lg font-normal leading-relaxed max-w-2xl drop-shadow-sm">
-                Selamat datang di portal Penerimaan Peserta Didik Baru {settings?.schoolName || "MTs"}. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.
+                {settings?.heroDescription || "Selamat datang di portal Penerimaan Peserta Didik Baru. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa."}
               </p>
               <div className="flex flex-wrap justify-center gap-4 mt-4">
                 <Link href="/auth/register">
@@ -476,8 +476,14 @@ export default async function Home() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-slate-400 dark:text-slate-500 text-sm">© 2026 Madrasah Tsanawiyah Negeri 1 Pacitan. All rights reserved.</p>
+          <div className="border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-center md:text-left">
+              <p className="text-slate-400 dark:text-slate-500 text-sm">© 2026 Madrasah Tsanawiyah Negeri 1 Pacitan. All rights reserved.</p>
+              <span className="hidden md:block text-slate-300 dark:text-slate-700">|</span>
+              <p className="text-slate-400 dark:text-slate-500 text-sm">
+                Developed by <a href="https://instagram.com/agus_widi90" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors font-medium">aguswidi</a>
+              </p>
+            </div>
             <div className="flex gap-4">
               <a className="text-slate-400 hover:text-primary transition-colors" href="#">
                 <span className="sr-only">Facebook</span>

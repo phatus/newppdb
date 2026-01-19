@@ -138,6 +138,7 @@ model Student {
   
   documents        Documents?
   grades           Grades?
+  history          RegistrationHistory[]
 
   @@index([statusVerifikasi])
   @@index([createdAt])
@@ -275,7 +276,8 @@ model SchoolSettings {
   // Quotas (Target Adoption)
   studentQuota      Int      @default(100)
   quotaReguler      Int      @default(50)
-  quotaPrestasi     Int      @default(30)
+  quotaPrestasiAkademik Int  @default(15)
+  quotaPrestasiNonAkademik Int @default(15)
   quotaAfirmasi     Int      @default(20)
 
   // Committee Info
@@ -296,6 +298,11 @@ model SchoolSettings {
   isWaEnabled        Boolean   @default(false)
 
   updatedAt         DateTime @updatedAt
+
+  // Hero Section
+  heroTitle         String   @default("Masa Depan Cerah Dimulai Di Sini")
+  heroDescription   String   @default("Selamat datang di portal Penerimaan Peserta Didik Baru. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.")
+  heroImage         String?
 }
 
 model ExamSchedule {
@@ -306,4 +313,18 @@ model ExamSchedule {
   order     Int      @default(0)
   
   updatedAt DateTime @updatedAt
+}
+
+model RegistrationHistory {
+  id              String           @id @default(cuid())
+  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId       String
+  
+  waveId          String?
+  jalur           JalurPendaftaran
+  status          String           // LULUS / TIDAK_LULUS
+  
+  notes           String?
+  
+  createdAt       DateTime         @default(now())
 }

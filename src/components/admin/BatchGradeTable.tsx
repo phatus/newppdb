@@ -283,8 +283,24 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
 }
 
 function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index: number; onViewDocs: (files: string[]) => void }) {
-    const isPrestasi = student.jalur !== "REGULER"; // Assuming "PRESTASI_AKADEMIK" or "PRESTASI_NON_AKADEMIK"
+    const isPrestasi = student.jalur === "PRESTASI_AKADEMIK" || student.jalur === "PRESTASI_NON_AKADEMIK";
+    const isPrestasiAkademik = student.jalur === "PRESTASI_AKADEMIK";
+    const isPrestasiNonAkademik = student.jalur === "PRESTASI_NON_AKADEMIK";
+    const isReguler = student.jalur === "REGULER";
+    const isAfirmasi = student.jalur === "AFIRMASI";
+
     const hasDocuments = student.documents?.filePrestasi && student.documents.filePrestasi.length > 0;
+
+    // Inputs eligibility
+    // Teori: Reguler, Prestasi Akademik, Afirmasi
+    const enableTeori = isReguler || isPrestasiAkademik || isAfirmasi;
+
+    // SKUA: All
+    const enableSkua = true;
+
+    // Prestasi: Prestasi Akademik, Prestasi Non-Akademik
+    const enablePrestasi = isPrestasi;
+
     const [teori, setTeori] = useState(student.grades?.nilaiUjianTeori?.toString() || "");
     const [skua, setSkua] = useState(student.grades?.nilaiUjianSKUA?.toString() || "");
     const [prestasi, setPrestasi] = useState(student.grades?.nilaiPrestasi?.toString() || "");
@@ -333,16 +349,22 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
                 </div>
             </td>
             <td className="px-6 py-3">
-                <input
-                    type="number"
-                    value={teori}
-                    onChange={(e) => setTeori(e.target.value)}
-                    onBlur={handleSave}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                    placeholder="0"
-                    min="0"
-                    max="100"
-                />
+                {enableTeori ? (
+                    <input
+                        type="number"
+                        value={teori}
+                        onChange={(e) => setTeori(e.target.value)}
+                        onBlur={handleSave}
+                        className="w-full rounded-md border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                        placeholder="0"
+                        min="0"
+                        max="100"
+                    />
+                ) : (
+                    <div className="w-full px-3 py-1.5 text-center text-sm text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-md select-none border border-transparent">
+                        -
+                    </div>
+                )}
             </td>
             <td className="px-6 py-3">
                 <input
@@ -357,7 +379,7 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
                 />
             </td>
             <td className="px-6 py-3">
-                {isPrestasi ? (
+                {enablePrestasi ? (
                     <div className="flex items-center gap-2">
                         <input
                             type="number"
@@ -382,7 +404,7 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
                         )}
                     </div>
                 ) : (
-                    <div className="w-full px-3 py-1.5 text-center text-sm text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-md select-none border border-transparent" title="Hanya untuk jalur prestasi">
+                    <div className="w-full px-3 py-1.5 text-center text-sm text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-md select-none border border-transparent" title="Tidak ada nilai prestasi">
                         -
                     </div>
                 )}

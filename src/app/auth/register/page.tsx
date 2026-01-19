@@ -270,8 +270,10 @@ export default function RegisterPage() {
 
             {/* Footer */}
             <footer className="w-full py-6 text-center border-t border-[#e7eef3] dark:border-slate-800 bg-white dark:bg-[#1A2632] mt-auto">
-                <p className="text-[#4c759a] dark:text-slate-500 text-sm">
-                    © 2026 MTsN 1 Pacitan. All rights reserved.
+                <p className="text-[#4c759a] dark:text-slate-500 text-sm flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-0">
+                    <span>© 2026 MTsN 1 Pacitan. All rights reserved.</span>
+                    <span className="hidden sm:inline mx-2">|</span>
+                    <span>Developed by <a href="https://instagram.com/agus_widi90" target="_blank" rel="noopener noreferrer" className="font-bold hover:text-primary transition-colors">aguswidi</a></span>
                 </p>
             </footer>
         </div>

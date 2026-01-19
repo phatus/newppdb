@@ -8,6 +8,8 @@ import StudentCard from "@/components/StudentCard";
 
 import { getAnnouncements } from "@/app/actions/announcements";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
+import { getActiveWave } from "@/app/actions/waves";
+import ReRegistrationModal from "@/components/dashboard/ReRegistrationModal"; // Ensure this path is correct
 import StudentListManager from "@/components/dashboard/StudentListManager";
 
 export default async function DashboardPage() {
@@ -21,6 +23,7 @@ export default async function DashboardPage() {
                 orderBy: { createdAt: 'desc' },
                 include: {
                     documents: true,
+                    history: { orderBy: { createdAt: 'desc' } }, // Add history
                     grades: {
                         include: {
                             semesterGrades: {
@@ -41,6 +44,7 @@ export default async function DashboardPage() {
     // Fetch School Settings
     const settings = await db.schoolSettings.findFirst();
     const academicYear = settings?.academicYear || "2024/2025";
+    const activeWave = await getActiveWave(); // Fetch active wave
 
 
     const studentList = user?.students || [];
@@ -118,6 +122,42 @@ export default async function DashboardPage() {
                                         Mohon maaf, Anda dinyatakan <strong>TIDAK LULUS</strong> seleksi PPDB tahun ini.
                                         Jangan berkecil hati dan tetap semangat dalam menuntut ilmu di tempat lain.
                                     </p>
+
+                                    {/* Re-registration Check */}
+                                    {activeWave && activeWave.id !== student.waveId && (
+                                        <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-800">
+                                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
+                                                Kabar Baik! Pendaftaran {activeWave.name} Telah Dibuka.
+                                            </p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                                                Anda dapat mencoba mendaftar kembali di gelombang ini.
+                                            </p>
+                                            <ReRegistrationModal
+                                                studentId={student.id}
+                                                studentName={student.namaLengkap}
+                                                activeWaveName={activeWave.name}
+                                                allowedJalur={activeWave.jalurAllowed as string[] || []}
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* History Check */}
+                                    {student.history && student.history.length > 0 && (
+                                        <div className="mt-4">
+                                            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Riwayat Pendaftaran</h4>
+                                            <div className="space-y-2">
+                                                {student.history.map(hist => (
+                                                    <div key={hist.id} className="flex flex-col text-xs bg-white/50 p-2 rounded border border-red-200">
+                                                        <div className="flex justify-between">
+                                                            <span className="font-bold">{hist.jalur.replace(/_/g, " ")}</span>
+                                                            <span className="text-red-600 font-bold">{hist.status}</span>
+                                                        </div>
+                                                        <span className="text-slate-500">{new Date(hist.createdAt).toLocaleDateString("id-ID", { dateStyle: 'medium' })}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -129,12 +169,15 @@ export default async function DashboardPage() {
                 const docs = student.documents;
                 if (!docs?.fileKK) missingDocs.push("Kartu Keluarga");
                 if (!docs?.fileAkta) missingDocs.push("Akta Kelahiran");
-                if (!docs?.fileRaport) missingDocs.push("Raport (PDF)");
+                // Check Raport (Only for PRESTASI_AKADEMIK)
+                if (student.jalur === "PRESTASI_AKADEMIK" && !docs?.fileRaport) missingDocs.push("Raport (PDF)");
                 if (!docs?.pasFoto) missingDocs.push("Pas Foto");
 
                 // Check Grades
+                const isPrestasiAkademik = student.jalur === "PRESTASI_AKADEMIK";
                 const gradeCount = student.grades?.semesterGrades?.length || 0;
-                const gradesComplete = gradeCount >= 3;
+                // If not prestasi akademik, grades are considered "complete" for this check (as they are not required)
+                const gradesComplete = isPrestasiAkademik ? gradeCount >= 5 : true; // Assuming 5 semesters required
 
                 if (missingDocs.length === 0 && gradesComplete) return null;
 
@@ -153,7 +196,7 @@ export default async function DashboardPage() {
                                 </p>
 
                                 <div className="flex flex-wrap gap-2 mb-4">
-                                    {!gradesComplete && (
+                                    {isPrestasiAkademik && !gradesComplete && (
                                         <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded-md border border-amber-100 dark:border-amber-800">Nilai Raport</span>
                                     )}
                                     {missingDocs.map((doc, idx) => (
@@ -162,7 +205,7 @@ export default async function DashboardPage() {
                                 </div>
 
                                 <div className="flex gap-2">
-                                    {!gradesComplete && (
+                                    {isPrestasiAkademik && !gradesComplete && (
                                         <Link href={`#`} className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm shadow-amber-900/20">
                                             <span className="material-symbols-outlined text-[14px]">edit_note</span>
                                             Input Nilai

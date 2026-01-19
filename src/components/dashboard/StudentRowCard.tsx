@@ -117,13 +117,15 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                     </button>
                 </Link>
 
-                {/* Grades Button */}
-                <Link href={`/dashboard/student/grades?studentId=${student.id}`} title="Input Nilai">
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 hover:bg-purple-100 dark:bg-purple-900/20 dark:border-purple-800 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-bold transition-colors">
-                        <span className="material-symbols-outlined text-[16px]">score</span>
-                        <span className="hidden lg:inline">Nilai</span>
-                    </button>
-                </Link>
+                {/* Grades Button - Only for PRESTASI_AKADEMIK */}
+                {student.jalur === "PRESTASI_AKADEMIK" && (
+                    <Link href={`/dashboard/student/grades?studentId=${student.id}`} title="Input Nilai">
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 hover:bg-purple-100 dark:bg-purple-900/20 dark:border-purple-800 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-bold transition-colors">
+                            <span className="material-symbols-outlined text-[16px]">score</span>
+                            <span className="hidden lg:inline">Nilai</span>
+                        </button>
+                    </Link>
+                )}
 
                 {/* Print Proof Button */}
                 <Link href={`/dashboard/student/registration-proof?studentId=${student.id}`} title="Cetak Bukti Pendaftaran">

@@ -44,10 +44,31 @@ export async function getRankingData(): Promise<RankedStudent[]> {
             const skua = grades?.nilaiUjianSKUA || 0;
             const achievement = grades?.nilaiPrestasi || 0;
 
-            // FORMULA: 
-            // Final = (Rapor * wRapor) + (Theory * wUjian) + (SKUA * wSKUA) + Achievement
+            // FORMULA BASED ON JALUR:
+            let finalScore = 0;
 
-            let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+            switch (student.jalur) {
+                case "PRESTASI_AKADEMIK":
+                    // Raport + Teori + SKUA + Prestasi
+                    finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+                    break;
+                case "PRESTASI_NON_AKADEMIK":
+                    // SKUA + Prestasi (No Rapor, No Teori)
+                    finalScore = (skua * wSKUA) + achievement;
+                    break;
+                case "REGULER":
+                    // Teori + SKUA (No Rapor)
+                    finalScore = (theory * wUjian) + (skua * wSKUA);
+                    break;
+                case "AFIRMASI":
+                    // Teori + SKUA (No Rapor)
+                    finalScore = (theory * wUjian) + (skua * wSKUA);
+                    break;
+                default:
+                    // Default fallback
+                    finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+            }
+
             finalScore = parseFloat(finalScore.toFixed(2));
 
             return {

@@ -13,7 +13,8 @@ export default function QuotaSettings({ settings }: QuotaSettingsProps) {
     const [quotas, setQuotas] = useState({
         studentQuota: settings?.studentQuota || 100, // Total
         quotaReguler: settings?.quotaReguler || 50,
-        quotaPrestasi: settings?.quotaPrestasi || 30,
+        quotaPrestasiAkademik: settings?.quotaPrestasiAkademik || 15,
+        quotaPrestasiNonAkademik: settings?.quotaPrestasiNonAkademik || 15,
         quotaAfirmasi: settings?.quotaAfirmasi || 20,
     });
 
@@ -44,7 +45,7 @@ export default function QuotaSettings({ settings }: QuotaSettingsProps) {
         }
     };
 
-    const totalAllocated = quotas.quotaReguler + quotas.quotaPrestasi + quotas.quotaAfirmasi;
+    const totalAllocated = quotas.quotaReguler + quotas.quotaPrestasiAkademik + quotas.quotaPrestasiNonAkademik + quotas.quotaAfirmasi;
     const isMismatch = totalAllocated !== quotas.studentQuota;
 
     return (
@@ -87,11 +88,22 @@ export default function QuotaSettings({ settings }: QuotaSettingsProps) {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-slate-700">Jalur Prestasi</label>
+                            <label className="block text-sm font-medium text-slate-700">Prestasi Akademik</label>
                             <input
                                 type="number"
-                                name="quotaPrestasi"
-                                value={quotas.quotaPrestasi}
+                                name="quotaPrestasiAkademik"
+                                value={quotas.quotaPrestasiAkademik}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                                min="0"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-slate-700">Prestasi Non-Akademik</label>
+                            <input
+                                type="number"
+                                name="quotaPrestasiNonAkademik"
+                                value={quotas.quotaPrestasiNonAkademik}
                                 onChange={handleChange}
                                 className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                                 min="0"
