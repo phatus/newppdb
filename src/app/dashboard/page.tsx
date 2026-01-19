@@ -125,19 +125,30 @@ export default async function DashboardPage() {
 
                                     {/* Re-registration Check */}
                                     {activeWave && activeWave.id !== student.waveId && (
-                                        <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-800">
-                                            <p className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">
-                                                Kabar Baik! Pendaftaran {activeWave.name} Telah Dibuka.
-                                            </p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
-                                                Anda dapat mencoba mendaftar kembali di gelombang ini.
-                                            </p>
-                                            <ReRegistrationModal
-                                                studentId={student.id}
-                                                studentName={student.namaLengkap}
-                                                activeWaveName={activeWave.name}
-                                                allowedJalur={activeWave.jalurAllowed as string[] || []}
-                                            />
+                                        <div className="mt-6 relative overflow-hidden rounded-xl border border-blue-100 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-800 shadow-sm p-5">
+                                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                                <span className="material-symbols-outlined text-[100px] text-blue-500">rocket_launch</span>
+                                            </div>
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg text-blue-600 dark:text-blue-300">
+                                                        <span className="material-symbols-outlined text-xl">campaign</span>
+                                                    </div>
+                                                    <h3 className="font-bold text-slate-900 dark:text-white text-lg">
+                                                        Pendaftaran {activeWave.name} Dibuka!
+                                                    </h3>
+                                                </div>
+                                                <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 max-w-lg leading-relaxed">
+                                                    Masih ada kesempatan! Jangan menyerah. Anda dapat mendaftarkan diri kembali di gelombang ini.
+                                                    Silakan klik tombol di bawah untuk memilih jalur pendaftaran baru.
+                                                </p>
+                                                <ReRegistrationModal
+                                                    studentId={student.id}
+                                                    studentName={student.namaLengkap}
+                                                    activeWaveName={activeWave.name}
+                                                    allowedJalur={activeWave.jalurAllowed as string[] || []}
+                                                />
+                                            </div>
                                         </div>
                                     )}
 
