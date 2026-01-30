@@ -25,11 +25,13 @@ async function getEmailStats() {
         take: 20
     });
 
-    return { hourlyCount, dailyCount, recentLogs };
+    const totalCount = await db.emailLog.count();
+
+    return { hourlyCount, dailyCount, recentLogs, totalCount };
 }
 
 export default async function EmailMonitorPage() {
-    const { hourlyCount, dailyCount, recentLogs } = await getEmailStats();
+    const { hourlyCount, dailyCount, recentLogs, totalCount } = await getEmailStats();
 
     // Hostinger Limits (Estimation)
     const HOURLY_LIMIT = 200;
@@ -88,18 +90,15 @@ export default async function EmailMonitorPage() {
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col justify-center">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-500/20">
-                            <span className="material-symbols-outlined text-white text-2xl">mail</span>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-slate-900 dark:text-white">Butuh Kuota Lebih?</h4>
-                            <p className="text-xs text-slate-500 leading-relaxed">
-                                Jika pendaftar harian tembus ribuan, pertimbangkan beralih ke Resend atau SendGrid.
-                            </p>
-                        </div>
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center justify-between mb-4">
+                        <span className="text-sm font-medium text-slate-500">Total Selama Ini</span>
+                        <span className="material-symbols-outlined text-purple-600 bg-purple-50 dark:bg-purple-900/20 p-2 rounded-lg text-lg">database</span>
                     </div>
+                    <h3 className="text-4xl font-bold text-slate-900 dark:text-white">{totalCount}</h3>
+                    <p className="text-[10px] text-slate-400 mt-2 uppercase tracking-wider font-bold">
+                        Akumulasi Semua Data
+                    </p>
                 </div>
             </div>
 
