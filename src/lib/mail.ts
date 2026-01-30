@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { db } from "./db";
 
 const port = Number(process.env.SMTP_PORT) || 587;
 
@@ -37,9 +38,26 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
     try {
         await transporter.sendMail(mailOptions);
+        await db.emailLog.create({
+            data: {
+                to: email,
+                subject: mailOptions.subject,
+                type: "VERIFICATION",
+                status: "SUCCESS"
+            }
+        });
         console.log("Verification email sent to " + email);
         return true;
-    } catch (error) {
+    } catch (error: any) {
+        await db.emailLog.create({
+            data: {
+                to: email,
+                subject: mailOptions.subject,
+                type: "VERIFICATION",
+                status: "FAILED",
+                error: error.message || "Unknown error"
+            }
+        });
         console.error("Error sending email:", error);
         return false;
     }
@@ -70,9 +88,26 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
 
     try {
         await transporter.sendMail(mailOptions);
+        await db.emailLog.create({
+            data: {
+                to: email,
+                subject: mailOptions.subject,
+                type: "RESET_PASSWORD",
+                status: "SUCCESS"
+            }
+        });
         console.log("Password reset email sent to " + email);
         return true;
-    } catch (error) {
+    } catch (error: any) {
+        await db.emailLog.create({
+            data: {
+                to: email,
+                subject: mailOptions.subject,
+                type: "RESET_PASSWORD",
+                status: "FAILED",
+                error: error.message || "Unknown error"
+            }
+        });
         console.error("Error sending reset email:", error);
         return false;
     }

@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { hash } from "bcryptjs";
 import { sendPasswordResetEmail, sendVerificationEmail } from "@/lib/mail";
+import crypto from "crypto";
 
 export async function forgotPassword(email: string) {
     try {
@@ -16,7 +17,7 @@ export async function forgotPassword(email: string) {
             return { success: true };
         }
 
-        const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        const token = crypto.randomBytes(32).toString("hex");
         const expiry = new Date(Date.now() + 3600000); // 1 hour
 
         await db.$executeRawUnsafe(
@@ -59,8 +60,6 @@ export async function resetPassword(token: string, password: string) {
     }
 }
 
-
-
 export async function resendVerificationEmail(email: string) {
     if (!email) {
         return { success: false, error: "Email wajib diisi" };
@@ -81,7 +80,30 @@ export async function resendVerificationEmail(email: string) {
             return { success: false, error: "Akun sudah diverifikasi. Silakan login." };
         }
 
-        const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        // Rate Limiting: Check last verification email sent from EmailLog
+        const lastLog = await db.emailLog.findFirst({
+            where: {
+                to: email,
+                type: "VERIFICATION",
+                status: "SUCCESS"
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        if (lastLog) {
+            const now = new Date();
+            const lastSent = new Date(lastLog.createdAt);
+            const diffInMinutes = (now.getTime() - lastSent.getTime()) / (1000 * 60);
+
+            if (diffInMinutes < 2) {
+                const waitSecs = Math.ceil(120 - (now.getTime() - lastSent.getTime()) / 1000);
+                return { success: false, error: `Harap tunggu ${waitSecs} detik sebelum mengirim ulang.` };
+            }
+        }
+
+        const verificationToken = crypto.randomBytes(32).toString("hex");
         // 24 hours from now
         const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 

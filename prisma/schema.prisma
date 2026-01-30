@@ -332,3 +332,15 @@ model RegistrationHistory {
   
   createdAt       DateTime         @default(now())
 }
+
+model EmailLog {
+  id        String   @id @default(cuid())
+  to        String
+  subject   String
+  type      String   // VERIFICATION, RESET_PASSWORD
+  status    String   // SUCCESS, FAILED
+  error     String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}

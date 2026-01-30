@@ -27,8 +27,8 @@ export async function POST(req: Request) {
 
         const hashedPassword = await hash(password, 12);
 
-        // Generate verification token (simple random string for now)
-        const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        // Use cryptographically secure random token
+        const verificationToken = require("crypto").randomBytes(32).toString("hex");
         const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
         const user = await db.user.create({
