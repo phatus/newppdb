@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 async function getEmailStats() {
     const now = new Date();
     const startOfHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours());
