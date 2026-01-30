@@ -42,7 +42,7 @@ export default async function VerificationListPage({
                         Verifikasi Dokumen
                     </h1>
                     <p className="text-slate-500 text-sm">
-                        Daftar siswa yang menunggu validasi dokumen.
+                        Daftar murid yang menunggu validasi dokumen.
                     </p>
                 </div>
             </div>
@@ -109,7 +109,7 @@ export default async function VerificationListPage({
                 {students.length === 0 && (
                     <div className="col-span-full p-12 text-center text-slate-500">
                         <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
-                        <p>Belum ada data siswa yang perlu diverifikasi.</p>
+                        <p>Belum ada data murid yang perlu diverifikasi.</p>
                     </div>
                 )}
             </div>

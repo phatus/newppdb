@@ -84,7 +84,7 @@ export default function ImportGradesPage() {
             const res = await importCBTGrades(previewData);
             if (res.success) {
                 setResult(res);
-                toast.success(`Berhasil mengimpor ${res.successCount} nilai siswa.`);
+                toast.success(`Berhasil mengimpor ${res.successCount} nilai murid.`);
             } else {
                 toast.error("Gagal mengimpor data");
             }
@@ -129,7 +129,7 @@ export default function ImportGradesPage() {
                             <thead className="bg-slate-50 dark:bg-slate-900 sticky top-0">
                                 <tr>
                                     <th className="p-3 font-semibold">No Ujian</th>
-                                    <th className="p-3 font-semibold">Nama Siswa</th>
+                                    <th className="p-3 font-semibold">Nama Murid</th>
                                     <th className="p-3 font-semibold">Nilai</th>
                                 </tr>
                             </thead>
@@ -157,7 +157,7 @@ export default function ImportGradesPage() {
                         </div>
                         <div className="bg-white dark:bg-slate-800 p-4 rounded-lg text-center">
                             <p className="text-3xl font-black text-red-500">{result.failCount}</p>
-                            <p className="text-xs font-bold uppercase text-slate-500">Gagal (Siswa Tidak Ditemukan)</p>
+                            <p className="text-xs font-bold uppercase text-slate-500">Gagal (Murid Tidak Ditemukan)</p>
                         </div>
                     </div>
                 </div>

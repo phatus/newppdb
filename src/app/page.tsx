@@ -20,10 +20,10 @@ const getIcon = (title: string, index: number) => {
 }
 
 const getDefaultSchedule = () => [
-  { id: "1", title: "Pendaftaran Online", date: "1 - 5 Juli 2024", description: "Calon peserta didik melakukan pembuatan akun dan pengisian formulir pendaftaran secara mandiri melalui laman website." },
-  { id: "2", title: "Verifikasi & Validasi Berkas", date: "2 - 6 Juli 2024", description: "Panitia SPMB sekolah melakukan verifikasi berkas yang telah diunggah oleh calon peserta didik." },
-  { id: "3", title: "Pengumuman Hasil Seleksi", date: "8 Juli 2024", description: "Pengumuman hasil seleksi dapat dilihat melalui akun masing-masing peserta atau di papan pengumuman sekolah." },
-  { id: "4", title: "Daftar Ulang", date: "9 - 11 Juli 2024", description: "Peserta didik yang diterima wajib melakukan daftar ulang dengan membawa berkas fisik asli ke sekolah." },
+  { id: "1", title: "Pendaftaran Online", date: "1 - 5 Juli 2024", description: "Calon murid melakukan pembuatan akun dan pengisian formulir pendaftaran secara mandiri melalui laman website." },
+  { id: "2", title: "Verifikasi & Validasi Berkas", date: "2 - 6 Juli 2024", description: "Panitia SPMB sekolah melakukan verifikasi berkas yang telah diunggah oleh calon murid." },
+  { id: "3", title: "Pengumuman Hasil Seleksi", date: "8 Juli 2024", description: "Pengumuman hasil seleksi dapat dilihat melalui akun masing-masing atau papan pengumuman sekolah." },
+  { id: "4", title: "Daftar Ulang", date: "9 - 11 Juli 2024", description: "Murid yang diterima wajib melakukan daftar ulang dengan membawa berkas fisik asli ke sekolah." },
 ];
 
 export default async function Home() {
@@ -81,6 +81,10 @@ export default async function Home() {
               <Link className="text-slate-600 dark:text-slate-300 hover:text-primary dark:hover:text-primary text-sm font-semibold transition-colors" href="#alur">
                 Alur
               </Link>
+              <Link className="text-primary hover:text-blue-700 text-sm font-bold transition-colors flex items-center gap-1" href="/ranking">
+                <span className="material-symbols-outlined text-[18px]">leaderboard</span>
+                Ranking
+              </Link>
             </div>
             <div className="hidden md:flex gap-3">
               <Link href="/auth/login">
@@ -121,7 +125,7 @@ export default async function Home() {
                 {settings?.heroTitle || "Masa Depan Cerah Dimulai Di Sini"}
               </h1>
               <p className="text-slate-200 text-base sm:text-lg font-normal leading-relaxed max-w-2xl drop-shadow-sm">
-                {settings?.heroDescription || "Selamat datang di portal Penerimaan Peserta Didik Baru. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa."}
+                {settings?.heroDescription || "Selamat datang di portal Penerimaan Murid Baru. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa."}
               </p>
               <div className="flex flex-wrap justify-center gap-4 mt-4">
                 <Link href="/auth/register">
@@ -131,7 +135,13 @@ export default async function Home() {
                 </Link>
                 <Link href="/auth/login">
                   <button className="h-12 px-8 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/30 text-white text-base font-bold rounded-lg transition-all">
-                    Login Siswa
+                    Login Murid
+                  </button>
+                </Link>
+                <Link href="/ranking">
+                  <button className="h-12 px-8 bg-yellow-500 hover:bg-yellow-600 text-slate-900 text-base font-bold rounded-lg shadow-lg shadow-yellow-900/20 transition-all transform hover:scale-105 flex items-center gap-2">
+                    <span className="material-symbols-outlined">leaderboard</span>
+                    Cek Ranking
                   </button>
                 </Link>
               </div>
@@ -155,7 +165,7 @@ export default async function Home() {
               Jadwal Penting Pelaksanaan SPMB
             </h2>
             <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-              Catat tanggal-tanggal penting berikut agar kamu tidak ketinggalan tahapan seleksi penerimaan peserta didik baru.
+              Catat tanggal-tanggal penting berikut agar kamu tidak ketinggalan tahapan seleksi penerimaan murid baru.
             </p>
           </div>
           <div className="bg-background-light dark:bg-[#15202b] rounded-2xl p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-sm">
@@ -286,7 +296,7 @@ export default async function Home() {
               Alur Lengkap Pendaftaran
             </h2>
             <p className="text-slate-500 mt-2">
-              Ikuti 7 langkah mudah untuk mendaftar sebagai peserta didik baru.
+              Ikuti 7 langkah mudah untuk mendaftar sebagai murid baru.
             </p>
           </div>
           <div className="relative">
@@ -302,7 +312,7 @@ export default async function Home() {
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Membuat Akun</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Calon siswa/ Wali Murid membuat akun baru menggunakan email aktif dan password.
+                  Calon murid/ Wali Murid membuat akun baru menggunakan email aktif dan password.
                 </p>
               </div>
               {/* Step 2 */}
@@ -326,9 +336,9 @@ export default async function Home() {
                   </div>
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">3</div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Daftar Calon Siswa</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Daftar Calon Murid</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Melengkapi formulir pendaftaran dengan data rinci calon siswa dan orang tua.
+                  Melengkapi formulir pendaftaran dengan data rinci calon murid dan orang tua.
                 </p>
               </div>
               {/* Step 4 */}
@@ -417,7 +427,7 @@ export default async function Home() {
             </Link>
             <Link href="/auth/login">
               <button className="h-12 px-8 bg-blue-700 text-white border border-blue-600 text-base font-bold rounded-lg hover:bg-blue-600 transition-colors">
-                Login Siswa
+                Login Murid
               </button>
             </Link>
           </div>
@@ -438,7 +448,7 @@ export default async function Home() {
                 </h2>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                Layanan resmi Penerimaan Peserta Didik Baru jenjang Madrasah Tsanawiyah Kabupaten.
+                Layanan resmi Penerimaan Murid Baru jenjang Madrasah Tsanawiyah Kabupaten.
               </p>
             </div>
             <div>
@@ -447,6 +457,7 @@ export default async function Home() {
                 <li><a className="hover:text-primary transition-colors" href="#">Beranda</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Jadwal Pelaksanaan</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Persyaratan & Aturan</a></li>
+                <li><a className="hover:text-primary transition-colors" href="/ranking">Live Ranking</a></li>
                 <li><a className="hover:text-primary transition-colors" href="#">Statistik Pendaftar</a></li>
               </ul>
             </div>

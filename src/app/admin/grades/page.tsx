@@ -25,9 +25,9 @@ export default async function GradesPage() {
         <div className="p-6">
             <div className="mb-6 flex flex-col items-start gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Olah Nilai Siswa</h1>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Olah Nilai Murid</h1>
                     <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base">
-                        Input nilai ujian teori, SKUA, dan nilai raport siswa yang telah terverifikasi.
+                        Input nilai ujian teori, SKUA, dan nilai raport murid yang telah terverifikasi.
                     </p>
                 </div>
                 <Link href="/admin/grades/import" className="w-full md:w-auto">
@@ -42,7 +42,7 @@ export default async function GradesPage() {
                 {students.length === 0 ? (
                     <div className="p-8 text-center bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                         <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">inbox</span>
-                        <p className="text-slate-500">Belum ada siswa yang terverifikasi untuk dinilai.</p>
+                        <p className="text-slate-500">Belum ada murid yang terverifikasi untuk dinilai.</p>
                     </div>
                 ) : (
                     <BatchGradeTable students={students as any} />

@@ -56,7 +56,7 @@ export default function AcademicSettings({ initialData }: AcademicSettingsProps)
                 <div>
                     <h4 className="font-medium text-slate-900 dark:text-white">Status Pendaftaran</h4>
                     <p className="text-xs text-slate-500">
-                        Buka atau tutup pendaftaran siswa baru.
+                        Buka atau tutup pendaftaran murid baru.
                     </p>
                 </div>
                 <button

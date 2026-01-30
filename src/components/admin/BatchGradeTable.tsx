@@ -59,8 +59,8 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
         ];
         ws['!cols'] = wscols;
 
-        XLSX.utils.book_append_sheet(wb, ws, "Data Nilai Siswa");
-        XLSX.writeFile(wb, `Data_Nilai_Siswa_${new Date().toISOString().split('T')[0]}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Data Nilai Murid");
+        XLSX.writeFile(wb, `Data_Nilai_Murid_${new Date().toISOString().split('T')[0]}.xlsx`);
         toast.success("Berhasil mengexport data nilai!");
     };
 
@@ -93,7 +93,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                         <thead className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
                             <tr>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-12 text-center">No</th>
-                                <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">Nama Siswa</th>
+                                <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">Nama Murid</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">Rata Raport</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">Teori (0-100)</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">SKUA (0-100)</th>
@@ -119,7 +119,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="text-center py-8 text-slate-500 italic bg-white dark:bg-slate-800">
-                                        Tidak ada siswa yang ditemukan.
+                                        Tidak ada murid yang ditemukan.
                                     </td>
                                 </tr>
                             )}
@@ -200,7 +200,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                             <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800">
                                 <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed flex gap-2">
                                     <span className="material-symbols-outlined text-[16px] shrink-0 mt-0.5">info</span>
-                                    <span>Gunakan panduan ini untuk menentukan poin prestasi siswa. Poin ini akan ditambahkan ke hitungan ranking akhir.</span>
+                                    <span>Gunakan panduan ini untuk menentukan poin prestasi murid. Poin ini akan ditambahkan ke hitungan ranking akhir.</span>
                                 </p>
                             </div>
 

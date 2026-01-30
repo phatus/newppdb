@@ -165,7 +165,7 @@ export default async function FinalizePage({
                             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
                                 <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                                     <span className="material-symbols-outlined text-primary">person</span>
-                                    Data Diri Siswa
+                                    Data Diri Murid
                                 </h3>
                                 <Link href={`/dashboard/student/add?studentId=${selectedStudent.id}`} className="text-primary text-sm font-semibold hover:underline">
                                     Edit Data

@@ -71,7 +71,7 @@ export default async function DashboardPage() {
                 <Link href="/dashboard/student/add">
                     <button className="flex-shrink-0 flex items-center gap-2 cursor-pointer justify-center overflow-hidden rounded-xl h-11 px-5 bg-primary hover:bg-primary/90 text-white shadow-md shadow-primary/20 text-xs font-bold leading-normal transition-all">
                         <span className="material-symbols-outlined text-[18px]">person_add</span>
-                        <span className="truncate">Tambah Siswa Baru</span>
+                        <span className="truncate">Tambah Murid Baru</span>
                     </button>
                 </Link>
             </header>
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
                                         Selamat! {student.namaLengkap} Dinyatakan LULUS
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                                        Selamat, Anda dinyatakan <strong>LULUS</strong> seleksi Penerimaan Peserta Didik Baru Tahun Pelajaran {academicYear} pada Jalur <strong>{student.jalur.replace(/_/g, " ")}</strong>.
+                                        Selamat, Anda dinyatakan <strong>LULUS</strong> seleksi Penerimaan Murid Baru Tahun Pelajaran {academicYear} pada Jalur <strong>{student.jalur.replace(/_/g, " ")}</strong>.
                                         Silakan cek menu pengumuman secara berkala untuk informasi daftar ulang.
                                     </p>
                                 </div>
@@ -119,7 +119,7 @@ export default async function DashboardPage() {
                                         Mohon Maaf, {student.namaLengkap} Belum Lulus
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                                        Mohon maaf, Anda dinyatakan <strong>TIDAK LULUS</strong> seleksi PPDB tahun ini.
+                                        Mohon maaf, Anda dinyatakan <strong>TIDAK LULUS</strong> seleksi SPMB tahun ini.
                                         Jangan berkecil hati dan tetap semangat dalam menuntut ilmu di tempat lain.
                                     </p>
 
@@ -242,11 +242,11 @@ export default async function DashboardPage() {
                         <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 text-primary rounded-lg">
                             <span className="material-symbols-outlined text-[18px]">assignment_ind</span>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">Total Siswa</p>
+                        <p className="text-slate-500 dark:text-slate-400 text-xs font-bold">Total Murid</p>
                     </div>
                     <div className="flex items-baseline gap-2 mt-1">
                         <p className="text-slate-900 dark:text-white text-2xl font-bold leading-tight">{totalStudents}</p>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Siswa terdaftar</p>
+                        <p className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">Murid terdaftar</p>
                     </div>
                 </div>
                 <div className="flex flex-col gap-2 rounded-xl p-4 bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-slate-700/50 shadow-sm transition-all hover:shadow-md">

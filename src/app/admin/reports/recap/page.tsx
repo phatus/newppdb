@@ -45,7 +45,7 @@ export default async function RecapPage() {
                         <img src={settings.schoolLogo} alt="Logo" className="h-16 w-16 object-contain" />
                     )}
                     <div className="text-center">
-                        <h2 className="text-xl font-bold">Panitia Peserta Didik Baru (PPDB)</h2>
+                        <h2 className="text-xl font-bold">Panitia Penerimaan Murid Baru (SPMB)</h2>
                         <h3 className="text-lg font-bold">{settings?.schoolName || "SDIT Insan Kamil Karanganyar"}</h3>
                         <p className="text-sm">Tahun Pelajaran {settings?.academicYear || "2024/2025"}</p>
                     </div>
@@ -53,7 +53,7 @@ export default async function RecapPage() {
 
                 <div className="mb-4 flex justify-between items-end">
                     <h4 className="font-bold text-lg">Data Pendaftar Masuk</h4>
-                    <span className="text-sm text-slate-500">Total: {students.length} Siswa</span>
+                    <span className="text-sm text-slate-500">Total: {students.length} Murid</span>
                 </div>
 
                 <div className="overflow-x-auto">

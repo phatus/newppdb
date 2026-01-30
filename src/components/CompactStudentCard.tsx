@@ -40,7 +40,7 @@ export default function CompactStudentCard({ student }: CompactStudentCardProps)
     }
 
     const handleDelete = async () => {
-        if (!confirm("Hapus data siswa ini?")) return;
+        if (!confirm("Hapus data murid ini?")) return;
 
         setIsDeleting(true);
         try {
@@ -74,8 +74,8 @@ export default function CompactStudentCard({ student }: CompactStudentCardProps)
                 <div className="flex items-center justify-center md:justify-start gap-2">
                     {/* Status Badge */}
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${isVerified ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
-                            isRejected ? "bg-red-50 text-red-700 border-red-100" :
-                                "bg-amber-50 text-amber-700 border-amber-100"
+                        isRejected ? "bg-red-50 text-red-700 border-red-100" :
+                            "bg-amber-50 text-amber-700 border-amber-100"
                         }`}>
                         {isVerified ? "Terverifikasi" : isRejected ? "Ditolak" : "Proses"}
                     </span>

@@ -178,7 +178,7 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
                     <textarea
                         name="heroDescription"
                         rows={3}
-                        defaultValue={initialData?.heroDescription || "Selamat datang di portal Penerimaan Peserta Didik Baru."}
+                        defaultValue={initialData?.heroDescription || "Selamat datang di portal Penerimaan Murid Baru."}
                         className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 transition-all"
                         placeholder="Deskripsi singkat di bawah judul..."
                     />

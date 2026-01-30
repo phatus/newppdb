@@ -107,7 +107,7 @@ export default async function VerificationDetailPage({ params }: any) {
                         Verifikasi Dokumen
                     </h1>
                     <p className="text-slate-500 text-sm">
-                        Validasi kelengkapan dan keabsahan dokumen siswa.
+                        Validasi kelengkapan dan keabsahan dokumen murid.
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -204,13 +204,13 @@ export default async function VerificationDetailPage({ params }: any) {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Data Siswa Card */}
+                    {/* Data Murid Card */}
                     <div className="lg:col-span-1 flex flex-col gap-6">
                         <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                             <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                                 <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                                     <span className="material-symbols-outlined text-primary">person</span>
-                                    Data Siswa
+                                    Data Murid
                                 </h3>
                             </div>
                             <div className="p-6">

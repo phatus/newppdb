@@ -13,15 +13,22 @@ interface QuotaStat {
 export default function QuotaInfo() {
     const [stats, setStats] = useState<QuotaStat[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isHidden, setIsHidden] = useState(false);
 
     useEffect(() => {
         getQuotaStats().then(res => {
             if (res.success) {
-                setStats(res.data);
+                if (res.isHidden) {
+                    setIsHidden(true);
+                } else {
+                    setStats(res.data);
+                }
             }
             setLoading(false);
         });
     }, []);
+
+    if (isHidden) return null;
 
     if (loading) {
         return (

@@ -16,11 +16,15 @@ export default function QuotaSettings({ settings }: QuotaSettingsProps) {
         quotaPrestasiAkademik: settings?.quotaPrestasiAkademik || 15,
         quotaPrestasiNonAkademik: settings?.quotaPrestasiNonAkademik || 15,
         quotaAfirmasi: settings?.quotaAfirmasi || 20,
+        showQuota: settings?.showQuota ?? true,
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setQuotas(prev => ({ ...prev, [name]: parseInt(value) || 0 }));
+        const { name, value, type, checked } = e.target;
+        setQuotas(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : (parseInt(value) || 0)
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -55,7 +59,26 @@ export default function QuotaSettings({ settings }: QuotaSettingsProps) {
                     <span className="material-symbols-outlined mt-0.5">info</span>
                     <div className="text-sm">
                         <p className="font-bold mb-1">Informasi Kuota</p>
-                        <p>Kuota ini digunakan sebagai batas penerimaan siswa (Ranking), bukan batas pendaftaran. Jalur Afirmasi yang tidak lolos dapat masuk ke kuota Reguler jika nilainya mencukupi (tergantung implementasi ranking).</p>
+                        <p>Kuota ini digunakan sebagai batas penerimaan murid (Ranking), bukan batas pendaftaran. Jalur Afirmasi yang tidak lolos dapat masuk ke kuota Reguler jika nilainya mencukupi (tergantung implementasi ranking).</p>
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <div>
+                            <h3 className="font-bold text-slate-900">Tampilkan Info Kuota</h3>
+                            <p className="text-sm text-slate-500">Tampilkan informasi kuota di halaman depan (publik).</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="showQuota"
+                                checked={quotas.showQuota}
+                                onChange={handleChange}
+                                className="sr-only peer"
+                            />
+                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none ring-4 ring-slate-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
                     </div>
                 </div>
 
@@ -69,7 +92,7 @@ export default function QuotaSettings({ settings }: QuotaSettingsProps) {
                         className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-bold text-lg"
                         min="0"
                     />
-                    <p className="text-xs text-slate-500">Jumlah total siswa yang akan diterima.</p>
+                    <p className="text-xs text-slate-500">Jumlah total murid yang akan diterima.</p>
                 </div>
 
                 <div className="space-y-4 md:col-span-2 border-t border-slate-200 pt-4">

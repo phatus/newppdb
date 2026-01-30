@@ -64,7 +64,7 @@ export default function EmisExportPage() {
         const ws = XLSX.utils.json_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Data EMIS");
-        XLSX.writeFile(wb, `Data_Siswa_EMIS_${new Date().getTime()}.xlsx`);
+        XLSX.writeFile(wb, `Data_Murid_EMIS_${new Date().getTime()}.xlsx`);
     };
 
 
@@ -79,7 +79,7 @@ export default function EmisExportPage() {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Export Data EMIS</h1>
                     <p className="text-slate-500 dark:text-slate-400">
-                        Unduh data siswa yang diterima untuk keperluan integrasi EMIS.
+                        Unduh data murid yang diterima untuk keperluan integrasi EMIS.
                     </p>
                 </div>
                 <button
@@ -136,7 +136,7 @@ export default function EmisExportPage() {
                                     <td colSpan={7} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                                         <div className="flex flex-col items-center gap-2">
                                             <span className="material-symbols-outlined text-4xl text-slate-300">inbox</span>
-                                            <p>Belum ada data siswa yang diterima / terverifikasi.</p>
+                                            <p>Belum ada data murid yang diterima / terverifikasi.</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -145,7 +145,7 @@ export default function EmisExportPage() {
                     </table>
                 </div>
                 <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 flex justify-between items-center">
-                    <span>Total: <b>{students.length}</b> siswa</span>
+                    <span>Total: <b>{students.length}</b> murid</span>
                 </div>
             </div>
         </div>

@@ -103,7 +103,7 @@ function AddStudentForm() {
                     });
                 })
                 .catch((err) => {
-                    setError("Gagal mengambil data siswa: " + err.message);
+                    setError("Gagal mengambil data murid: " + err.message);
                 })
                 .finally(() => {
                     setIsFetching(false);
@@ -229,7 +229,7 @@ function AddStudentForm() {
                     </a>
                     <span className="mx-2 text-slate-300 dark:text-slate-600">/</span>
                     <a href="#" className="hover:text-primary transition-colors">
-                        Data Siswa
+                        Data Murid
                     </a>
                     <span className="mx-2 text-slate-300 dark:text-slate-600">/</span>
                     <span className="text-slate-900 dark:text-white font-medium">
@@ -240,12 +240,12 @@ function AddStudentForm() {
                 <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-2">
-                            {isEditMode ? "Formulir Edit Siswa" : "Formulir Tambah Siswa"}
+                            {isEditMode ? "Formulir Edit Murid" : "Formulir Tambah Murid"}
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 text-base max-w-2xl">
                             {isEditMode
-                                ? "Silakan perbarui data siswa di bawah ini."
-                                : "Silakan lengkapi data diri calon siswa di bawah ini. Pastikan semua informasi valid sebelum menyimpan."}
+                                ? "Silakan perbarui data murid di bawah ini."
+                                : "Silakan lengkapi data diri calon murid di bawah ini. Pastikan semua informasi valid sebelum menyimpan."}
                         </p>
                     </div>
                 </div>
@@ -322,7 +322,7 @@ function AddStudentForm() {
                                 {
                                     id: "AFIRMASI",
                                     label: "Afirmasi",
-                                    desc: "Untuk siswa dari keluarga kurang mampu (SKTM).",
+                                    desc: "Untuk murid dari keluarga kurang mampu (SKTM).",
                                     icon: "volunteer_activism",
                                     color: "purple"
                                 }

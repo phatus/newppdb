@@ -24,7 +24,7 @@ export default function StudentSelector({ students, currentStudentId }: StudentS
     return (
         <div className="mb-6">
             <label htmlFor="student-select" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Pilih Siswa
+                Pilih Murid
             </label>
             <div className="relative">
                 <select

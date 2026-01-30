@@ -27,7 +27,7 @@ export default function StudentCard({ student }: StudentCardProps) {
 
 
     const handleDelete = async () => {
-        if (!confirm("Apakah Anda yakin ingin menghapus data siswa ini? Data yang dihapus tidak dapat dikembalikan.")) {
+        if (!confirm("Apakah Anda yakin ingin menghapus data murid ini? Data yang dihapus tidak dapat dikembalikan.")) {
             return;
         }
 

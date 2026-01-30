@@ -44,7 +44,7 @@ export default async function RankingReportPage() {
                         <img src={settings.schoolLogo} alt="Logo" className="h-24 w-24 object-contain" />
                     )}
                     <div className="flex flex-col items-center gap-1 flex-1">
-                        <h2 className="text-xl font-bold">Panitia Penerimaan Peserta Didik Baru</h2>
+                        <h2 className="text-xl font-bold">Panitia Penerimaan Murid Baru</h2>
                         <h1 className="text-2xl font-black">{settings?.schoolName || "MTsN 1 Pacitan"}</h1>
                         <p className="text-sm font-serif italic">{settings?.schoolAddress || "Jl. Alamat Madrasah"}</p>
                     </div>
@@ -59,10 +59,10 @@ export default async function RankingReportPage() {
                 {/* Isi */}
                 <div className="text-justify mb-6 leading-relaxed">
                     <p className="mb-4">
-                        Pada hari ini <strong>{dateStr}</strong>, bertempat di {settings?.schoolName || "Madrasah Tsyanawiyah Negeri 1 Pacitan"}, Panitia SPMB telah melaksanakan rapat pleno penetapan hasil seleksi calon peserta didik baru Tahun Pelajaran {settings?.academicYear || "2024/2025"}.
+                        Pada hari ini <strong>{dateStr}</strong>, bertempat di {settings?.schoolName || "Madrasah Tsyanawiyah Negeri 1 Pacitan"}, Panitia SPMB telah melaksanakan rapat pleno penetapan hasil seleksi calon murid baru Tahun Pelajaran {settings?.academicYear || "2024/2025"}.
                     </p>
                     <p>
-                        Berdasarkan hasil verifikasi berkas, nilai rapor, dan prestasi, maka ditetapkan daftar peringkat calon siswa sebagai berikut:
+                        Berdasarkan hasil verifikasi berkas, nilai rapor, dan prestasi, maka ditetapkan daftar peringkat calon murid sebagai berikut:
                     </p>
                 </div>
 
@@ -83,7 +83,7 @@ export default async function RankingReportPage() {
                         <tbody>
                             {rankedStudents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="border border-black py-8 text-center italic">Tidak ada data siswa untuk ditampilkan.</td>
+                                    <td colSpan={6} className="border border-black py-8 text-center italic">Tidak ada data murid untuk ditampilkan.</td>
                                 </tr>
                             ) : (
                                 rankedStudents.map((s, idx) => (

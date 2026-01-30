@@ -14,7 +14,7 @@ export default function ExportCbtButton() {
             const data = await getCbtExportData();
 
             if (data.length === 0) {
-                toast.error("Tidak ada data siswa terverifikasi dengan nomor ujian.");
+                toast.error("Tidak ada data murid terverifikasi dengan nomor ujian.");
                 setLoading(false);
                 return;
             }

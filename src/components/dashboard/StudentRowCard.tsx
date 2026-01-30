@@ -18,7 +18,7 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
     const isPending = student.statusVerifikasi === "PENDING";
 
     const handleDelete = async () => {
-        if (!confirm("Hapus data siswa ini?")) return;
+        if (!confirm("Hapus data murid ini?")) return;
 
         setIsDeleting(true);
         try {
@@ -151,7 +151,7 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                         onClick={handleDelete}
                         disabled={isDeleting}
                         className="flex items-center justify-center p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        title="Hapus Siswa"
+                        title="Hapus Murid"
                     >
                         <span className="material-symbols-outlined text-[18px]">delete</span>
                     </button>

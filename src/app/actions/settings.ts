@@ -19,6 +19,7 @@ export async function updateSettings(data: {
     schoolAddress?: string;
     academicYear?: string;
     isRegistrationOpen?: boolean;
+    showQuota?: boolean;
     committeeName?: string;
     committeeNip?: string;
     principalName?: string;
@@ -38,7 +39,7 @@ export async function updateSettings(data: {
 }) {
     try {
         const {
-            schoolName, schoolAddress, academicYear, isRegistrationOpen,
+            schoolName, schoolAddress, academicYear, isRegistrationOpen, showQuota,
             committeeName, committeeNip, principalName, principalNip, schoolCity,
             studentQuota, quotaReguler, quotaPrestasiAkademik, quotaPrestasiNonAkademik, quotaAfirmasi,
             waGatewayToken, waGatewayUrl, isWaEnabled,
@@ -132,6 +133,11 @@ export async function updateSettings(data: {
                 values.push(JSON.stringify(data.pathWeights));
             }
 
+            if (data.showQuota !== undefined) {
+                updates.push(`"showQuota" = $${i++}`);
+                values.push(data.showQuota);
+            }
+
             if (updates.length > 0) {
                 values.push(first.id);
                 await db.$executeRawUnsafe(`
@@ -147,6 +153,7 @@ export async function updateSettings(data: {
                     schoolAddress: data.schoolAddress,
                     academicYear: data.academicYear || "2025/2026",
                     isRegistrationOpen: data.isRegistrationOpen ?? true,
+                    showQuota: data.showQuota ?? true,
                 },
             });
 

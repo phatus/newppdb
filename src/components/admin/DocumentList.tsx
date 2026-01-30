@@ -64,12 +64,12 @@ export default function DocumentList({ student, docList, studentId }: DocumentLi
                                 </div>
                                 <div className="ml-3 flex-1">
                                     <p className="text-sm font-medium text-slate-900 dark:text-white">
-                                        {type === 'VERIFY' ? 'Verifikasi Berhasil!' : 'Siswa Ditolak'}
+                                        {type === 'VERIFY' ? 'Verifikasi Berhasil!' : 'Murid Ditolak'}
                                     </p>
                                     <p className="mt-1 text-sm text-slate-500">
                                         {type === 'VERIFY'
-                                            ? 'Status siswa telah diperbarui menjadi Terverifikasi.'
-                                            : 'Notifikasi penolakan telah dikirim ke siswa.'}
+                                            ? 'Status murid telah diperbarui menjadi Terverifikasi.'
+                                            : 'Notifikasi penolakan telah dikirim ke murid.'}
                                     </p>
                                 </div>
                             </div>

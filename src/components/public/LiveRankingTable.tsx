@@ -74,7 +74,7 @@ export default function LiveRankingTable({ initialData }: { initialData: any[] }
                         <thead className="bg-[#0f172a] text-white">
                             <tr>
                                 <th className="px-6 py-4 font-bold w-16 text-center">Rank</th>
-                                <th className="px-6 py-4 font-bold">Nama Siswa</th>
+                                <th className="px-6 py-4 font-bold">Nama Murid</th>
                                 <th className="px-6 py-4 font-bold">Asal Sekolah</th>
                                 <th className="px-6 py-4 font-bold w-32 text-center">Jalur</th>
                                 <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>
@@ -133,7 +133,7 @@ export default function LiveRankingTable({ initialData }: { initialData: any[] }
 
             <div className="mt-4 text-center text-xs text-slate-400">
                 <p>* Perangkingan diperbarui secara otomatis setiap saat.</p>
-                <p>Keputusan panitia PPDB bersifat mutlak dan tidak dapat diganggu gugat.</p>
+                <p>Keputusan panitia SPMB bersifat mutlak dan tidak dapat diganggu gugat.</p>
             </div>
         </div>
     );

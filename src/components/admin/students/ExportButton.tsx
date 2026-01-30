@@ -45,8 +45,8 @@ export default function ExportButton({ students }: ExportButtonProps) {
         ];
         ws['!cols'] = wscols;
 
-        XLSX.utils.book_append_sheet(wb, ws, "Data Calon Siswa");
-        XLSX.writeFile(wb, `Data_Calon_Siswa_PPDB_${new Date().toISOString().split('T')[0]}.xlsx`);
+        XLSX.utils.book_append_sheet(wb, ws, "Data Calon Murid");
+        XLSX.writeFile(wb, `Data_Calon_Murid_SPMB_${new Date().toISOString().split('T')[0]}.xlsx`);
         toast.success("Berhasil export data!");
     };
 

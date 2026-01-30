@@ -8,7 +8,7 @@ export default function AutoSelectionButton({ quota }: { quota: number }) {
     const [loading, setLoading] = useState(false);
 
     async function handleAutoSelect() {
-        if (!confirm(`Apakah Anda yakin ingin melakukan seleksi otomatis?\n\n${quota} siswa dengan peringkat tertinggi akan dinyatakan LULUS.\nSisanya akan dinyatakan TIDAK LULUS.\n\nTindakan ini akan mengupdate status kelulusan siswa.`)) {
+        if (!confirm(`Apakah Anda yakin ingin melakukan seleksi otomatis?\n\n${quota} murid dengan peringkat tertinggi akan dinyatakan LULUS.\nSisanya akan dinyatakan TIDAK LULUS.\n\nTindakan ini akan mengupdate status kelulusan murid.`)) {
             return;
         }
 

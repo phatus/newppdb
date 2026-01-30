@@ -69,7 +69,7 @@ export async function verifyStudent(studentId: string) {
         return { success: true };
     } catch (error) {
         console.error("Error verifying student:", error);
-        return { success: false, error: "Gagal memverifikasi siswa" };
+        return { success: false, error: "Gagal memverifikasi murid" };
     }
 }
 
@@ -106,7 +106,7 @@ export async function rejectStudent(studentId: string, note: string) {
         return { success: true };
     } catch (error) {
         console.error("Error rejecting student:", error);
-        return { success: false, error: "Gagal menolak siswa" };
+        return { success: false, error: "Gagal menolak murid" };
     }
 }
 

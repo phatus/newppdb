@@ -41,7 +41,7 @@ export default function WABlastPanel() {
                     <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-200 dark:border-slate-700 animate-in zoom-in-95">
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Blast Pengumuman WA</h3>
                         <p className="text-sm text-slate-500 mb-6">
-                            Pesan akan dikirim ke seluruh siswa yang ada di tabel ranking. Peringkat 1 sampai <strong>{quota}</strong> akan dinyatakan <strong>DITERIMA</strong>.
+                            Pesan akan dikirim ke seluruh murid yang ada di tabel ranking. Peringkat 1 sampai <strong>{quota}</strong> akan dinyatakan <strong>DITERIMA</strong>.
                         </p>
 
                         <div className="space-y-4 mb-8">

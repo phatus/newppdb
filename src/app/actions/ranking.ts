@@ -137,7 +137,7 @@ export async function autoSelectStudents() {
         const allStudents = await getRankingData();
 
         if (allStudents.length === 0) {
-            return { success: false, error: "Tidak ada data siswa terverifikasi." };
+            return { success: false, error: "Tidak ada data murid terverifikasi." };
         }
 
         // 3. Group by Path (Jalur)

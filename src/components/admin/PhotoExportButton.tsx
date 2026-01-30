@@ -15,7 +15,7 @@ export default function PhotoExportButton() {
             // 1. Fetch Students
             const res = await getAcceptedStudentsForEmis();
             if (!res.success || !res.data || res.data.length === 0) {
-                toast.error("Tidak ada data siswa untuk diexport", { id: toastId });
+                toast.error("Tidak ada data murid untuk diexport", { id: toastId });
                 return;
             }
 

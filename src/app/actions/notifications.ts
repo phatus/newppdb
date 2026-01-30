@@ -36,7 +36,7 @@ export async function blastFinalStatus(quota: number) {
             }
 
             const statusText = isAccepted ? "DITERIMA" : "TIDAK DITERIMA";
-            const message = `Halo ${student.namaLengkap},\n\nBerdasarkan hasil seleksi akhir PPDB ${settings.schoolName || "SDIT Insan Kamil"}, Anda dinyatakan:\n\n*${statusText}*\n\nTerima kasih telah berpartisipasi dalam proses pendaftaran ini.`;
+            const message = `Halo ${student.namaLengkap},\n\nBerdasarkan hasil seleksi akhir SPMB ${settings.schoolName || "SDIT Insan Kamil"}, Anda dinyatakan:\n\n*${statusText}*\n\nTerima kasih telah berpartisipasi dalam proses pendaftaran ini.`;
 
             const res = await sendWhatsApp(phone, message);
             if (res.success) successCount++;

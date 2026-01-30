@@ -34,7 +34,7 @@ export default function StudentTable({ students }: StudentTableProps) {
     const handleDelete = async (ids: string[]) => {
         const result = await Swal.fire({
             title: 'Apakah Anda yakin?',
-            text: `Anda akan menghapus ${ids.length} data siswa. Tindakan ini tidak dapat dibatalkan!`,
+            text: `Anda akan menghapus ${ids.length} data murid. Tindakan ini tidak dapat dibatalkan!`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -51,7 +51,7 @@ export default function StudentTable({ students }: StudentTableProps) {
             if (res.success) {
                 Swal.fire(
                     'Terhapus!',
-                    'Data siswa berhasil dihapus.',
+                    'Data murid berhasil dihapus.',
                     'success'
                 );
                 setSelectedIds([]);
@@ -78,7 +78,7 @@ export default function StudentTable({ students }: StudentTableProps) {
 
         const result = await Swal.fire({
             title: 'HAPUS SEMUA DATA?',
-            html: `Ini adalah tindakan <strong>BERBAHAYA</strong>. Anda akan menghapus <strong>SEMUA ${students.length} data calon siswa</strong>.<br/><br/>Ketik <strong>"${confirmPhrase}"</strong> untuk melanjutkan:`,
+            html: `Ini adalah tindakan <strong>BERBAHAYA</strong>. Anda akan menghapus <strong>SEMUA ${students.length} data calon murid</strong>.<br/><br/>Ketik <strong>"${confirmPhrase}"</strong> untuk melanjutkan:`,
             input: 'text',
             inputAttributes: {
                 autocapitalize: 'off',
@@ -105,7 +105,7 @@ export default function StudentTable({ students }: StudentTableProps) {
             if (res.success) {
                 Swal.fire(
                     'Reset Berhasil!',
-                    'Semua data siswa telah dihapus.',
+                    'Semua data murid telah dihapus.',
                     'success'
                 );
                 setSelectedIds([]);
@@ -236,7 +236,7 @@ export default function StudentTable({ students }: StudentTableProps) {
                 {/* Footer with Delete All */}
                 <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div className="text-sm text-slate-500">
-                        Total: <span className="font-bold text-slate-900 dark:text-white">{students.length}</span> Siswa
+                        Total: <span className="font-bold text-slate-900 dark:text-white">{students.length}</span> Murid
                     </div>
 
                     {students.length > 0 && (

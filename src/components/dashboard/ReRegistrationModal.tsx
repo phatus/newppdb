@@ -112,7 +112,7 @@ export default function ReRegistrationModal({ studentId, studentName, activeWave
                             Daftar Ulang: {activeWaveName}
                         </h3>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                            Siswa: <span className="font-semibold text-slate-700 dark:text-slate-200">{studentName}</span>
+                            Murid: <span className="font-semibold text-slate-700 dark:text-slate-200">{studentName}</span>
                         </p>
                     </div>
                     <button

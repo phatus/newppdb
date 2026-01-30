@@ -20,11 +20,11 @@ export async function checkGraduationStatus(nisn: string) {
         });
 
         if (!student) {
-            return { success: false, error: "Data siswa tidak ditemukan atau belum diverifikasi." };
+            return { success: false, error: "Data murid tidak ditemukan atau belum diverifikasi." };
         }
 
         if (student.statusKelulusan === "PENDING" || !student.statusKelulusan) {
-            return { success: false, error: "Pengumuman kelulusan belum tersedia untuk siswa ini." };
+            return { success: false, error: "Pengumuman kelulusan belum tersedia untuk murid ini." };
         }
 
         return {
@@ -53,6 +53,11 @@ export async function getQuotaStats() {
         const quotaPrestasiAkademik = settings.quotaPrestasiAkademik || 0;
         const quotaPrestasiNonAkademik = settings.quotaPrestasiNonAkademik || 0;
         const quotaAfirmasi = settings.quotaAfirmasi || 0;
+
+        // Check visibility
+        if (settings.showQuota === false) {
+            return { success: true, data: [], isHidden: true };
+        }
 
         // 2. Count "LULUS" students grouped by Jalur
         const acceptedStats = await db.student.groupBy({

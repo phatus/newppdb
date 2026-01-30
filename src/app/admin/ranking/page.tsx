@@ -15,7 +15,7 @@ export default async function RankingPage() {
         <div className="flex flex-col gap-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex flex-col gap-2">
-                    <h1 className="text-3xl font-black text-slate-900 dark:text-white">Perangkingan Siswa</h1>
+                    <h1 className="text-3xl font-black text-slate-900 dark:text-white">Perangkingan Murid</h1>
                     <p className="text-slate-500 dark:text-slate-400">
                         Daftar peringkat berdasarkan kalkulasi nilai Rapor, Ujian Teori, SKUA, dan Prestasi.
                     </p>

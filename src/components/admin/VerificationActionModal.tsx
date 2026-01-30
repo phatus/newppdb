@@ -41,12 +41,12 @@ export default function VerificationActionModal({
                         </span>
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                        {type === 'VERIFY' ? 'Verifikasi Siswa' : 'Tolak Pendaftaran'}
+                        {type === 'VERIFY' ? 'Verifikasi Murid' : 'Tolak Pendaftaran'}
                     </h3>
                     <p className="text-slate-500 text-sm mt-2">
                         {type === 'VERIFY'
-                            ? 'Apakah Anda yakin semua dokumen valid? Siswa akan menerima notifikasi diterima.'
-                            : 'Siswa akan menerima notifikasi penolakan. Harap berikan alasan yang jelas.'}
+                            ? 'Apakah Anda yakin semua dokumen valid? Murid akan menerima notifikasi diterima.'
+                            : 'Murid akan menerima notifikasi penolakan. Harap berikan alasan yang jelas.'}
                     </p>
                 </div>
 
@@ -77,12 +77,12 @@ export default function VerificationActionModal({
                             onClick={() => onConfirm(type === 'REJECT' ? note : undefined)}
                             disabled={isLoading || (type === 'REJECT' && !note.trim())}
                             className={`flex-1 px-4 py-2.5 rounded-lg text-white font-bold text-sm shadow-lg transition-all flex items-center justify-center gap-2 ${type === 'VERIFY'
-                                    ? 'bg-primary hover:bg-blue-700 hover:shadow-blue-500/25'
-                                    : 'bg-red-600 hover:bg-red-700 hover:shadow-red-500/25 disabled:opacity-50 disabled:cursor-not-allowed'
+                                ? 'bg-primary hover:bg-blue-700 hover:shadow-blue-500/25'
+                                : 'bg-red-600 hover:bg-red-700 hover:shadow-red-500/25 disabled:opacity-50 disabled:cursor-not-allowed'
                                 }`}
                         >
                             {isLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-                            {type === 'VERIFY' ? 'Ya, Verifikasi' : 'Tolak Siswa'}
+                            {type === 'VERIFY' ? 'Ya, Verifikasi' : 'Tolak Murid'}
                         </button>
                     </div>
                 </div>

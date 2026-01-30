@@ -92,7 +92,7 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                     <thead>
                         <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 text-sm font-bold bg-slate-50 dark:bg-slate-800/50">
                             <th className="p-4 w-16 text-center">#</th>
-                            <th className="p-4">Nama Siswa</th>
+                            <th className="p-4">Nama Murid</th>
                             <th className="p-4">Asal Sekolah</th>
                             <th className="p-4">Jalur</th>
                             <th className="p-4 text-center">Rapor (Avg)</th>
@@ -107,7 +107,7 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {initialData.length === 0 ? (
                             <tr>
-                                <td colSpan={11} className="p-8 text-center text-slate-500">Belum ada siswa terverifikasi.</td>
+                                <td colSpan={11} className="p-8 text-center text-slate-500">Belum ada murid terverifikasi.</td>
                             </tr>
                         ) : (
                             initialData.map((student, idx) => {

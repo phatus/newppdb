@@ -21,7 +21,7 @@ export default function ReportsHubPage() {
                     <div>
                         <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">Rekapitulasi Pendaftar</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                            Daftar seluruh calon siswa dengan detail biodata, nilai, dan status verifikasi. Tersedia format Excel & PDF.
+                            Daftar seluruh calon murid dengan detail biodata, nilai, dan status verifikasi. Tersedia format Excel & PDF.
                         </p>
                         <Link href="/admin/reports/recap" className="inline-flex items-center gap-2 text-primary text-sm font-semibold hover:underline">
                             Buka Rekapitulasi &rarr;
@@ -37,7 +37,7 @@ export default function ReportsHubPage() {
                     <div>
                         <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">Berita Acara Seleksi</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                            Dokumen resmi hasil pemeringkatan (ranking) siswa yang lolos seleksi. Siap cetak dengan kop sekolah.
+                            Dokumen resmi hasil pemeringkatan (ranking) murid yang lolos seleksi. Siap cetak dengan kop sekolah.
                         </p>
                         <Link href="/admin/reports/ranking" className="inline-flex items-center gap-2 text-primary text-sm font-semibold hover:underline">
                             Buat Berita Acara &rarr;
@@ -53,7 +53,7 @@ export default function ReportsHubPage() {
                     <div>
                         <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">Cetak Kartu Massal</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                            Cetak kartu ujian untuk seluruh siswa terverifikasi sekaligus. Hemat waktu distribusi kartu.
+                            Cetak kartu ujian untuk seluruh murid terverifikasi sekaligus. Hemat waktu distribusi kartu.
                         </p>
                         <button className="inline-flex items-center gap-2 text-slate-400 text-sm font-semibold cursor-not-allowed" disabled>
                             Segera Hadir

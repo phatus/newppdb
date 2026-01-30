@@ -53,15 +53,28 @@ export async function createUser(data: { email: string; password: string; role: 
 
 export async function deleteUser(userId: string) {
     try {
-        await db.user.delete({
-            where: { id: userId }
+        await db.$transaction(async (tx) => {
+            // Delete related data first to avoid Foreign Key constraints
+            // 1. Audit Logs
+            await tx.auditLog.deleteMany({ where: { userId } });
+
+            // 2. Announcements
+            await tx.announcement.deleteMany({ where: { authorId: userId } });
+
+            // 3. Student Data (if any)
+            await tx.student.deleteMany({ where: { userId } });
+
+            // 4. Finally delete the User
+            await tx.user.delete({
+                where: { id: userId }
+            });
         });
 
         revalidatePath("/admin/settings");
         return { success: true };
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error deleting user:", error);
-        return { success: false, error: "Gagal menghapus user" };
+        return { success: false, error: error.message || "Gagal menghapus user" };
     }
 }
 

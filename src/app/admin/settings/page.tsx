@@ -42,7 +42,7 @@ export default async function SettingsPage() {
                     <section id="schedule" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
                         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
                             <span className="material-symbols-outlined text-primary">calendar_month</span>
-                            Jadwal PPDB
+                            Jadwal SPMB
                         </h2>
                         <ScheduleSettings initialData={settings} />
                     </section>
@@ -110,7 +110,7 @@ export default async function SettingsPage() {
                             </a>
                             <a href="#schedule" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all">
                                 <span className="material-symbols-outlined text-[18px]">calendar_month</span>
-                                Jadwal PPDB
+                                Jadwal SPMB
                             </a>
                             <a href="#academic" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all">
                                 <span className="material-symbols-outlined text-[18px]">edit_calendar</span>

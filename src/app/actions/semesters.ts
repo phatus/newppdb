@@ -73,7 +73,7 @@ export async function deleteSemester(id: string) {
         if (relatedGrades > 0) {
             return {
                 success: false,
-                error: "Tidak dapat menghapus semester karena sudah ada nilai siswa yang terkait.",
+                error: "Tidak dapat menghapus semester karena sudah ada nilai murid yang terkait.",
             };
         }
 

@@ -17,7 +17,7 @@ export async function reRegisterStudent(studentId: string, data: { newJalur: str
         });
 
         if (!student) {
-            return { success: false, error: "Siswa tidak ditemukan" };
+            return { success: false, error: "Murid tidak ditemukan" };
         }
 
         // Verify ownership (or admin)

@@ -17,7 +17,7 @@ export default function StudentListManager({ students, showGraduationStatus = fa
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-primary rounded-full"></span>
-                    Daftar Calon Peserta Didik
+                    Daftar Calon Murid
                 </h2>
 
                 {/* Search Bar */}
@@ -57,11 +57,11 @@ export default function StudentListManager({ students, showGraduationStatus = fa
                     <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
                         <span className="material-symbols-outlined text-3xl">person_off</span>
                     </div>
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Belum ada data siswa</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Silakan tambahkan data calon siswa baru terlebih dahulu.</p>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">Belum ada data murid</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Silakan tambahkan data calon murid baru terlebih dahulu.</p>
                     <Link href="/dashboard/student/add">
                         <button className="px-6 py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:bg-blue-600 transition-colors">
-                            Tambah Siswa
+                            Tambah Murid
                         </button>
                     </Link>
                 </div>

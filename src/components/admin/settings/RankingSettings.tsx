@@ -49,7 +49,7 @@ export default function RankingSettings({ initialData }: RankingSettingsProps) {
                 <p className="text-sm text-blue-800 dark:text-blue-300 flex items-start gap-2">
                     <span className="material-symbols-outlined text-[18px] mt-0.5">info</span>
                     <span>
-                        Tentukan persentase bobot untuk setiap komponen penilaian dalam menghitung Skor Akhir siswa.
+                        Tentukan persentase bobot untuk setiap komponen penilaian dalam menghitung Skor Akhir murid.
                         Total bobot harus 100%. Prestasi akan ditambahkan sebagai poin bonus (non-persentase).
                     </span>
                 </p>

@@ -48,10 +48,10 @@ export default async function DocumentUploadPage({
                         <span className="material-symbols-outlined text-4xl">person_off</span>
                     </div>
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
-                        Belum Ada Siswa
+                        Belum Ada Murid
                     </h2>
                     <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">
-                        Anda belum mendaftarkan siswa. Silakan tambahkan data siswa terlebih
+                        Anda belum mendaftarkan murid. Silakan tambahkan data murid terlebih
                         dahulu sebelum mengunggah dokumen.
                     </p>
                     <a
@@ -59,7 +59,7 @@ export default async function DocumentUploadPage({
                         className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-all"
                     >
                         <span className="material-symbols-outlined">add</span>
-                        Tambah Siswa Baru
+                        Tambah Murid Baru
                     </a>
                 </div>
             </div>
@@ -172,11 +172,11 @@ export default async function DocumentUploadPage({
                 {/* Page Heading */}
                 <div className="flex flex-col gap-2">
                     <h1 className="text-slate-900 dark:text-white text-3xl md:text-4xl font-black leading-tight tracking-[-0.033em]">
-                        Unggah Dokumen Siswa
+                        Unggah Dokumen Murid
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">
                         Silakan unggah dokumen digital untuk kelengkapan administrasi calon
-                        siswa baru.
+                        murid baru.
                     </p>
                 </div>
 

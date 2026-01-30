@@ -266,6 +266,7 @@ model SchoolSettings {
   schoolLogo        String?  // URL to logo
   academicYear      String   @default("2025/2026")
   isRegistrationOpen Boolean @default(true)
+  showQuota         Boolean  @default(true)
   ppdbSchedule      Json?    // Array of { id, title, date, description, icon, color }
   
   // Ranking Weights

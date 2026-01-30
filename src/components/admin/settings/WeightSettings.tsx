@@ -105,7 +105,7 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
                 <span className="material-symbols-outlined shrink-0">info</span>
                 <p>
                     Atur pembobotan nilai untuk setiap jalur pendaftaran. Total bobot untuk setiap jalur harus <strong>100%</strong>.
-                    Nilai akhir siswa akan dihitung berdasarkan persentase ini.
+                    Nilai akhir murid akan dihitung berdasarkan persentase ini.
                 </p>
             </div>
 
