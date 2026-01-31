@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface StudentSelectorProps {
     students: {
@@ -8,15 +8,20 @@ interface StudentSelectorProps {
         namaLengkap: string;
         nisn: string;
     }[];
-    currentStudentId: string;
+    currentStudentId?: string;
 }
 
 export default function StudentSelector({ students, currentStudentId }: StudentSelectorProps) {
     const router = useRouter();
+    const pathname = usePathname();
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const studentId = e.target.value;
-        router.push(`/dashboard/student/documents?studentId=${studentId}`);
+        if (studentId === "all") {
+            router.push(pathname);
+        } else {
+            router.push(`${pathname}?studentId=${studentId}`);
+        }
     };
 
     if (students.length <= 1) return null;
@@ -29,10 +34,11 @@ export default function StudentSelector({ students, currentStudentId }: StudentS
             <div className="relative">
                 <select
                     id="student-select"
-                    value={currentStudentId}
+                    value={currentStudentId || "all"}
                     onChange={handleChange}
                     className="appearance-none w-full bg-white dark:bg-[#1A2632] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white rounded-lg py-2.5 px-4 pr-8 leading-tight focus:outline-none focus:bg-white focus:border-primary"
                 >
+                    <option value="all">Semua Murid (Kolektif)</option>
                     {students.map((student) => (
                         <option key={student.id} value={student.id}>
                             {student.namaLengkap} ({student.nisn})
