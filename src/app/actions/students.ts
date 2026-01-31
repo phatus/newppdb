@@ -14,12 +14,46 @@ async function checkAdmin() {
     return session;
 }
 
+import { deleteFiles } from "@/lib/file-utils";
+
 export async function deleteStudents(studentIds: string[]) {
     try {
         await checkAdmin();
 
         if (!studentIds || studentIds.length === 0) {
             return { success: false, error: "No students selected." };
+        }
+
+        // Fetch students and their documents to delete physical files
+        const studentsToDelete = await db.student.findMany({
+            where: {
+                id: { in: studentIds }
+            },
+            include: {
+                documents: true
+            }
+        });
+
+        // Collect all file URLs
+        const allFiles: string[] = [];
+        studentsToDelete.forEach(student => {
+            if (student.documents) {
+                const docs = student.documents;
+                const keys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto", "fileSKTM"];
+                keys.forEach(key => {
+                    const url = (docs as any)[key];
+                    if (url) allFiles.push(url);
+                });
+
+                if (docs.filePrestasi && Array.isArray(docs.filePrestasi)) {
+                    allFiles.push(...docs.filePrestasi);
+                }
+            }
+        });
+
+        // Delete physical files
+        if (allFiles.length > 0) {
+            await deleteFiles(allFiles);
         }
 
         // Delete students
@@ -61,6 +95,35 @@ export async function deleteStudents(studentIds: string[]) {
 export async function deleteAllStudents() {
     try {
         await checkAdmin();
+
+        // Fetch all students and their documents to delete physical files
+        const allStudents = await db.student.findMany({
+            include: {
+                documents: true
+            }
+        });
+
+        // Collect all file URLs
+        const allFiles: string[] = [];
+        allStudents.forEach(student => {
+            if (student.documents) {
+                const docs = student.documents;
+                const keys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto", "fileSKTM"];
+                keys.forEach(key => {
+                    const url = (docs as any)[key];
+                    if (url) allFiles.push(url);
+                });
+
+                if (docs.filePrestasi && Array.isArray(docs.filePrestasi)) {
+                    allFiles.push(...docs.filePrestasi);
+                }
+            }
+        });
+
+        // Delete physical files
+        if (allFiles.length > 0) {
+            await deleteFiles(allFiles);
+        }
 
         await db.student.deleteMany({});
 

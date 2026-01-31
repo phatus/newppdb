@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { unlink } from "fs/promises";
-import path from "path";
+import { deleteFile } from "@/lib/file-utils";
 
 export async function PATCH(
     req: Request,
@@ -82,19 +81,9 @@ export async function PATCH(
                     const docKey = key as keyof typeof student.documents;
                     const oldFileUrl = student.documents[docKey];
 
-                    // Only delete if it's a string, exists, and is a local upload path
-                    if (typeof oldFileUrl === 'string' && oldFileUrl.startsWith("/uploads/")) {
-                        try {
-                            // Construct absolute path
-                            const absolutePath = path.join(process.cwd(), "public", oldFileUrl);
-                            await unlink(absolutePath);
-                            console.log(`Deleted old file: ${absolutePath}`);
-                        } catch (err: any) {
-                            // Ignore error if file doesn't exist (ENOENT), but log others
-                            if (err.code !== 'ENOENT') {
-                                console.error(`Failed to delete old file ${oldFileUrl}:`, err);
-                            }
-                        }
+                    // Only delete if it's being replaced and is a string
+                    if (typeof oldFileUrl === 'string' && updates[key] !== oldFileUrl) {
+                        await deleteFile(oldFileUrl);
                     }
                 }
             }
@@ -104,11 +93,11 @@ export async function PATCH(
                     studentId: studentId,
                 },
                 update: {
-                    ...body,
+                    ...updates,
                 },
                 create: {
                     studentId: studentId,
-                    ...body,
+                    ...updates,
                 },
             });
         }

@@ -180,6 +180,7 @@ export async function updateSettings(data: {
     }
 }
 
+import { deleteFile } from "@/lib/file-utils";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
@@ -220,9 +221,14 @@ export async function updateLogo(formData: FormData) {
 
         const logoUrl = `/uploads/${filename}`;
 
-        // Update database
+        // Update database and delete old file
         const first = await db.schoolSettings.findFirst();
         if (first) {
+            // Delete old logo if it exists
+            if (first.schoolLogo && first.schoolLogo !== logoUrl) {
+                await deleteFile(first.schoolLogo);
+            }
+
             await db.schoolSettings.update({
                 where: { id: first.id },
                 data: { schoolLogo: logoUrl },
@@ -343,6 +349,11 @@ export async function updateSignature(formData: FormData) {
 
         const first = await db.schoolSettings.findFirst();
         if (first) {
+            // Delete old signature if it exists
+            if (first.committeeSignature && first.committeeSignature !== sigUrl) {
+                await deleteFile(first.committeeSignature);
+            }
+
             await db.$executeRawUnsafe(`
                 UPDATE "SchoolSettings" 
                 SET "committeeSignature" = $1

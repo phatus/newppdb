@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import { deleteFile } from "@/lib/file-utils";
 
 export async function updateHeroImage(formData: FormData) {
     try {
@@ -44,6 +45,11 @@ export async function updateHeroImage(formData: FormData) {
         const first = await db.schoolSettings.findFirst();
 
         if (first) {
+            // Delete old hero image if it exists
+            if (first.heroImage && first.heroImage !== imageUrl) {
+                await deleteFile(first.heroImage);
+            }
+
             await db.$executeRawUnsafe(`
                 UPDATE "SchoolSettings" 
                 SET "heroImage" = $1
