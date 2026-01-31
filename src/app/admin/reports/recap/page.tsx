@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import ExportButton from "@/components/admin/students/ExportButton";
 import PrintButton from "@/components/admin/PrintButton";
+import { formatInWIB } from "@/lib/date-utils";
 
 export default async function RecapPage() {
     // Fetch ALL students for report
@@ -98,7 +99,7 @@ export default async function RecapPage() {
                 {/* Footer Signature for Print */}
                 <div className="hidden print:flex justify-end mt-12 pr-8">
                     <div className="text-center min-w-[200px]">
-                        <p className="mb-2">{cityOnly}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p className="mb-2">{cityOnly}, {formatInWIB(new Date(), { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                         <p className="mb-2">Ketua Panitia,</p>
                         {settings?.committeeSignature ? (
                             <div className="h-16 flex items-center justify-center mb-2">

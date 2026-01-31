@@ -1,6 +1,6 @@
-
 import { db } from "@/lib/db";
 import { Suspense } from "react";
+import { formatInWIB } from "@/lib/date-utils";
 
 // Server action or direct DB call since this is a server component
 async function getLogs() {
@@ -60,7 +60,7 @@ export default async function AuditLogsPage() {
                             ) : logs.map((log: any) => (
                                 <tr key={log.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap text-slate-500">
-                                        {new Date(log.createdAt).toLocaleString('id-ID')}
+                                        {formatInWIB(log.createdAt)}
                                     </td>
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">

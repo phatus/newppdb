@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import SearchInput from "@/components/admin/SearchInput";
 import { Suspense } from "react";
+import { formatInWIB } from "@/lib/date-utils";
 
 export default async function VerificationListPage({
     searchParams,
@@ -93,7 +94,7 @@ export default async function VerificationListPage({
                             <div className="flex justify-between">
                                 <span>Tgl Daftar:</span>
                                 <span className="font-medium text-slate-900 dark:text-white">
-                                    {new Date(student.createdAt).toLocaleDateString('id-ID', {
+                                    {formatInWIB(student.createdAt, {
                                         day: 'numeric', month: 'short', year: 'numeric'
                                     })}
                                 </span>

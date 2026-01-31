@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { formatInWIB } from "@/lib/date-utils";
 
 interface RankingData {
     id: string;
@@ -56,7 +57,7 @@ export default function LiveRankingTable({ initialData }: { initialData: any[] }
                     </span>
                     <span>Live Update</span>
                     <span className="text-slate-300">|</span>
-                    <span>Terakhir: {format(lastUpdate, "HH:mm:ss", { locale: id })}</span>
+                    <span>Terakhir: {formatInWIB(lastUpdate, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                 </div>
                 <button
                     onClick={handleRefresh}

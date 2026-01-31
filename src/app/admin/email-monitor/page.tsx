@@ -1,12 +1,12 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
+import { formatInWIB, getWIBStartOfDay, getWIBStartOfHour } from "@/lib/date-utils";
 
 export const dynamic = "force-dynamic";
 
 async function getEmailStats() {
-    const now = new Date();
-    const startOfHour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours());
-    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfHour = getWIBStartOfHour();
+    const startOfDay = getWIBStartOfDay();
 
     const hourlyCount = await db.emailLog.count({
         where: {
@@ -133,7 +133,7 @@ export default async function EmailMonitorPage() {
                             ) : recentLogs.map((log) => (
                                 <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400">
-                                        {new Date(log.createdAt).toLocaleString('id-ID', {
+                                        {formatInWIB(log.createdAt, {
                                             hour: '2-digit', minute: '2-digit', second: '2-digit',
                                             day: '2-digit', month: 'short'
                                         })}
