@@ -6,10 +6,9 @@ import WABlastPanel from "@/components/admin/WABlastPanel";
 export default async function RankingPage() {
     const students = await getRankingData();
     const settings = await db.schoolSettings.findFirst();
-
-    const wRapor = settings?.weightRapor ?? 40;
-    const wUjian = settings?.weightUjian ?? 30;
-    const wSKUA = settings?.weightSKUA ?? 30;
+    const waves = await db.wave.findMany({
+        orderBy: { startDate: 'asc' }
+    });
 
     return (
         <div className="flex flex-col gap-6">
@@ -35,7 +34,7 @@ export default async function RankingPage() {
                     </div>
                 </div>
 
-                <RankingTable initialData={students} />
+                <RankingTable initialData={students} waves={waves} />
             </div>
         </div>
     );

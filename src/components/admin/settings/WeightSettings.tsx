@@ -68,7 +68,7 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
 
     const calculateTotal = (pathKey: string) => {
         const w = weights[pathKey];
-        return (w.rapor || 0) + (w.ujian || 0) + (w.skua || 0) + (w.prestasi || 0);
+        return (w.rapor || 0) + (w.ujian || 0) + (w.skua || 0);
     };
 
     const handleSave = async () => {
@@ -104,8 +104,8 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
             <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-xl text-sm flex gap-3">
                 <span className="material-symbols-outlined shrink-0">info</span>
                 <p>
-                    Atur pembobotan nilai untuk setiap jalur pendaftaran. Total bobot untuk setiap jalur harus <strong>100%</strong>.
-                    Nilai akhir murid akan dihitung berdasarkan persentase ini.
+                    Atur pembobotan nilai untuk setiap jalur pendaftaran. Total bobot (Rapor + Ujian + SKUA) untuk setiap jalur harus <strong>100%</strong>.
+                    Poin Prestasi akan ditambahkan langsung sebagai bonus ke skor akhir.
                 </p>
             </div>
 
@@ -125,7 +125,7 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div>
                                     <label className="block text-xs font-semibold text-slate-500 mb-1">Nilai Rapor (%)</label>
                                     <input
@@ -156,17 +156,6 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
                                         max="100"
                                         value={weights[path.key].skua}
                                         onChange={(e) => handleChange(path.key, "skua", e.target.value)}
-                                        className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-semibold text-slate-500 mb-1">Nilai Prestasi (%)</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        value={weights[path.key].prestasi}
-                                        onChange={(e) => handleChange(path.key, "prestasi", e.target.value)}
                                         className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
                                     />
                                 </div>

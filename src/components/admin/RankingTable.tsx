@@ -8,7 +8,7 @@ import { updateAdmissionStatus } from "@/app/actions/verification";
 import Swal from "sweetalert2";
 import RankingExportButton from "./RankingExportButton";
 
-export default function RankingTable({ initialData }: { initialData: any[] }) {
+export default function RankingTable({ initialData, waves }: { initialData: any[]; waves: any[] }) {
     const router = useRouter();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState({
@@ -17,6 +17,17 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
         achievement: 0
     });
     const [loading, setLoading] = useState(false);
+
+    // Filters
+    const [waveFilter, setWaveFilter] = useState<string>("all");
+    const [jalurFilter, setJalurFilter] = useState<string>("all");
+
+    // Client-side filtering
+    const filteredData = initialData.filter(student => {
+        const matchesWave = waveFilter === "all" || student.waveId === waveFilter;
+        const matchesJalur = jalurFilter === "all" || student.jalur === jalurFilter;
+        return matchesWave && matchesJalur;
+    });
 
     const handleEdit = (student: any) => {
         setEditingId(student.id);
@@ -48,8 +59,8 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
 
     const handleGenerate = async () => {
         const result = await Swal.fire({
-            title: 'Generate Kelulusan?',
-            text: "Sistem akan otomatis menentukan kelulusan berdasarkan kuota dan ranking skor akhir. Data yang ada akan ditimpa!",
+            title: 'Generate Seleksi?',
+            text: "Sistem akan otomatis menentukan penerimaan berdasarkan kuota dan ranking skor akhir. Data yang ada akan ditimpa!",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -61,7 +72,12 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
         if (result.isConfirmed) {
             const toastId = toast.loading("Sedang memproses seleksi otomatis...");
             try {
-                const res = await autoSelectStudents();
+                // Pass filters to the action
+                const filters: any = {};
+                if (waveFilter !== "all") filters.waveId = waveFilter;
+                if (jalurFilter !== "all") filters.jalur = jalurFilter;
+
+                const res = await autoSelectStudents(filters);
                 if (res.success) {
                     toast.success(res.message || "Seleksi selesai", { id: toastId });
                     router.refresh();
@@ -77,15 +93,50 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
 
     return (
         <div>
-            <div className="p-4 flex justify-end gap-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                <RankingExportButton data={initialData} />
-                <button
-                    onClick={handleGenerate}
-                    className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
-                >
-                    <span className="material-symbols-outlined text-[20px]">fact_check</span>
-                    Generate Kelulusan
-                </button>
+            <div className="p-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gelombang:</span>
+                        <select
+                            value={waveFilter}
+                            onChange={(e) => setWaveFilter(e.target.value)}
+                            className="text-sm border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-primary/20"
+                        >
+                            <option value="all">Semua Gelombang</option>
+                            {waves.map(w => (
+                                <option key={w.id} value={w.id}>{w.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Jalur:</span>
+                        <select
+                            value={jalurFilter}
+                            onChange={(e) => setJalurFilter(e.target.value)}
+                            className="text-sm border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-primary/20"
+                        >
+                            <option value="all">Semua Jalur</option>
+                            <option value="REGULER">Reguler</option>
+                            <option value="AFIRMASI">Afirmasi</option>
+                            <option value="PRESTASI_AKADEMIK">Prestasi Akademik</option>
+                            <option value="PRESTASI_NON_AKADEMIK">Prestasi Non-Akademik</option>
+                        </select>
+                    </div>
+                    <div className="text-xs text-slate-500 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 font-medium">
+                        Total: {filteredData.length} Murid
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <RankingExportButton data={filteredData} />
+                    <button
+                        onClick={handleGenerate}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
+                    >
+                        <span className="material-symbols-outlined text-[20px]">fact_check</span>
+                        Generate Seleksi
+                    </button>
+                </div>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -105,12 +156,12 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {initialData.length === 0 ? (
+                        {filteredData.length === 0 ? (
                             <tr>
-                                <td colSpan={11} className="p-8 text-center text-slate-500">Belum ada murid terverifikasi.</td>
+                                <td colSpan={11} className="p-8 text-center text-slate-500">Tidak ada murid yang sesuai dengan filter.</td>
                             </tr>
                         ) : (
-                            initialData.map((student, idx) => {
+                            filteredData.map((student, idx) => {
                                 const isRegulerLike = student.jalur === "REGULER" || student.jalur === "AFIRMASI";
                                 const isNoRaporPath = isRegulerLike || student.jalur === "PRESTASI_NON_AKADEMIK";
 
@@ -184,12 +235,32 @@ export default function RankingTable({ initialData }: { initialData: any[] }) {
                                         </td>
 
                                         <td className="p-4 text-center">
-                                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${student.statusKelulusan === "LULUS" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
-                                                student.statusKelulusan === "TIDAK_LULUS" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
-                                                    "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
-                                                }`}>
-                                                {student.statusKelulusan}
-                                            </span>
+                                            <select
+                                                value={student.statusKelulusan}
+                                                onChange={async (e) => {
+                                                    const newStatus = e.target.value;
+                                                    const toastId = toast.loading("Memperbarui status...");
+                                                    try {
+                                                        const res = await updateAdmissionStatus(student.id, newStatus as any);
+                                                        if (res.success) {
+                                                            toast.success("Status berhasil diperbarui", { id: toastId });
+                                                            router.refresh();
+                                                        } else {
+                                                            toast.error(res.error || "Gagal memperbarui status", { id: toastId });
+                                                        }
+                                                    } catch (error) {
+                                                        toast.error("Terjadi kesalahan sistem", { id: toastId });
+                                                    }
+                                                }}
+                                                className={`text-[10px] font-bold px-2 py-1 rounded-full border-none outline-none cursor-pointer appearance-none text-center ${student.statusKelulusan === "LULUS" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" :
+                                                    student.statusKelulusan === "TIDAK_LULUS" ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" :
+                                                        "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400"
+                                                    }`}
+                                            >
+                                                <option value="LULUS">DITERIMA</option>
+                                                <option value="TIDAK_LULUS">TIDAK DITERIMA</option>
+                                                <option value="PENDING">PENDING</option>
+                                            </select>
                                         </td>
 
                                         <td className="p-4 text-center">

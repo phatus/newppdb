@@ -95,11 +95,11 @@ export default async function DashboardPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-1">
-                                        Selamat! {student.namaLengkap} Dinyatakan LULUS
+                                        Selamat! {student.namaLengkap} Dinyatakan DITERIMA
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                                        Selamat, Anda dinyatakan <strong>LULUS</strong> seleksi Penerimaan Murid Baru Tahun Pelajaran {academicYear} pada Jalur <strong>{student.jalur.replace(/_/g, " ")}</strong>.
-                                        Silakan cek menu pengumuman secara berkala untuk informasi daftar ulang.
+                                        Selamat, Anda dinyatakan <strong>DITERIMA</strong> seleksi Penerimaan Murid Baru Tahun Pelajaran {academicYear} pada Jalur <strong>{student.jalur.replace(/_/g, " ")}</strong>.
+                                        Silakan lakukan daftar ulang sesuai jadwal yang ditentukan.
                                     </p>
                                 </div>
                             </div>
@@ -116,10 +116,10 @@ export default async function DashboardPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-1">
-                                        Mohon Maaf, {student.namaLengkap} Belum Lulus
+                                        Mohon Maaf, {student.namaLengkap} Belum Diterima
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                                        Mohon maaf, Anda dinyatakan <strong>TIDAK LULUS</strong> seleksi SPMB tahun ini.
+                                        Mohon maaf, Anda dinyatakan <strong>TIDAK DITERIMA</strong> seleksi SPMB tahun ini.
                                         Jangan berkecil hati dan tetap semangat dalam menuntut ilmu di tempat lain.
                                     </p>
 
@@ -161,7 +161,7 @@ export default async function DashboardPage() {
                                                     <div key={hist.id} className="flex flex-col text-xs bg-white/50 p-2 rounded border border-red-200">
                                                         <div className="flex justify-between">
                                                             <span className="font-bold">{hist.jalur.replace(/_/g, " ")}</span>
-                                                            <span className="text-red-600 font-bold">{hist.status}</span>
+                                                            <span className="text-red-600 font-bold">{hist.status === 'LULUS' ? 'DITERIMA' : (hist.status === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' : hist.status)}</span>
                                                         </div>
                                                         <span className="text-slate-500">{new Date(hist.createdAt).toLocaleDateString("id-ID", { dateStyle: 'medium' })}</span>
                                                     </div>

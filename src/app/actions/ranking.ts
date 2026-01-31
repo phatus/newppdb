@@ -15,11 +15,15 @@ type RankedStudent = StudentWithRelations & {
     grades: (Grades & { finalScore: number }) | null;
 };
 
-export async function getRankingData(): Promise<RankedStudent[]> {
+export async function getRankingData(filters?: { waveId?: string; jalur?: JalurPendaftaran }): Promise<RankedStudent[]> {
     try {
         // 1. Fetch Students who are verified
+        const where: any = { statusVerifikasi: "VERIFIED" };
+        if (filters?.waveId) where.waveId = filters.waveId;
+        if (filters?.jalur) where.jalur = filters.jalur;
+
         const students = await db.student.findMany({
-            where: { statusVerifikasi: "VERIFIED" },
+            where,
             include: {
                 grades: true,
                 documents: true, // Needed to check achievements
@@ -56,15 +60,16 @@ export async function getRankingData(): Promise<RankedStudent[]> {
             const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
             const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
             const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
-            const wPrestasi = (specificWeights?.prestasi ?? defaultW.prestasi) / 100;
+            // Achievement is now additive, not weighted
+            // const wPrestasi = (specificWeights?.prestasi ?? defaultW.prestasi) / 100;
 
             const avgReport = grades?.rataRataNilai || 0;
             const theory = grades?.nilaiUjianTeori || 0;
             const skua = grades?.nilaiUjianSKUA || 0;
             const achievement = grades?.nilaiPrestasi || 0;
 
-            // Calculate Final Score
-            let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + (achievement * wPrestasi);
+            // Calculate Final Score: (Weights * Values) + Achievement Bonus
+            let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
             finalScore = parseFloat(finalScore.toFixed(2));
 
             return {
@@ -122,7 +127,7 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
     }
 }
 
-export async function autoSelectStudents() {
+export async function autoSelectStudents(filters?: { waveId?: string; jalur?: JalurPendaftaran }) {
     try {
         // 1. Get Quota and Settings
         const settingsRaw = await db.$queryRaw<SchoolSettings[]>`SELECT * FROM "SchoolSettings" LIMIT 1`;
@@ -130,46 +135,64 @@ export async function autoSelectStudents() {
 
         // Quotas
         const quotaReguler = settings.quotaReguler || 50;
-        const quotaPrestasi = (settings.quotaPrestasiAkademik || 15) + (settings.quotaPrestasiNonAkademik || 15);
+        const quotaPrestasiAkademik = settings.quotaPrestasiAkademik || 15;
+        const quotaPrestasiNonAkademik = settings.quotaPrestasiNonAkademik || 15;
         const quotaAfirmasi = settings.quotaAfirmasi || 20;
 
-        // 2. Get All Verified Students with Ranking Data
-        const allStudents = await getRankingData();
+        // 2. Get Verified Students with Ranking Data based on filters
+        const allStudents = await getRankingData(filters);
 
         if (allStudents.length === 0) {
-            return { success: false, error: "Tidak ada data murid terverifikasi." };
+            return { success: false, error: "Tidak ada data murid terverifikasi pada filter ini." };
         }
 
-        // 3. Group by Path (Jalur)
-        const studentsReguler = allStudents.filter((s) => s.jalur === "REGULER");
-        const studentsPrestasi = allStudents.filter((s) => s.jalur === "PRESTASI_AKADEMIK" || s.jalur === "PRESTASI_NON_AKADEMIK");
-        const studentsAfirmasi = allStudents.filter((s) => s.jalur === "AFIRMASI");
+        // 3. Project-specific selection logic
+        // If filters.jalur is set, we only process that specific path
+        const jalurToProcess = filters?.jalur ? [filters.jalur] : ["REGULER", "PRESTASI_AKADEMIK", "PRESTASI_NON_AKADEMIK", "AFIRMASI"];
 
-        // 4. Select based on Quota (Assuming sorted DESC by score from getRankingData)
-        const passedReguler = studentsReguler.slice(0, quotaReguler);
-        const failedReguler = studentsReguler.slice(quotaReguler);
+        let passedCount = 0;
+        let totalCount = 0;
 
-        const passedPrestasi = studentsPrestasi.slice(0, quotaPrestasi);
-        const failedPrestasi = studentsPrestasi.slice(quotaPrestasi);
+        const passedIds: string[] = [];
+        const failedIds: string[] = [];
 
-        const passedAfirmasi = studentsAfirmasi.slice(0, quotaAfirmasi);
-        const failedAfirmasi = studentsAfirmasi.slice(quotaAfirmasi);
+        // Helper to process a group
+        const processGroup = (students: RankedStudent[], quota: number) => {
+            const passed = students.slice(0, quota);
+            const failed = students.slice(quota);
+            passedIds.push(...passed.map(s => s.id));
+            failedIds.push(...failed.map(s => s.id));
+            return passed.length;
+        };
 
-        // Combine
-        const passedStudents = [...passedReguler, ...passedPrestasi, ...passedAfirmasi];
-        const failedStudents = [...failedReguler, ...failedPrestasi, ...failedAfirmasi];
+        if (jalurToProcess.includes("REGULER")) {
+            const group = allStudents.filter(s => s.jalur === "REGULER");
+            passedCount += processGroup(group, quotaReguler);
+        }
+        if (jalurToProcess.includes("PRESTASI_AKADEMIK")) {
+            const group = allStudents.filter(s => s.jalur === "PRESTASI_AKADEMIK");
+            passedCount += processGroup(group, quotaPrestasiAkademik);
+        }
+        if (jalurToProcess.includes("PRESTASI_NON_AKADEMIK")) {
+            const group = allStudents.filter(s => s.jalur === "PRESTASI_NON_AKADEMIK");
+            passedCount += processGroup(group, quotaPrestasiNonAkademik);
+        }
+        if (jalurToProcess.includes("AFIRMASI")) {
+            const group = allStudents.filter(s => s.jalur === "AFIRMASI");
+            passedCount += processGroup(group, quotaAfirmasi);
+        }
 
         // 5. Update Database
-        if (passedStudents.length > 0) {
+        if (passedIds.length > 0) {
             await db.student.updateMany({
-                where: { id: { in: passedStudents.map((s) => s.id) } },
+                where: { id: { in: passedIds } },
                 data: { statusKelulusan: "LULUS" }
             });
         }
 
-        if (failedStudents.length > 0) {
+        if (failedIds.length > 0) {
             await db.student.updateMany({
-                where: { id: { in: failedStudents.map((s) => s.id) } },
+                where: { id: { in: failedIds } },
                 data: { statusKelulusan: "TIDAK_LULUS" }
             });
         }
@@ -179,11 +202,9 @@ export async function autoSelectStudents() {
 
         return {
             success: true,
-            message: `Seleksi otomatis selesai. \n` +
-                `Reguler: ${passedReguler.length}/${quotaReguler} \n` +
-                `Prestasi: ${passedPrestasi.length}/${quotaPrestasi} \n` +
-                `Afirmasi: ${passedAfirmasi.length}/${quotaAfirmasi} \n` +
-                `Total Diterima: ${passedStudents.length}`
+            message: `Seleksi otomatis selesai untuk filter yang dipilih.\n` +
+                `Total Murid Diproses: ${allStudents.length}\n` +
+                `Total Diterima: ${passedIds.length}`
         };
 
     } catch (error) {

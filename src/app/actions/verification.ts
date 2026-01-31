@@ -181,6 +181,6 @@ export async function updateAdmissionStatus(studentId: string, status: "LULUS" |
         return { success: true };
     } catch (error) {
         console.error("Error updating admission status:", error);
-        return { success: false, error: "Gagal memperbarui status kelulusan" };
+        return { success: false, error: "Gagal memperbarui status penerimaan" };
     }
 }

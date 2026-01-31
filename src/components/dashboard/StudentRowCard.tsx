@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
+import { moveToNextStage } from "@/app/actions/admission";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 interface StudentRowCardProps {
     student: any;
@@ -12,6 +15,30 @@ interface StudentRowCardProps {
 export default function StudentRowCard({ student, showGraduationStatus = false }: StudentRowCardProps) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isPendingMove, startTransition] = useTransition();
+
+    const handleMoveToNextStage = async () => {
+        const result = await Swal.fire({
+            title: 'Daftar Jalur Reguler?',
+            text: "Anda akan dipindahkan ke jalur Reguler untuk mengikuti seleksi tahap berikutnya. Data nilai tes Anda mungkin akan direset sesuai kebijakan sekolah.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Daftar!',
+            cancelButtonText: 'Batal'
+        });
+
+        if (result.isConfirmed) {
+            startTransition(async () => {
+                const res = await moveToNextStage(student.id);
+                if (res.success) {
+                    toast.success(res.message || "Pendaftaran jalur reguler berhasil.");
+                    router.refresh();
+                } else {
+                    toast.error(res.error || "Gagal pindah jalur.");
+                }
+            });
+        }
+    };
 
     const isVerified = student.statusVerifikasi === "VERIFIED";
     const isRejected = student.statusVerifikasi === "REJECTED";
@@ -65,8 +92,8 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                                 <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-[16px]">celebration</span>
                             </div>
                             <div>
-                                <h4 className="text-xs font-bold text-emerald-800 dark:text-emerald-200">Dinyatakan LULUS</h4>
-                                <p className="text-[10px] text-emerald-700 dark:text-emerald-300 leading-tight">Selamat! Silakan cek menu pengumuman.</p>
+                                <h4 className="text-xs font-bold text-emerald-800 dark:text-emerald-200">Dinyatakan DITERIMA</h4>
+                                <p className="text-[10px] text-emerald-700 dark:text-emerald-300 leading-tight">Selamat! Silakan cek menu pengumuman dan lakukan daftar ulang.</p>
                             </div>
                         </div>
                     )}
@@ -77,8 +104,19 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                                 <span className="material-symbols-outlined text-red-600 dark:text-red-400 text-[16px]">sentiment_dissatisfied</span>
                             </div>
                             <div>
-                                <h4 className="text-xs font-bold text-red-800 dark:text-red-200">TIDAK LULUS</h4>
-                                <p className="text-[10px] text-red-700 dark:text-red-300 leading-tight">Mohon maaf, Anda belum lolos seleksi.</p>
+                                <h4 className="text-xs font-bold text-red-800 dark:text-red-200">TIDAK DITERIMA</h4>
+                                <p className="text-[10px] text-red-700 dark:text-red-300 leading-tight mb-2">Mohon maaf, Anda belum diterima seleksi.</p>
+
+                                {student.jalur?.includes("PRESTASI") && student.statusVerifikasi === "VERIFIED" && (
+                                    <button
+                                        onClick={handleMoveToNextStage}
+                                        disabled={isPendingMove}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-full transition-colors disabled:opacity-50"
+                                    >
+                                        <span className="material-symbols-outlined text-[14px]">forward</span>
+                                        {isPendingMove ? "Memproses..." : "Ikuti Tahap Berikutnya (Gelombang 2)"}
+                                    </button>
+                                )}
                             </div>
                         </div>
                     )}

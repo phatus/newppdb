@@ -46,7 +46,7 @@ export default function GraduationChecker() {
                     <span className="material-symbols-outlined text-4xl">travel_explore</span>
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-4">
-                    Cek Status Kelulusan
+                    Cek Status Penerimaan
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400 max-w-lg mx-auto mb-8">
                     Masukkan Nomor Induk Murid Nasional (NISN) anda untuk mengecek hasil seleksi SPMB tahun ini.
@@ -94,7 +94,7 @@ export default function GraduationChecker() {
                             <div className="flex-1">
                                 <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold mb-2 ${result.status === 'LULUS' ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-red-800'
                                     }`}>
-                                    {result.status === 'LULUS' ? 'LULUS SELEKSI' : 'TIDAK LULUS'}
+                                    {result.status === 'LULUS' ? 'DITERIMA' : 'TIDAK DITERIMA'}
                                 </span>
                                 <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                                     {result.nama}
@@ -111,7 +111,7 @@ export default function GraduationChecker() {
                                 )}
                                 {result.status === 'TIDAK_LULUS' && (
                                     <div className="mt-4 p-3 bg-white dark:bg-slate-800/50 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-red-100 dark:border-red-900/30">
-                                        <p>Mohon maaf, Anda belum lolos seleksi. Tetap semangat!</p>
+                                        <p>Mohon maaf, Anda belum diterima. Tetap semangat!</p>
                                     </div>
                                 )}
                             </div>

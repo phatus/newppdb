@@ -409,7 +409,7 @@ function AddStudentForm() {
                                     required
                                     value={formData.namaLengkap}
                                     onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
+                                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-0 sm:text-sm py-2.5 px-4 transition-all placeholder:text-slate-400"
                                     placeholder="Contoh: Ahmad Fauzi"
                                 />
                             </div>
@@ -428,17 +428,17 @@ function AddStudentForm() {
                                     required
                                     value={formData.nisn}
                                     onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
+                                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-0 sm:text-sm py-2.5 px-4 transition-all placeholder:text-slate-400"
                                     placeholder="10 digit nomor"
                                 />
                             </div>
                             <div className="col-span-1">
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">NIK</label>
-                                <input type="number" name="nik" required value={formData.nik} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="16 digit NIK" />
+                                <input type="number" name="nik" required value={formData.nik} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="16 digit NIK" />
                             </div>
                             <div className="col-span-1">
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">No. KK</label>
-                                <input type="number" name="noKk" value={formData.noKk} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="16 digit KK" />
+                                <input type="number" name="noKk" value={formData.noKk} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="16 digit KK" />
                             </div>
 
 
@@ -497,7 +497,7 @@ function AddStudentForm() {
                                     id="tempat_lahir"
                                     value={formData.tempatLahir}
                                     onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
+                                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-0 sm:text-sm py-2.5 px-4 transition-all placeholder:text-slate-400"
                                     placeholder="Kota kelahiran"
                                 />
                             </div>
@@ -515,7 +515,7 @@ function AddStudentForm() {
                                     id="tanggal_lahir"
                                     value={formData.tanggalLahir}
                                     onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
+                                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-0 sm:text-sm py-2.5 px-4 transition-all"
                                 />
                             </div>
                         </div>
@@ -544,7 +544,7 @@ function AddStudentForm() {
                                     id="asal_sekolah"
                                     value={formData.asalSekolah}
                                     onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
+                                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-0 sm:text-sm py-2.5 px-4 transition-all placeholder:text-slate-400"
                                     placeholder="Masukkan nama sekolah asal Anda"
                                 />
                             </div>
@@ -564,11 +564,11 @@ function AddStudentForm() {
                                 <h4 className="font-semibold text-slate-900 dark:text-white border-b pb-2">Data Ayah</h4>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Nama Ayah</label>
-                                    <input type="text" name="namaAyah" value={formData.namaAyah} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Lengkap Ayah" />
+                                    <input type="text" name="namaAyah" value={formData.namaAyah} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Nama Lengkap Ayah" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Pekerjaan Ayah</label>
-                                    <input type="text" name="pekerjaanAyah" value={formData.pekerjaanAyah} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Pekerjaan Ayah" />
+                                    <input type="text" name="pekerjaanAyah" value={formData.pekerjaanAyah} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Pekerjaan Ayah" />
                                 </div>
                             </div>
                             {/* Ibu */}
@@ -576,16 +576,16 @@ function AddStudentForm() {
                                 <h4 className="font-semibold text-slate-900 dark:text-white border-b pb-2">Data Ibu</h4>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Nama Ibu</label>
-                                    <input type="text" name="namaIbu" value={formData.namaIbu} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Lengkap Ibu" />
+                                    <input type="text" name="namaIbu" value={formData.namaIbu} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Nama Lengkap Ibu" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Pekerjaan Ibu</label>
-                                    <input type="text" name="pekerjaanIbu" value={formData.pekerjaanIbu} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Pekerjaan Ibu" />
+                                    <input type="text" name="pekerjaanIbu" value={formData.pekerjaanIbu} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Pekerjaan Ibu" />
                                 </div>
                             </div>
                             <div className="col-span-1 md:col-span-2">
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Penghasilan Orang Tua (Gabungan)</label>
-                                <select name="penghasilanOrtu" value={formData.penghasilanOrtu} onChange={handleChange} className="form-select w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3">
+                                <select name="penghasilanOrtu" value={formData.penghasilanOrtu} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all">
                                     <option value="">Pilih Penghasilan</option>
                                     <option value="< 1 Juta">Kurang dari 1 Juta</option>
                                     <option value="1 - 3 Juta">1 - 3 Juta</option>
@@ -608,37 +608,37 @@ function AddStudentForm() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="col-span-1 md:col-span-2">
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Jalan / Dusun</label>
-                                <input type="text" name="alamatJalan" value={formData.alamatJalan} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Jalan / Dusun" />
+                                <input type="text" name="alamatJalan" value={formData.alamatJalan} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Nama Jalan / Dusun" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">RT</label>
-                                    <input type="text" name="alamatRt" value={formData.alamatRt} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="001" />
+                                    <input type="text" name="alamatRt" value={formData.alamatRt} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="001" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">RW</label>
-                                    <input type="text" name="alamatRw" value={formData.alamatRw} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="001" />
+                                    <input type="text" name="alamatRw" value={formData.alamatRw} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="001" />
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Desa / Kelurahan</label>
-                                <input type="text" name="alamatDesa" value={formData.alamatDesa} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Desa" />
+                                <input type="text" name="alamatDesa" value={formData.alamatDesa} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Nama Desa" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Kecamatan</label>
-                                <input type="text" name="alamatKecamatan" value={formData.alamatKecamatan} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Kecamatan" />
+                                <input type="text" name="alamatKecamatan" value={formData.alamatKecamatan} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Nama Kecamatan" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Kabupaten / Kota</label>
-                                <input type="text" name="alamatKabupaten" value={formData.alamatKabupaten} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Kabupaten" />
+                                <input type="text" name="alamatKabupaten" value={formData.alamatKabupaten} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Nama Kabupaten" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Provinsi</label>
-                                <input type="text" name="alamatProvinsi" value={formData.alamatProvinsi} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Nama Provinsi" />
+                                <input type="text" name="alamatProvinsi" value={formData.alamatProvinsi} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Nama Provinsi" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Kode Pos</label>
-                                <input type="text" name="kodePos" value={formData.kodePos} onChange={handleChange} className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-3" placeholder="Kode Pos" />
+                                <input type="text" name="kodePos" value={formData.kodePos} onChange={handleChange} className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white py-2.5 px-4 focus:border-primary focus:ring-0 transition-all placeholder:text-slate-400" placeholder="Kode Pos" />
                             </div>
                             {/* Telepon */}
                             <div className="col-span-1">
@@ -654,7 +654,7 @@ function AddStudentForm() {
                                     id="telepon"
                                     value={formData.telepon}
                                     onChange={handleChange}
-                                    className="form-input w-full rounded-lg border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring focus:ring-primary/20 sm:text-sm py-2.5 px-3"
+                                    className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-0 sm:text-sm py-2.5 px-4 transition-all placeholder:text-slate-400"
                                     placeholder="Contoh: 081234567890"
                                 />
                             </div>
