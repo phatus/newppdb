@@ -119,12 +119,41 @@ export async function saveAllSemesterGrades(studentId: string, payload: {
         // 0. Check Verification Status
         const student = await db.student.findUnique({
             where: { id: studentId },
-            select: { statusVerifikasi: true }
+            select: { statusVerifikasi: true, jalur: true }
         });
 
         if (student?.statusVerifikasi === 'VERIFIED') {
             return { success: false, error: "Nilai tidak dapat diubah karena data sudah diverifikasi." };
         }
+
+        // --- VALIDATION FOR ACADEMIC PATH ---
+        if (student?.jalur === "PRESTASI_AKADEMIK") {
+            let totalSemesterAvg = 0;
+            let semesterCount = 0;
+
+            for (const item of payload) {
+                const totalScore = item.entries.reduce((acc, curr) => acc + curr.score, 0);
+                const average = item.entries.length > 0
+                    ? totalScore / item.entries.length
+                    : 0;
+
+                // Only count semesters that have entries
+                if (item.entries.length > 0) {
+                    totalSemesterAvg += average;
+                    semesterCount++;
+                }
+            }
+
+            const grandAverage = semesterCount > 0 ? totalSemesterAvg / semesterCount : 0;
+
+            if (grandAverage < 85) {
+                return {
+                    success: false,
+                    error: `Mohon maaf, rata-rata nilai raport Anda adalah ${grandAverage.toFixed(2)}. Syarat pendaftaran jalur Prestasi Akademik minimal rata-rata 85.`
+                };
+            }
+        }
+
 
         const gradeRecord = await db.grades.upsert({
             where: { studentId },

@@ -14,11 +14,11 @@ import { db } from "@/lib/db";
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await db.schoolSettings.findFirst();
-  const schoolName = settings?.schoolName || "SPMB MTsN 1 Pacitan";
+  const schoolName = settings?.schoolName || "PMBM MTsN 1 Pacitan";
   const schoolLogo = settings?.schoolLogo || "/logo_mts.png"; // Fallback to default if no logo
 
   return {
-    title: settings?.schoolName || "SPMB MTsN 1 Pacitan",
+    title: settings?.schoolName || "PMBM MTsN 1 Pacitan",
     description: `Sistem Penerimaan Murid Baru ${schoolName}`,
     manifest: "/manifest.json",
     icons: {

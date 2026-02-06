@@ -4,7 +4,7 @@ import SubjectList from "@/components/admin/SubjectList";
 import SemesterManager from "@/components/admin/SemesterManager";
 
 export const metadata = {
-    title: "Pengaturan Mata Pelajaran | Admin SPMB",
+    title: "Pengaturan Mata Pelajaran | Admin PMBM",
     description: "Kelola daftar mata pelajaran untuk input nilai raport.",
 };
 

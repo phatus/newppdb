@@ -119,7 +119,7 @@ export default async function DashboardPage() {
                                         Mohon Maaf, {student.namaLengkap} Belum Diterima
                                     </h3>
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
-                                        Mohon maaf, Anda dinyatakan <strong>TIDAK DITERIMA</strong> seleksi SPMB tahun ini.
+                                        Mohon maaf, Anda dinyatakan <strong>TIDAK DITERIMA</strong> seleksi PMBM tahun ini.
                                         Jangan berkecil hati dan tetap semangat dalam menuntut ilmu di tempat lain.
                                     </p>
 

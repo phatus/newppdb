@@ -133,7 +133,7 @@ export default async function RegistrationProofPage({
                                             )}
                                         </div>
                                         <div className="space-y-1 print:space-y-0">
-                                            <h3 className="font-bold text-lg text-slate-700 leading-none print:text-base">Panitia SPMB</h3>
+                                            <h3 className="font-bold text-lg text-slate-700 leading-none print:text-base">Panitia PMBM</h3>
                                             <h2 className="font-black text-3xl leading-none text-slate-900 print:text-2xl">{schoolName}</h2>
                                             <p className="text-sm font-medium text-slate-600 tracking-wide print:text-xs">Tahun Pelajaran {academicYear}</p>
                                         </div>

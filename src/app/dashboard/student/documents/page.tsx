@@ -162,7 +162,8 @@ export default async function DocumentUploadPage({
         docs.fileKK &&
         docs.fileSKL &&
         docs.pasFoto &&
-        (selectedStudent.jalur === "PRESTASI_AKADEMIK" ? docs.fileRaport && docs.filePrestasi && docs.filePrestasi.length > 0 : true) &&
+        docs.fileRaport && // Report is now mandatory for ALL paths
+        (selectedStudent.jalur === "PRESTASI_AKADEMIK" ? docs.filePrestasi && docs.filePrestasi.length > 0 : true) &&
         (selectedStudent.jalur === "PRESTASI_NON_AKADEMIK" ? docs.filePrestasi && docs.filePrestasi.length > 0 : true) &&
         (selectedStudent.jalur === "AFIRMASI" ? docs.fileSKTM : true);
 
@@ -269,11 +270,11 @@ export default async function DocumentUploadPage({
                         "school"
                     )}
 
-                    {/* Report Card - Only for Prestasi Akademik */}
-                    {selectedStudent.jalur === "PRESTASI_AKADEMIK" && renderUploadSection(
+                    {/* Report Card - Now for ALL Paths due to PMBM update */}
+                    {renderUploadSection(
                         "fileRaport",
                         "Nilai Raport Kelas 5 & 6",
-                        "Semua Semester digabung dalam 1 file PDF. Wajib untuk Jalur Prestasi Akademik.",
+                        "Semua Semester digabung dalam 1 file PDF. Wajib untuk semua jalur.",
                         "analytics"
                     )}
 

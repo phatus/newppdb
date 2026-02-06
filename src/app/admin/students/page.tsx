@@ -55,7 +55,7 @@ export default async function StudentListPage({
                         Data Calon Murid
                     </h1>
                     <p className="text-slate-500 text-sm">
-                        Kelola data seluruh pendaftar SPMB.
+                        Kelola data seluruh pendaftar PMBM.
                     </p>
                 </div>
                 <div className="flex gap-2">

@@ -59,7 +59,7 @@ export default async function RankingReportPage() {
                 {/* Isi */}
                 <div className="text-justify mb-6 leading-relaxed">
                     <p className="mb-4">
-                        Pada hari ini <strong>{dateStr}</strong>, bertempat di {settings?.schoolName || "Madrasah Tsyanawiyah Negeri 1 Pacitan"}, Panitia SPMB telah melaksanakan rapat pleno penetapan hasil seleksi calon murid baru Tahun Pelajaran {settings?.academicYear || "2024/2025"}.
+                        Pada hari ini <strong>{dateStr}</strong>, bertempat di {settings?.schoolName || "Madrasah Tsyanawiyah Negeri 1 Pacitan"}, Panitia PMBM telah melaksanakan rapat pleno penetapan hasil seleksi calon murid baru Tahun Pelajaran {settings?.academicYear || "2024/2025"}.
                     </p>
                     <p>
                         Berdasarkan hasil verifikasi berkas, nilai rapor, dan prestasi, maka ditetapkan daftar peringkat calon murid sebagai berikut:
@@ -122,7 +122,7 @@ export default async function RankingReportPage() {
                         <p>NIP. {settings?.principalNip || "-"}</p>
                     </div>
                     <div className="text-center">
-                        <p className="mb-4">Ditetapkan di: {cityOnly}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />Ketua Panitia SPMB</p>
+                        <p className="mb-4">Ditetapkan di: {cityOnly}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />Ketua Panitia PMBM</p>
                         {settings?.committeeSignature ? (
                             <div className="h-20 flex items-center justify-center mb-2">
                                 <img src={settings.committeeSignature} alt="Signature" className="h-full object-contain" />

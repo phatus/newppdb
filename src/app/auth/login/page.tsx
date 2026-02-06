@@ -227,7 +227,7 @@ function LoginForm() {
 
 export default function LoginPage() {
     const [logoUrl, setLogoUrl] = useState("/icons/icon-192x192.png");
-    const [schoolName, setSchoolName] = useState("SPMB MTsN 1 Pacitan");
+    const [schoolName, setSchoolName] = useState("PMBM MTsN 1 Pacitan");
 
     useEffect(() => {
         getSettings().then((settings) => {
@@ -235,7 +235,7 @@ export default function LoginPage() {
                 setLogoUrl(settings.schoolLogo);
             }
             if (settings?.schoolName) {
-                setSchoolName(`SPMB ${settings.schoolName}`);
+                setSchoolName(`PMBM ${settings.schoolName}`);
             }
         });
     }, []);

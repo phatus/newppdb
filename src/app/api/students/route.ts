@@ -96,7 +96,7 @@ export async function POST(req: Request) {
 
         // Send WhatsApp Notification
         if (telepon) {
-            const message = `Halo ${namaLengkap}, pendaftaran Anda di SPMB Online telah berhasil. Silakan lengkapi dokumen dan nilai di dashboard. Terima kasih.`;
+            const message = `Halo ${namaLengkap}, pendaftaran Anda di PMBM Online telah berhasil. Silakan lengkapi dokumen dan nilai di dashboard. Terima kasih.`;
             await sendWhatsApp(telepon, message);
         }
 

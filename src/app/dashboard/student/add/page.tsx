@@ -308,14 +308,14 @@ function AddStudentForm() {
                                 {
                                     id: "PRESTASI_AKADEMIK",
                                     label: "Prestasi Akademik",
-                                    desc: "Menggunakan nilai rapor dan sertifikat akademik.",
+                                    desc: "Menggunakan nilai rapor (Rata-rata min. 85) dan sertifikat lomba akademik (contoh: OSN, KSM).",
                                     icon: "school",
                                     color: "amber"
                                 },
                                 {
                                     id: "PRESTASI_NON_AKADEMIK",
                                     label: "Prestasi Non-Akademik",
-                                    desc: "Menggunakan sertifikat kejuaraan olahraga/seni.",
+                                    desc: "Menggunakan sertifikat kejuaraan olahraga/seni (contoh: O2SN, FLS2N, POPDA).",
                                     icon: "emoji_events",
                                     color: "emerald"
                                 },

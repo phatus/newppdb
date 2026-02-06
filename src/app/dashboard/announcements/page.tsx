@@ -11,7 +11,7 @@ export default async function UserAnnouncementsPage() {
                     Papan Pengumuman
                 </h1>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
-                    Informasi terbaru seputar pelaksanaan SPMB.
+                    Informasi terbaru seputar pelaksanaan PMBM.
                 </p>
             </div>
 

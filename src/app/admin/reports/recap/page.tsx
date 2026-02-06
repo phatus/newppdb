@@ -46,7 +46,7 @@ export default async function RecapPage() {
                         <img src={settings.schoolLogo} alt="Logo" className="h-16 w-16 object-contain" />
                     )}
                     <div className="text-center">
-                        <h2 className="text-xl font-bold">Panitia Penerimaan Murid Baru (SPMB)</h2>
+                        <h2 className="text-xl font-bold">Panitia Penerimaan Murid Baru (PMBM)</h2>
                         <h3 className="text-lg font-bold">{settings?.schoolName || "SDIT Insan Kamil Karanganyar"}</h3>
                         <p className="text-sm">Tahun Pelajaran {settings?.academicYear || "2024/2025"}</p>
                     </div>

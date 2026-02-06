@@ -184,7 +184,7 @@ export default async function ExamCardPage({
                                                                 )}
                                                             </div>
                                                             <div>
-                                                                <h3 className="font-bold text-lg leading-none">Panitia SPMB</h3>
+                                                                <h3 className="font-bold text-lg leading-none">Panitia PMBM</h3>
                                                                 <h2 className="font-black text-2xl leading-tight">{schoolName}</h2>
                                                                 <p className="text-sm font-medium tracking-wider">Tahun Pelajaran {academicYear}</p>
                                                             </div>
@@ -193,7 +193,7 @@ export default async function ExamCardPage({
                                                             <div className="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 inline-block mb-1 print:bg-black print:text-white">
                                                                 Kartu Peserta
                                                             </div>
-                                                            <p className="text-[10px] font-mono">No. Dok: 001/SPMB/{new Date().getFullYear()}</p>
+                                                            <p className="text-[10px] font-mono">No. Dok: 001/PMBM/{new Date().getFullYear()}</p>
                                                         </div>
                                                     </div>
 
