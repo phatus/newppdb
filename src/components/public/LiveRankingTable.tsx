@@ -175,7 +175,7 @@ export default function LiveRankingTable({ initialData }: { initialData: Ranking
 
             <div className="mt-4 text-center text-xs text-slate-400">
                 <p>* Perangkingan diperbarui secara otomatis setiap saat.</p>
-                <p>Keputusan panitia SPMB bersifat mutlak dan tidak dapat diganggu gugat.</p>
+                <p>Keputusan panitia PMBM bersifat mutlak dan tidak dapat diganggu gugat.</p>
             </div>
         </div>
     );

@@ -20,7 +20,7 @@ export default function ScheduleSettings({ initialData }: ScheduleSettingsProps)
     const [events, setEvents] = useState<ScheduleEvent[]>(
         initialData?.ppdbSchedule || [
             { id: "1", title: "Pendaftaran Online", date: "1 - 5 Juli 2024", description: "Calon murid melakukan pembuatan akun dan pengisian formulir pendaftaran secara mandiri melalui laman website." },
-            { id: "2", title: "Verifikasi & Validasi Berkas", date: "2 - 6 Juli 2024", description: "Panitia SPMB sekolah melakukan verifikasi berkas yang telah diunggah oleh calon murid." },
+            { id: "2", title: "Verifikasi & Validasi Berkas", date: "2 - 6 Juli 2024", description: "Panitia PMBM sekolah melakukan verifikasi berkas yang telah diunggah oleh calon murid." },
             { id: "3", title: "Pengumuman Hasil Seleksi", date: "8 Juli 2024", description: "Pengumuman hasil seleksi dapat dilihat melalui akun masing-masing peserta atau di papan pengumuman sekolah." },
             { id: "4", title: "Daftar Ulang", date: "9 - 11 Juli 2024", description: "Murid yang diterima wajib melakukan daftar ulang dengan membawa berkas fisik asli ke sekolah." },
         ]
@@ -51,7 +51,7 @@ export default function ScheduleSettings({ initialData }: ScheduleSettingsProps)
         const res = await updateSchedule(events);
 
         if (res.success) {
-            toast.success("Jadwal SPMB berhasil disimpan");
+            toast.success("Jadwal PMBM berhasil disimpan");
         } else {
             toast.error(res.error || "Gagal menyimpan jadwal");
         }
@@ -63,8 +63,8 @@ export default function ScheduleSettings({ initialData }: ScheduleSettingsProps)
             <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-center mb-6">
                     <div>
-                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Daftar Kegiatan</h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Atur jadwal kegiatan SPMB yang akan ditampilkan di halaman depan.</p>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">Jadwal PMBM</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Atur jadwal kegiatan PMBM yang akan ditampilkan di halaman depan.</p>
                     </div>
                     <button
                         type="button"

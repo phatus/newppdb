@@ -52,10 +52,10 @@ export default function RankingExportButton({ data }: { data: any[] }) {
             XLSX.utils.book_append_sheet(wb, ws, "Data Perangkingan");
 
             // Save file
-            const fileName = `Export_Perangkingan_SPMB_${new Date().toISOString().split('T')[0]}.xlsx`;
+            const fileName = `Export_Perangkingan_PMBM_${new Date().toISOString().split('T')[0]}.xlsx`;
             XLSX.writeFile(wb, fileName);
 
-            toast.success("Berhasil export data ranking");
+            toast.success("Data PMBM berhasil diekspor");
         } catch (error) {
             console.error("Export error:", error);
             toast.error("Gagal export data");

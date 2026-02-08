@@ -127,7 +127,7 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
                                 </span>
                             </button>
 
-                            <h1 className="lg:hidden text-xl font-black text-primary">SPMB Online</h1>
+                            <h1 className="lg:hidden text-xl font-black text-primary">PMBM Online</h1>
                         </div>
                     </div>
 

@@ -49,7 +49,7 @@ export default function GraduationChecker() {
                     Cek Status Penerimaan
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400 max-w-lg mx-auto mb-8">
-                    Masukkan Nomor Induk Murid Nasional (NISN) anda untuk mengecek hasil seleksi SPMB tahun ini.
+                    Masukkan Nomor Induk Murid Nasional (NISN) anda untuk mengecek hasil seleksi PMBM tahun ini.
                 </p>
 
                 <form onSubmit={handleCheck} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">

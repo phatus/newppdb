@@ -100,7 +100,7 @@ export default function CommitteeSettings({ initialData }: { initialData: any })
 
                 {/* Right Column: Committee */}
                 <div className="space-y-4">
-                    <h3 className="font-bold text-slate-800 dark:text-white border-b pb-2">Ketua Panitia SPMB</h3>
+                    <h3 className="font-bold text-slate-800 dark:text-white border-b pb-2">Ketua Panitia PMBM</h3>
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">

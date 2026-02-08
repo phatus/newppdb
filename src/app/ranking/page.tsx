@@ -34,7 +34,7 @@ export default async function PublicRankingPage() {
                         LIVE SCORE PERANGKINGAN
                     </h1>
                     <p className="text-blue-100 text-lg md:text-xl font-medium">
-                        SPMB {settings?.schoolName || "Sekolah"} Tahun {settings?.academicYear || "2025/2026"}
+                        PMBM {settings?.schoolName || "Sekolah"} Tahun {settings?.academicYear || "2025/2026"}
                     </p>
                 </div>
 

@@ -34,7 +34,7 @@ export default function AdminSidebar({
             ]
         },
         {
-            title: "Manajemen SPMB",
+            title: "Manajemen PMBM",
             items: [
                 { href: "/admin/students", icon: "group", label: "Pendaftar" },
                 { href: "/admin/verification", icon: "fact_check", label: "Verifikasi", badge: true },
@@ -77,7 +77,7 @@ export default function AdminSidebar({
             setOpenGroups(prev => [...prev, activeGroup.title]);
         } else {
             // Default open Main and PPDB
-            setOpenGroups(["Main", "Manajemen SPMB"]);
+            setOpenGroups(["Main", "Manajemen PMBM"]);
         }
     }, []); // Run once on mount
 
@@ -127,7 +127,7 @@ export default function AdminSidebar({
                                         {schoolName}
                                     </h1>
                                     <p className="text-slate-400 text-[10px] font-bold truncate">
-                                        SPMB Administrator
+                                        PMBM Administrator
                                     </p>
                                 </div>
                             )}

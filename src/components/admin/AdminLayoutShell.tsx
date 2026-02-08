@@ -52,7 +52,7 @@ export default function AdminLayoutShell({
 
                             <div className="flex flex-col gap-0.5">
                                 <h2 className="text-slate-900 dark:text-white text-lg font-bold leading-tight">
-                                    Overview SPMB
+                                    Overview PMBM
                                 </h2>
                                 <p className="text-slate-400 text-[10px] font-bold leading-none">
                                     {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
