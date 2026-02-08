@@ -17,7 +17,7 @@ export default function LogoutButton({
 }: LogoutButtonProps) {
     return (
         <button
-            onClick={() => signOut({ callbackUrl: "/auth/login" })}
+            onClick={() => signOut({ callbackUrl: "https://pmbm.mtsn1pacitan.sch.id" })}
             className={className}
         >
             <span className={iconClassName}>logout</span>

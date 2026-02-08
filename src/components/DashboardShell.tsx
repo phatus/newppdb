@@ -92,7 +92,7 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
 
                     {/* Logout */}
                     <button
-                        onClick={() => signOut({ callbackUrl: "/" })}
+                        onClick={() => signOut({ callbackUrl: "https://pmbm.mtsn1pacitan.sch.id" })}
                         className={`flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-9 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-[11px] font-bold leading-normal transition-all ${isSidebarCollapsed ? "px-0" : ""}`}
                         title={isSidebarCollapsed ? "Keluar Sesi" : undefined}
                     >
