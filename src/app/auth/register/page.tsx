@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { getSettings } from "@/app/actions/settings";
+import { resendVerificationEmail } from "@/app/actions/auth";
+import { toast } from "react-hot-toast";
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -17,6 +19,8 @@ export default function RegisterPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
+    const [resendCountdown, setResendCountdown] = useState(0);
+    const [isResending, setIsResending] = useState(false);
 
     useEffect(() => {
         getSettings().then((settings) => {
@@ -28,6 +32,42 @@ export default function RegisterPage() {
             }
         });
     }, []);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (resendCountdown > 0) {
+            timer = setInterval(() => {
+                setResendCountdown((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [resendCountdown]);
+
+    const handleResend = async () => {
+        if (resendCountdown > 0 || isResending) return;
+
+        setIsResending(true);
+        const loadingToast = toast.loading("Mengirim ulang email...");
+
+        try {
+            const res = await resendVerificationEmail(email);
+            toast.dismiss(loadingToast);
+
+            if (res.success) {
+                toast.success(res.message || "Email berhasil dikirim ulang");
+                setResendCountdown(60); // 60 seconds cooldown
+            } else {
+                toast.error(res.error || "Gagal mengirim ulang email");
+                // If the error message from server mentions waiting, we could sync the timer
+                // but for now, 60s is a good client-side guard.
+            }
+        } catch (err) {
+            toast.dismiss(loadingToast);
+            toast.error("Terjadi kesalahan teknis. Coba lagi nanti.");
+        } finally {
+            setIsResending(false);
+        }
+    };
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -142,13 +182,33 @@ export default function RegisterPage() {
                                 Sebuah email verifikasi telah dikirim ke <span className="font-bold text-slate-900 dark:text-white">{email}</span>. Silakan cek inbox atau spam Anda untuk mengaktifkan akun.
                             </p>
 
-                            <Link href="/auth/login">
+                            <Link href="/auth/login" className="block w-full">
                                 <button className="w-full flex cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-blue-600 transition-colors shadow-sm">
                                     Ke Halaman Login
                                 </button>
                             </Link>
 
-                            <p className="mt-4 text-xs text-slate-400">
+                            <div className="mt-6 flex flex-col gap-3">
+                                <p className="text-sm text-slate-500">
+                                    Belum menerima email?
+                                </p>
+                                <button
+                                    onClick={handleResend}
+                                    disabled={resendCountdown > 0 || isResending}
+                                    className="text-primary font-bold hover:underline disabled:text-slate-400 disabled:no-underline flex items-center justify-center gap-2"
+                                >
+                                    {resendCountdown > 0 ? (
+                                        <span className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-sm animate-spin">history</span>
+                                            Kirim ulang dalam {resendCountdown}s
+                                        </span>
+                                    ) : (
+                                        "Kirim Ulang Email Verifikasi"
+                                    )}
+                                </button>
+                            </div>
+
+                            <p className="mt-8 text-xs text-slate-400">
                                 Sudah verifikasi? Silakan login.
                             </p>
                         </div>

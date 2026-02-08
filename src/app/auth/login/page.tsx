@@ -5,71 +5,8 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense, useEffect } from "react";
 import { getSettings } from "@/app/actions/settings";
-import { resendVerificationEmail } from "@/app/actions/auth";
-
 import { toast } from "react-hot-toast";
 
-function ResendModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-    const [email, setEmail] = useState("");
-    const [loading, setLoading] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setLoading(true);
-
-        const loadingToast = toast.loading("Mengirim email...", { id: "resend-loading" });
-
-        try {
-            const res = await resendVerificationEmail(email);
-            toast.dismiss(loadingToast);
-
-            if (res.success) {
-                toast.success(res.message || "Email terkirim", { duration: 5000, id: "resend-success" });
-                setEmail("");
-            } else {
-                toast.error(res.error || "Gagal mengirim email", { duration: 5000, id: "resend-error" });
-            }
-        } catch (error) {
-            toast.dismiss(loadingToast);
-            toast.error("Terjadi kesalahan sistem", { id: "resend-system-error" });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white dark:bg-[#1e293b] rounded-xl w-full max-w-sm shadow-2xl p-6 relative">
-                <button onClick={onClose} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
-                    <span className="material-symbols-outlined">close</span>
-                </button>
-                <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">Kirim Ulang Verifikasi</h3>
-                <p className="text-sm text-slate-500 mb-4">Masukkan email yang Anda daftarkan.</p>
-
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                    <input
-                        type="email"
-                        placeholder="Email Anda"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        required
-                        className="w-full px-4 py-2 border rounded-lg dark:bg-slate-800 dark:border-slate-600 focus:ring-2 focus:ring-primary/50"
-                    />
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-primary text-white py-2 rounded-lg font-bold hover:bg-primary/90 disabled:opacity-50 flex justify-center items-center gap-2"
-                    >
-                        {loading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-                        {loading ? "Mengirim..." : "Kirim Link Verifikasi"}
-                    </button>
-                </form>
-            </div>
-        </div>
-    );
-}
 
 function LoginForm() {
     const router = useRouter();
@@ -81,7 +18,6 @@ function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
-    const [isResendModalOpen, setIsResendModalOpen] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -211,16 +147,8 @@ function LoginForm() {
                             Daftar Sekarang
                         </Link>
                     </p>
-                    <button
-                        type="button"
-                        onClick={() => setIsResendModalOpen(true)}
-                        className="block w-full text-center text-xs text-slate-500 hover:text-primary mt-4 underline"
-                    >
-                        Belum terima email verifikasi?
-                    </button>
                 </div>
             </form>
-            <ResendModal isOpen={isResendModalOpen} onClose={() => setIsResendModalOpen(false)} />
         </>
     );
 }
