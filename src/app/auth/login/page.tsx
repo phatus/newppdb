@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense, useEffect } from "react";
 import { getSettings } from "@/app/actions/settings";
 import { toast } from "react-hot-toast";
+import VerificationResendModal from "@/components/auth/VerificationResendModal";
 
 
 function LoginForm() {
@@ -18,6 +19,7 @@ function LoginForm() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,6 +37,10 @@ function LoginForm() {
                 const errorMessage = res.error === "CredentialsSignin"
                     ? "Email atau password salah."
                     : res.error;
+
+                if (errorMessage === "Email belum diverifikasi. Silakan cek inbox Anda.") {
+                    setShowVerificationModal(true);
+                }
 
                 setError(errorMessage);
                 setIsLoading(false);
@@ -149,6 +155,12 @@ function LoginForm() {
                     </p>
                 </div>
             </form>
+
+            <VerificationResendModal
+                isOpen={showVerificationModal}
+                onClose={() => setShowVerificationModal(false)}
+                email={email}
+            />
         </>
     );
 }
