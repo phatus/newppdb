@@ -7,9 +7,9 @@ async function getLogs() {
     try {
         // Raw SQL Join
         const logs = await db.$queryRawUnsafe(`
-            SELECT a.*, u.email, u."role"
+            SELECT a.*, u."email", u."role"
             FROM "AuditLog" a
-            LEFT JOIN "User" u ON a."userId" = u.id
+            LEFT JOIN "User" u ON a."userId" = u."id"
             ORDER BY a."createdAt" DESC
             LIMIT 100
         `) as any[];

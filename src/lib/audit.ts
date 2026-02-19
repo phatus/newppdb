@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import crypto from "crypto";
 
 export async function logActivity(
     action: string,
@@ -41,7 +42,7 @@ export async function logActivity(
 
         const detailsString = typeof details === "object" ? JSON.stringify(details) : details;
         const id = crypto.randomUUID();
-        const now = new Date().toISOString();
+        const now = new Date();
 
         // Raw SQL Insert
         await db.$executeRawUnsafe(`
