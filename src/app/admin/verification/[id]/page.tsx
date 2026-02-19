@@ -14,6 +14,9 @@ async function getVerificationData(id: string) {
     const student = await db.student.findUnique({
         where: { id },
         include: {
+            user: {
+                select: { email: true }
+            },
             documents: true,
             grades: {
                 include: {
@@ -248,6 +251,14 @@ export default async function VerificationDetailPage({ params }: any) {
                                     <div>
                                         <dt className="text-xs font-medium text-slate-500">Alamat</dt>
                                         <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.alamatLengkap || '-'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-medium text-slate-500">Email Pendaftaran</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white break-all">{student.user?.email || '-'}</dd>
+                                    </div>
+                                    <div>
+                                        <dt className="text-xs font-medium text-slate-500">Nomor Telepon</dt>
+                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.telepon || '-'}</dd>
                                     </div>
                                 </dl>
                             </div>

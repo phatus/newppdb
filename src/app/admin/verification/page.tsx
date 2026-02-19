@@ -27,7 +27,10 @@ export default async function VerificationListPage({
             createdAt: "desc"
         },
         include: {
-            documents: true
+            documents: true,
+            user: {
+                select: { email: true }
+            }
         }
     });
 
@@ -77,6 +80,8 @@ export default async function VerificationListPage({
                                 <div>
                                     <h3 className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{student.namaLengkap}</h3>
                                     <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
+                                    <p className="text-xs text-slate-400 truncate max-w-[150px]" title={student.user?.email || '-'}>📧 {student.user?.email || '-'}</p>
+                                    <p className="text-xs text-slate-400 truncate max-w-[150px]" title={student.telepon || '-'}>📱 {student.telepon || '-'}</p>
                                 </div>
                             </div>
                             <span className={`text-[10px] font-bold px-2 py-1 rounded ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
