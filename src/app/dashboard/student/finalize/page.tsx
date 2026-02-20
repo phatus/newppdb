@@ -59,7 +59,7 @@ export default async function FinalizePage({
     const docs = selectedStudent.documents || {};
 
     // Check if documents are complete
-    const isComplete = !!(docs.fileAkta && docs.fileKK && docs.fileSKL && docs.fileRaport && docs.pasFoto);
+    const isComplete = !!(docs.fileAkta && docs.fileKK && docs.fileRaport && docs.pasFoto);
     const isFinalized = selectedStudent.statusVerifikasi !== "DRAFT" && selectedStudent.statusVerifikasi !== "REJECTED" && selectedStudent.statusVerifikasi !== undefined; // Adjust logic based on default status
     // Actually default is PENDING usually? Let's check schema. Schema default is PENDING.
     // So if it is PENDING, it might be auto-finalized or we need a specific flag?
@@ -249,10 +249,7 @@ export default async function FinalizePage({
                                     <span className="text-sm font-medium">Kartu Keluarga</span>
                                     {docs.fileKK ? <span className="text-green-600 material-symbols-outlined text-sm">check_circle</span> : <span className="text-red-500 material-symbols-outlined text-sm">cancel</span>}
                                 </div>
-                                <div className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-slate-700/50">
-                                    <span className="text-sm font-medium">SKL</span>
-                                    {docs.fileSKL ? <span className="text-green-600 material-symbols-outlined text-sm">check_circle</span> : <span className="text-red-500 material-symbols-outlined text-sm">cancel</span>}
-                                </div>
+
                                 <div className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-slate-700/50">
                                     <span className="text-sm font-medium">Raport</span>
                                     {docs.fileRaport ? <span className="text-green-600 material-symbols-outlined text-sm">check_circle</span> : <span className="text-red-500 material-symbols-outlined text-sm">cancel</span>}

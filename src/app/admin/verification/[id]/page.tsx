@@ -61,7 +61,7 @@ const getDocumentList = (docs: any, jalur: string | null) => {
     const list = [
         { key: 'fileKK', label: 'Kartu Keluarga (KK)', icon: 'badge' },
         { key: 'fileAkta', label: 'Akta Kelahiran', icon: 'child_care' },
-        { key: 'fileSKL', label: 'Surat Keterangan Lulus', icon: 'school' },
+
         { key: 'fileRaport', label: 'Raport', icon: 'menu_book' },
         { key: 'pasFoto', label: 'Pas Foto', icon: 'account_box' },
     ];

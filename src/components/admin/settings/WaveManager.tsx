@@ -18,7 +18,7 @@ interface Wave {
 }
 
 const JALUR_OPTIONS = [
-    { value: "REGULER", label: "Reguler / Zonasi" },
+    { value: "REGULER", label: "Reguler" },
     { value: "PRESTASI_AKADEMIK", label: "Prestasi Akademik" },
     { value: "PRESTASI_NON_AKADEMIK", label: "Prestasi Non-Akademik" },
     { value: "AFIRMASI", label: "Afirmasi" },

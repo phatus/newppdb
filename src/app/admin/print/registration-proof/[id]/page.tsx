@@ -124,7 +124,7 @@ export default async function AdminRegistrationProofPage({ params }: any) {
                                             <span className="font-bold text-slate-700">Jalur Pendaftaran</span>
                                             <span>:</span>
                                             <span className="text-slate-900 font-bold">
-                                                {student.jalur === "REGULER" ? "Reguler / Zonasi" :
+                                                {student.jalur === "REGULER" ? "Reguler" :
                                                     student.jalur === "PRESTASI_AKADEMIK" ? "Prestasi Akademik" :
                                                         student.jalur === "PRESTASI_NON_AKADEMIK" ? "Prestasi Non-Akademik" :
                                                             student.jalur || "-"}
@@ -152,12 +152,7 @@ export default async function AdminRegistrationProofPage({ params }: any) {
                                                 </div>
                                                 <span className="text-sm font-medium text-slate-700">Kartu Keluarga</span>
                                             </div>
-                                            <div className="flex items-center gap-3 print:gap-2">
-                                                <div className={`flex items-center justify-center size-5 rounded border ${student.documents?.fileSKL ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-300'}`}>
-                                                    {student.documents?.fileSKL && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
-                                                </div>
-                                                <span className="text-sm font-medium text-slate-700">Surat Keterangan Lulus</span>
-                                            </div>
+
                                             <div className="flex items-center gap-3 print:gap-2">
                                                 <div className={`flex items-center justify-center size-5 rounded border ${student.documents?.fileRaport ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-300'}`}>
                                                     {student.documents?.fileRaport && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}

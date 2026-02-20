@@ -238,16 +238,7 @@ export default async function Home() {
                 Berusia paling tinggi 15 (lima belas) tahun pada tanggal 1 Juli tahun berjalan.
               </p>
             </div>
-            {/* Card 2 */}
-            <div className="bg-white dark:bg-[#15202b] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
-              <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined text-2xl">school</span>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Ijazah / SKL</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                Memiliki ijazah SD/sederajat atau dokumen lain yang menjelaskan telah menyelesaikan kelas 6 SD.
-              </p>
-            </div>
+
             {/* Card 3 */}
             <div className="bg-white dark:bg-[#15202b] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow group">
               <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center text-primary mb-4 group-hover:scale-110 transition-transform">

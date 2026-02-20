@@ -78,7 +78,7 @@ export default async function DocumentUploadPage({
 
     // Helper to check if file already exists
     const renderUploadSection = (
-        type: "fileAkta" | "fileKK" | "fileSKL" | "fileRaport" | "pasFoto" | "fileSKTM",
+        type: "fileAkta" | "fileKK" | "fileRaport" | "pasFoto" | "fileSKTM",
         title: string,
         desc: string,
         icon: string,
@@ -160,7 +160,6 @@ export default async function DocumentUploadPage({
     const isComplete =
         docs.fileAkta &&
         docs.fileKK &&
-        docs.fileSKL &&
         docs.pasFoto &&
         docs.fileRaport && // Report is now mandatory for ALL paths
         (selectedStudent.jalur === "PRESTASI_AKADEMIK" ? docs.filePrestasi && docs.filePrestasi.length > 0 : true) &&
@@ -263,12 +262,7 @@ export default async function DocumentUploadPage({
                         "group"
                     )}
 
-                    {renderUploadSection(
-                        "fileSKL",
-                        "Surat Keterangan Lulus (SKL)",
-                        "Dari sekolah asal.",
-                        "school"
-                    )}
+
 
                     {/* Report Card - Now for ALL Paths due to PMBM update */}
                     {renderUploadSection(

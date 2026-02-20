@@ -39,7 +39,7 @@ export async function deleteStudents(studentIds: string[]) {
         studentsToDelete.forEach(student => {
             if (student.documents) {
                 const docs = student.documents;
-                const keys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto", "fileSKTM"];
+                const keys = ["fileAkta", "fileKK", "fileRaport", "pasFoto", "fileSKTM"];
                 keys.forEach(key => {
                     const url = (docs as any)[key];
                     if (url) allFiles.push(url);
@@ -102,7 +102,7 @@ export async function deleteAllStudents() {
         allStudents.forEach(student => {
             if (student.documents) {
                 const docs = student.documents;
-                const keys = ["fileAkta", "fileKK", "fileSKL", "fileRaport", "pasFoto", "fileSKTM"];
+                const keys = ["fileAkta", "fileKK", "fileRaport", "pasFoto", "fileSKTM"];
                 keys.forEach(key => {
                     const url = (docs as any)[key];
                     if (url) allFiles.push(url);

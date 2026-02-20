@@ -100,7 +100,7 @@ export default function QuotaSettings({ settings }: QuotaSettingsProps) {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="space-y-2">
-                            <label className="block text-sm font-medium text-slate-700">Jalur Reguler / Zonasi</label>
+                            <label className="block text-sm font-medium text-slate-700">Jalur Reguler</label>
                             <input
                                 type="number"
                                 name="quotaReguler"
