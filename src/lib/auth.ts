@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "./db";
 import { compare } from "bcryptjs";
+import { logActivity } from "./audit";
 
 export const authOptions: NextAuthOptions = {
     session: {
@@ -68,4 +69,11 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
     },
+    events: {
+        async signIn({ user }) {
+            if (user?.id) {
+                await logActivity("LOGIN", "USER", user.id, `User logged in: ${user.email}`, user.id);
+            }
+        }
+    }
 };

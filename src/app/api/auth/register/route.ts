@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { sendVerificationEmail } from "@/lib/mail";
+import { logActivity } from "@/lib/audit";
 
 export async function POST(req: Request) {
     try {
@@ -49,6 +50,8 @@ export async function POST(req: Request) {
         } catch (mailError) {
             console.error("Failed to send email:", mailError);
         }
+
+        await logActivity("REGISTER_USER", "USER", user.id, `User registered: ${email}`, user.id);
 
         return NextResponse.json(
             {

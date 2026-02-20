@@ -15,6 +15,7 @@ async function checkAdmin() {
 }
 
 import { deleteFiles } from "@/lib/file-utils";
+import { logActivity } from "@/lib/audit";
 
 export async function deleteStudents(studentIds: string[]) {
     try {
@@ -78,6 +79,13 @@ export async function deleteStudents(studentIds: string[]) {
             });
         });
 
+        await logActivity(
+            "DELETE_STUDENT",
+            "STUDENT",
+            studentIds.length === 1 ? studentIds[0] : "MULTIPLE",
+            `Deleted ${studentIds.length} students: ${studentsToDelete.map(s => s.namaLengkap).join(", ")}`
+        );
+
         revalidatePath("/admin/students");
         return { success: true };
     } catch (error: any) {
@@ -134,6 +142,13 @@ export async function deleteAllStudents() {
                 }
             });
         });
+
+        await logActivity(
+            "DELETE_ALL_STUDENTS",
+            "STUDENT",
+            "ALL",
+            `Deleted ALL ${allStudents.length} students from the database.`
+        );
 
         revalidatePath("/admin/students");
         return { success: true };

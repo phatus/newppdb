@@ -48,7 +48,7 @@ export async function createWave(data: {
         });
 
         revalidatePath("/admin/settings/waves");
-        await logActivity("CREATE_WAVE", "SETTINGS", wave.id, `Created wave: ${wave.name}`);
+        await logActivity("CREATE_WAVE", "WAVE", wave.id, `Created wave: ${wave.name}`);
 
         return { success: true, data: wave };
     } catch (error) {
@@ -82,7 +82,7 @@ export async function updateWave(id: string, data: {
         });
 
         revalidatePath("/admin/settings/waves");
-        await logActivity("UPDATE_WAVE", "SETTINGS", wave.id, `Updated wave: ${wave.name}`);
+        await logActivity("UPDATE_WAVE", "WAVE", wave.id, `Updated wave: ${wave.name}`);
 
         return { success: true, data: wave };
     } catch (error) {
@@ -96,7 +96,7 @@ export async function deleteWave(id: string) {
         await db.wave.delete({ where: { id } });
 
         revalidatePath("/admin/settings/waves");
-        await logActivity("DELETE_WAVE", "SETTINGS", id, "Deleted wave");
+        await logActivity("DELETE_WAVE", "WAVE", id, "Deleted wave");
 
         return { success: true };
     } catch (error) {
