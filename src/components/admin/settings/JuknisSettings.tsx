@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { uploadJuknis, deleteJuknis } from "@/app/actions/settings";
+import { deleteJuknis } from "@/app/actions/settings";
 import { toast } from "react-hot-toast";
 
 interface JuknisSettingsProps {
@@ -10,6 +10,7 @@ interface JuknisSettingsProps {
 
 export default function JuknisSettings({ initialData }: JuknisSettingsProps) {
     const [uploading, setUploading] = useState(false);
+    const [progress, setProgress] = useState(0);
     const [deleting, setDeleting] = useState(false);
     const [currentFile, setCurrentFile] = useState<string | null>(initialData?.juknisFile || null);
 
@@ -33,18 +34,60 @@ export default function JuknisSettings({ initialData }: JuknisSettingsProps) {
         formData.append("juknis", file);
 
         setUploading(true);
-        const res = await uploadJuknis(formData);
+        setProgress(0);
 
-        if (res.success) {
-            toast.success("File juknis berhasil diupload");
-            setCurrentFile(res.url || null);
-        } else {
-            toast.error(res.error || "Gagal mengupload file juknis");
+        try {
+            const xhr = new XMLHttpRequest();
+
+            // Setup listeners
+            xhr.upload.addEventListener("progress", (event) => {
+                if (event.lengthComputable) {
+                    const percentComplete = Math.round((event.loaded / event.total) * 100);
+                    setProgress(percentComplete);
+                }
+            });
+
+            const uploadPromise = new Promise<{ success: boolean; url?: string; message?: string }>((resolve, reject) => {
+                xhr.onreadystatechange = () => {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status >= 200 && xhr.status < 300) {
+                            try {
+                                resolve(JSON.parse(xhr.responseText));
+                            } catch (e) {
+                                resolve({ success: true });
+                            }
+                        } else {
+                            try {
+                                const err = JSON.parse(xhr.responseText);
+                                reject(new Error(err.message || "Gagal upload"));
+                            } catch (e) {
+                                reject(new Error("Gagal upload (Server Error)"));
+                            }
+                        }
+                    }
+                };
+                xhr.onerror = () => reject(new Error("Network Error saat upload"));
+            });
+
+            xhr.open("POST", "/api/admin/settings/juknis", true);
+            xhr.send(formData);
+
+            const res = await uploadPromise;
+
+            if (res.success) {
+                toast.success("File juknis berhasil diupload");
+                setCurrentFile(res.url || null);
+            } else {
+                toast.error("Gagal mengupload file juknis");
+            }
+        } catch (error: any) {
+            console.error("Upload error:", error);
+            toast.error(error.message || "Terjadi kesalahan saat upload");
+        } finally {
+            setUploading(false);
+            setProgress(0);
+            e.target.value = "";
         }
-        setUploading(false);
-
-        // Reset file input
-        e.target.value = "";
     };
 
     const handleDelete = async () => {
@@ -116,16 +159,32 @@ export default function JuknisSettings({ initialData }: JuknisSettingsProps) {
                 </div>
             )}
 
+            {/* Progress Bar */}
+            {uploading && (
+                <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                        <span className="text-slate-500 font-medium">Mengupload...</span>
+                        <span className="text-primary font-bold">{progress}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-primary transition-all duration-300"
+                            style={{ width: `${progress}%` }}
+                        />
+                    </div>
+                </div>
+            )}
+
             {/* Upload Button */}
             <div className="flex items-center gap-3">
                 <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm cursor-pointer transition-colors ${uploading
-                        ? "bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed"
-                        : "bg-primary hover:bg-primary/90 text-white"
+                    ? "bg-slate-100 dark:bg-slate-700 text-slate-400 cursor-not-allowed"
+                    : "bg-primary hover:bg-primary/90 text-white"
                     }`}>
                     {uploading ? (
                         <>
                             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                            Mengupload...
+                            Proses Upload...
                         </>
                     ) : (
                         <>
