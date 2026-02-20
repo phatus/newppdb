@@ -1,10 +1,13 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "./db";
 import { compare } from "bcryptjs";
 import { logActivity } from "./audit";
 
 export const authOptions: NextAuthOptions = {
+    adapter: PrismaAdapter(db),
     session: {
         strategy: "jwt",
     },
@@ -12,6 +15,10 @@ export const authOptions: NextAuthOptions = {
         signIn: "/auth/login",
     },
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
         CredentialsProvider({
             name: "Credentials",
             credentials: {
@@ -33,6 +40,10 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Email tidak terdaftar.");
                 }
 
+                if (!user.password) {
+                    throw new Error("Akun ini tidak memiliki password. Silakan masuk menggunakan Google.");
+                }
+
                 const isPasswordValid = await compare(credentials.password, user.password);
 
                 if (!isPasswordValid) {
@@ -52,19 +63,18 @@ export const authOptions: NextAuthOptions = {
             },
         }),
     ],
-    // ... imports
     callbacks: {
-        async jwt({ token, user }) {
+        async jwt({ token, user, account }) {
             if (user) {
-                token.role = user.role;
+                token.role = (user as any).role || "USER";
                 token.id = user.id;
             }
             return token;
         },
         async session({ session, token }) {
             if (session.user) {
-                session.user.role = token.role;
-                session.user.id = token.id;
+                session.user.role = token.role as any;
+                session.user.id = token.id as string;
             }
             return session;
         },
@@ -77,3 +87,4 @@ export const authOptions: NextAuthOptions = {
         }
     }
 };
+

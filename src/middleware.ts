@@ -7,9 +7,14 @@ export default withAuth(
         const isAuth = !!token;
         const isAuthPage = req.nextUrl.pathname.startsWith("/auth");
         const isAdminPage = req.nextUrl.pathname.startsWith("/admin");
+        const isDashboardPage = req.nextUrl.pathname.startsWith("/dashboard");
 
         if (isAuthPage) {
             if (isAuth) {
+                // Redirect based on role instead of just /dashboard
+                if (token?.role === "ADMIN") {
+                    return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+                }
                 return NextResponse.redirect(new URL("/dashboard", req.url));
             }
             return null;
@@ -29,22 +34,23 @@ export default withAuth(
             return NextResponse.redirect(new URL("/dashboard", req.url));
         }
 
-        // If accessing dashboard but is admin, maybe redirect to admin dashboard?
-        // Depends on requirements. User might have both roles or Admin is separate.
-        // For now, allow Admin to access dashboard too or keep separate. 
-        // The requirement implies Admin has their own dashboard.
+        // If admin is on /dashboard, redirect to /admin/dashboard
+        if (isDashboardPage && token?.role === "ADMIN") {
+            return NextResponse.redirect(new URL("/admin/dashboard", req.url));
+        }
 
         return null;
     },
     {
         callbacks: {
             authorized: async ({ token }) => {
-                return !!token;
+                return true; // Handle logic inside middleware function
             },
         },
     }
 );
 
 export const config = {
-    matcher: ["/dashboard/:path*", "/admin/:path*"],
+    matcher: ["/dashboard/:path*", "/admin/:path*", "/auth/:path*"],
 };
+
