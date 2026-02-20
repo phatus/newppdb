@@ -303,7 +303,7 @@ export default async function Home() {
               Alur Lengkap Pendaftaran
             </h2>
             <p className="text-slate-500 mt-2">
-              Ikuti 7 langkah mudah untuk mendaftar sebagai murid baru.
+              Ikuti 8 langkah mudah untuk mendaftar sebagai murid baru.
             </p>
           </div>
           <div className="relative">
@@ -326,74 +326,87 @@ export default async function Home() {
               <div className="flex flex-col items-center text-center group">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-white dark:bg-[#101a22] border-4 border-blue-50 dark:border-blue-900/30 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:border-primary transition-colors duration-300 z-10 relative">
-                    <span className="material-symbols-outlined text-3xl">login</span>
+                    <span className="material-symbols-outlined text-3xl">mark_email_read</span>
                   </div>
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">2</div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Login</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Verifikasi Email</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Masuk ke dalam sistem menggunakan akun yang telah dibuat sebelumnya.
+                  Melakukan verifikasi email melalui link yang dikirimkan ke alamat email pendaftar.
                 </p>
               </div>
               {/* Step 3 */}
               <div className="flex flex-col items-center text-center group">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-white dark:bg-[#101a22] border-4 border-blue-50 dark:border-blue-900/30 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:border-primary transition-colors duration-300 z-10 relative">
-                    <span className="material-symbols-outlined text-3xl">edit_document</span>
+                    <span className="material-symbols-outlined text-3xl">login</span>
                   </div>
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">3</div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Daftar Calon Murid</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Login</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Melengkapi formulir pendaftaran dengan data rinci calon murid dan orang tua.
+                  Masuk ke dalam sistem menggunakan akun yang telah dibuat sebelumnya.
                 </p>
               </div>
               {/* Step 4 */}
               <div className="flex flex-col items-center text-center group">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-white dark:bg-[#101a22] border-4 border-blue-50 dark:border-blue-900/30 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:border-primary transition-colors duration-300 z-10 relative">
-                    <span className="material-symbols-outlined text-3xl">upload_file</span>
+                    <span className="material-symbols-outlined text-3xl">edit_document</span>
                   </div>
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">4</div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Unggah Dokumen</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Daftar Calon Murid</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Mengunggah scan dokumen asli persyaratan (KK, Akta, dll) ke sistem.
+                  Melengkapi formulir pendaftaran dengan data rinci calon murid dan orang tua.
                 </p>
               </div>
               {/* Step 5 */}
               <div className="flex flex-col items-center text-center group lg:col-start-1">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-white dark:bg-[#101a22] border-4 border-blue-50 dark:border-blue-900/30 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:border-primary transition-colors duration-300 z-10 relative">
-                    <span className="material-symbols-outlined text-3xl">print</span>
+                    <span className="material-symbols-outlined text-3xl">upload_file</span>
                   </div>
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">5</div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Cetak Bukti</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Unggah Dokumen</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Mencetak bukti pendaftaran sebagai tanda bukti pengajuan data.
+                  Mengunggah scan dokumen asli persyaratan (KK, Akta, dll) ke sistem.
                 </p>
               </div>
               {/* Step 6 */}
               <div className="flex flex-col items-center text-center group">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-white dark:bg-[#101a22] border-4 border-blue-50 dark:border-blue-900/30 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:border-primary transition-colors duration-300 z-10 relative">
-                    <span className="material-symbols-outlined text-3xl">verified_user</span>
+                    <span className="material-symbols-outlined text-3xl">print</span>
                   </div>
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">6</div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Verifikasi Admin</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Cetak Bukti</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
-                  Admin Madrasah memverifikasi kesesuaian data dan dokumen yang diunggah.
+                  Mencetak bukti pendaftaran sebagai tanda bukti pengajuan data.
                 </p>
               </div>
               {/* Step 7 */}
               <div className="flex flex-col items-center text-center group">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-full bg-white dark:bg-[#101a22] border-4 border-blue-50 dark:border-blue-900/30 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:border-primary transition-colors duration-300 z-10 relative">
-                    <span className="material-symbols-outlined text-3xl">badge</span>
+                    <span className="material-symbols-outlined text-3xl">verified_user</span>
                   </div>
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">7</div>
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Verifikasi Admin</h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
+                  Admin Madrasah memverifikasi kesesuaian data dan dokumen yang diunggah.
+                </p>
+              </div>
+              {/* Step 8 */}
+              <div className="flex flex-col items-center text-center group">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-full bg-white dark:bg-[#101a22] border-4 border-blue-50 dark:border-blue-900/30 text-primary flex items-center justify-center mb-6 shadow-sm group-hover:border-primary transition-colors duration-300 z-10 relative">
+                    <span className="material-symbols-outlined text-3xl">badge</span>
+                  </div>
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-bold flex items-center justify-center text-sm shadow-md">8</div>
                 </div>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Cetak Kartu Ujian</h3>
                 <p className="text-slate-600 dark:text-slate-400 text-sm px-2">
