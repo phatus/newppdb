@@ -55,9 +55,9 @@ export default function ReportsHubPage() {
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                             Cetak kartu ujian untuk seluruh murid terverifikasi sekaligus. Hemat waktu distribusi kartu.
                         </p>
-                        <button className="inline-flex items-center gap-2 text-slate-400 text-sm font-semibold cursor-not-allowed" disabled>
-                            Segera Hadir
-                        </button>
+                        <Link href="/admin/reports/mass-print" className="inline-flex items-center gap-2 text-primary text-sm font-semibold hover:underline">
+                            Cetak Kartu Massal &rarr;
+                        </Link>
                     </div>
                 </div>
             </div>

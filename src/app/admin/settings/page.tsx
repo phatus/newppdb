@@ -7,6 +7,7 @@ import CommitteeSettings from "@/components/admin/settings/CommitteeSettings";
 import WASettings from "@/components/admin/settings/WASettings";
 import QuotaSettings from "@/components/admin/settings/QuotaSettings";
 import WeightSettings from "@/components/admin/settings/WeightSettings";
+import JuknisSettings from "@/components/admin/settings/JuknisSettings";
 
 export default async function SettingsPage() {
     const settings = await db.schoolSettings.findFirst();
@@ -85,6 +86,15 @@ export default async function SettingsPage() {
                         <QuotaSettings settings={settings} />
                     </section>
 
+                    {/* Juknis Settings */}
+                    <section id="juknis" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary">description</span>
+                            Juknis PMBM
+                        </h2>
+                        <JuknisSettings initialData={settings} />
+                    </section>
+
                     {/* WhatsApp Settings */}
                     <section id="whatsapp" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
                         <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
@@ -123,6 +133,10 @@ export default async function SettingsPage() {
                             <a href="#quota" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all">
                                 <span className="material-symbols-outlined text-[18px]">pie_chart</span>
                                 Kuota
+                            </a>
+                            <a href="#juknis" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all">
+                                <span className="material-symbols-outlined text-[18px]">description</span>
+                                Juknis PMBM
                             </a>
                             <a href="#whatsapp" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all">
                                 <span className="material-symbols-outlined text-[18px]">chat</span>

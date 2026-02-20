@@ -307,6 +307,9 @@ model SchoolSettings {
   heroTitle         String   @default("Masa Depan Cerah Dimulai Di Sini")
   heroDescription   String   @default("Selamat datang di portal Penerimaan Peserta Didik Baru. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.")
   heroImage         String?
+
+  // Juknis PDF
+  juknisFile        String?  // URL to uploaded juknis PDF
 }
 
 model ExamSchedule {

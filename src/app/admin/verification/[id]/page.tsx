@@ -114,6 +114,22 @@ export default async function VerificationDetailPage({ params }: any) {
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <Link
+                        href={`/admin/print/registration-proof/${student.id}`}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[16px]">receipt_long</span>
+                        Cetak Bukti Pendaftaran
+                    </Link>
+                    {student.statusVerifikasi === 'VERIFIED' && (
+                        <Link
+                            href={`/admin/print/exam-card/${student.id}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-[16px]">badge</span>
+                            Cetak Kartu Ujian
+                        </Link>
+                    )}
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
                         student.statusVerifikasi === 'REJECTED' ? 'bg-red-100 text-red-800' :
                             'bg-yellow-100 text-yellow-800'

@@ -216,9 +216,16 @@ export default async function Home() {
                 Dokumen dan syarat yang perlu dipersiapkan sebelum mendaftar.
               </p>
             </div>
-            <button className="text-primary font-bold hover:underline inline-flex items-center gap-1">
-              Lihat Juknis Lengkap <span className="material-symbols-outlined text-lg">arrow_forward</span>
-            </button>
+            {settings?.juknisFile && (
+              <a
+                href={settings.juknisFile}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary font-bold hover:underline inline-flex items-center gap-1"
+              >
+                Lihat Juknis Lengkap <span className="material-symbols-outlined text-lg">arrow_forward</span>
+              </a>
+            )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Card 1 */}
