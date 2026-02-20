@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { getSettings } from "@/app/actions/settings";
 import { resendVerificationEmail } from "@/app/actions/auth";
 import { toast } from "react-hot-toast";
 
-export default function RegisterPage() {
+function RegisterForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [logoUrl, setLogoUrl] = useState("/icons/icon-192x192.png");
@@ -380,3 +380,12 @@ export default function RegisterPage() {
         </div>
     );
 }
+
+export default function RegisterPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background-light dark:bg-background-dark">Loading form...</div>}>
+            <RegisterForm />
+        </Suspense>
+    );
+}
+
