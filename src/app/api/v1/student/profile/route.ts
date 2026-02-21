@@ -4,25 +4,37 @@ import { db } from "@/lib/db";
 
 async function handler(req: Request, session: any) {
     try {
-        const student = await db.student.findFirst({
+        // Lookup user by email to get the stable DB ID (prevents mismatch with token ID)
+        const user = await db.user.findUnique({
+            where: { email: session.email }
+        });
+
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+
+        const students = await db.student.findMany({
             where: {
-                userId: session.id
+                userId: user.id
             },
             include: {
                 documents: true,
                 grades: true,
                 wave: true,
+            },
+            orderBy: {
+                createdAt: 'desc'
             }
         });
 
         return NextResponse.json({
             user: {
-                id: session.id,
-                email: session.email,
-                name: session.name,
-                role: session.role,
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
             },
-            student: student || null
+            students: students
         });
 
     } catch (error) {

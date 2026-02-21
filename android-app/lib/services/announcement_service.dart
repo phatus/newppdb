@@ -10,8 +10,10 @@ class AnnouncementService {
     try {
       final response = await _apiClient.dio.get('/announcements');
       if (response.statusCode == 200) {
-        final list = response.data['announcements'] as List;
-        return list.map((a) => Announcement.fromJson(a)).toList();
+        final rawAnnouncements = response.data['announcements'];
+        return rawAnnouncements is List
+            ? rawAnnouncements.map((a) => Announcement.fromJson(a)).toList()
+            : [];
       }
     } on DioException catch (e) {
       debugPrint('Get Announcements Error: ${e.message}');

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/student_provider.dart';
+import '../../models/wave_model.dart';
 
 class RegistrationView extends StatefulWidget {
   const RegistrationView({super.key});
@@ -11,6 +12,7 @@ class RegistrationView extends StatefulWidget {
 
 class _RegistrationViewState extends State<RegistrationView> {
   final _formKey = GlobalKey<FormState>();
+  int _currentStep = 0;
 
   // Data Diri
   final _namaController = TextEditingController();
@@ -83,7 +85,31 @@ class _RegistrationViewState extends State<RegistrationView> {
     }
   }
 
-  void _submitForm() async {
+  bool _isWaveActive(List<Wave> waves) {
+    if (_selectedWaveId == null) return true;
+    try {
+      final wave = waves.firstWhere((w) => w.id == _selectedWaveId);
+      final now = DateTime.now();
+      return now.isAfter(wave.startDate) && now.isBefore(wave.endDate);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> _submitForm() async {
+    final waves = context.read<StudentProvider>().activeWaves;
+    if (!_isWaveActive(waves)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Maaf, pendaftaran untuk gelombang ini sudah ditutup atau belum dibuka.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       final studentProv = context.read<StudentProvider>();
 
@@ -102,7 +128,6 @@ class _RegistrationViewState extends State<RegistrationView> {
         'telepon': _teleponController.text,
         'jalur': _selectedJalur,
         'waveId': _selectedWaveId,
-        // Orang Tua
         'namaAyah': _namaAyahController.text.isNotEmpty
             ? _namaAyahController.text
             : null,
@@ -116,7 +141,6 @@ class _RegistrationViewState extends State<RegistrationView> {
             ? _pekerjaanIbuController.text
             : null,
         'penghasilanOrtu': _selectedPenghasilan,
-        // Alamat
         'alamatJalan': _alamatJalanController.text.isNotEmpty
             ? _alamatJalanController.text
             : null,
@@ -170,236 +194,438 @@ class _RegistrationViewState extends State<RegistrationView> {
     final waves = studentProv.activeWaves;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Formulir Pendaftaran')),
+      appBar: AppBar(
+        title: const Text(
+          'Pendaftaran Baru',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: studentProv.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // === DATA DIRI ===
-                    _sectionTitle('Data Diri Siswa'),
-                    const SizedBox(height: 16),
-                    _requiredField(_namaController, 'Nama Lengkap'),
-                    const SizedBox(height: 12),
-                    _requiredField(
-                      _nisnController,
-                      'NISN',
-                      keyboard: TextInputType.number,
-                    ),
-                    const SizedBox(height: 12),
-                    _optionalField(
-                      _nikController,
-                      'NIK',
-                      keyboard: TextInputType.number,
-                    ),
-                    const SizedBox(height: 12),
-                    _optionalField(
-                      _noKkController,
-                      'No. KK',
-                      keyboard: TextInputType.number,
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedGender,
-                      decoration: const InputDecoration(
-                        labelText: 'Jenis Kelamin',
-                      ),
-                      items: _genderOptions
-                          .map(
-                            (g) => DropdownMenuItem(value: g, child: Text(g)),
-                          )
-                          .toList(),
-                      onChanged: (v) => setState(() => _selectedGender = v),
-                    ),
-                    const SizedBox(height: 12),
-                    _optionalField(_tempatLahirController, 'Tempat Lahir'),
-                    const SizedBox(height: 12),
-                    _optionalField(_asalSekolahController, 'Asal Sekolah'),
-                    const SizedBox(height: 12),
-                    _requiredField(
-                      _teleponController,
-                      'Nomor WhatsApp',
-                      keyboard: TextInputType.phone,
-                    ),
-
-                    const SizedBox(height: 24),
-                    // === ORANG TUA ===
-                    _sectionTitle('Data Orang Tua / Wali'),
-                    const SizedBox(height: 16),
-                    _optionalField(_namaAyahController, 'Nama Ayah'),
-                    const SizedBox(height: 12),
-                    _optionalField(_pekerjaanAyahController, 'Pekerjaan Ayah'),
-                    const SizedBox(height: 12),
-                    _optionalField(_namaIbuController, 'Nama Ibu'),
-                    const SizedBox(height: 12),
-                    _optionalField(_pekerjaanIbuController, 'Pekerjaan Ibu'),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedPenghasilan,
-                      decoration: const InputDecoration(
-                        labelText: 'Penghasilan Orang Tua',
-                      ),
-                      items: _penghasilanOptions
-                          .map(
-                            (p) => DropdownMenuItem(value: p, child: Text(p)),
-                          )
-                          .toList(),
-                      onChanged: (v) =>
-                          setState(() => _selectedPenghasilan = v),
-                    ),
-
-                    const SizedBox(height: 24),
-                    // === ALAMAT ===
-                    _sectionTitle('Alamat Lengkap'),
-                    const SizedBox(height: 16),
-                    _optionalField(_alamatJalanController, 'Jalan'),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _optionalField(
-                            _alamatRtController,
-                            'RT',
-                            keyboard: TextInputType.number,
+          : Column(
+              children: [
+                _buildStepper(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildStepContent(waves),
+                          const SizedBox(height: 32),
+                          ElevatedButton(
+                            onPressed: () {
+                              if (_currentStep < 3) {
+                                setState(() => _currentStep++);
+                              } else {
+                                _submitForm();
+                              }
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _currentStep < 3
+                                      ? 'Simpan & Lanjut'
+                                      : 'Submit Pendaftaran',
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.arrow_forward_rounded,
+                                  size: 18,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _optionalField(
-                            _alamatRwController,
-                            'RW',
-                            keyboard: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    _optionalField(_alamatDesaController, 'Desa/Kelurahan'),
-                    const SizedBox(height: 12),
-                    _optionalField(_alamatKecamatanController, 'Kecamatan'),
-                    const SizedBox(height: 12),
-                    _optionalField(
-                      _alamatKabupatenController,
-                      'Kabupaten/Kota',
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _optionalField(
-                            _alamatProvinsiController,
-                            'Provinsi',
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _optionalField(
-                            _kodePosController,
-                            'Kode Pos',
-                            keyboard: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 24),
-                    // === JALUR & GELOMBANG ===
-                    _sectionTitle('Pilihan Jalur & Gelombang'),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedWaveId,
-                      decoration: const InputDecoration(
-                        labelText: 'Pilih Gelombang *',
-                      ),
-                      items: waves.map((w) {
-                        return DropdownMenuItem(
-                          value: w.id,
-                          child: Text(w.name),
-                        );
-                      }).toList(),
-                      onChanged: (v) {
-                        setState(() {
-                          _selectedWaveId = v;
-                          _selectedJalur = null;
-                        });
-                      },
-                      validator: (v) => v == null ? 'Pilih gelombang' : null,
-                    ),
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedJalur,
-                      decoration: const InputDecoration(
-                        labelText: 'Pilih Jalur *',
-                      ),
-                      items: _selectedWaveId == null
-                          ? []
-                          : waves
-                                .firstWhere((w) => w.id == _selectedWaveId)
-                                .jalurAllowed
-                                .map((j) {
-                                  return DropdownMenuItem(
-                                    value: j,
-                                    child: Text(j.replaceAll('_', ' ')),
-                                  );
-                                })
-                                .toList(),
-                      onChanged: (v) => setState(() => _selectedJalur = v),
-                      validator: (v) => v == null ? 'Pilih jalur' : null,
-                    ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: _submitForm,
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 4),
-                        child: Text(
-                          'SUBMIT PENDAFTARAN',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                          if (_currentStep > 0)
+                            Center(
+                              child: TextButton(
+                                onPressed: () => setState(() => _currentStep--),
+                                child: const Text(
+                                  'Kembali',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
     );
   }
 
-  Widget _sectionTitle(String title) {
-    return Text(
-      title,
-      style: Theme.of(
-        context,
-      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+  Widget _buildStepper() {
+    final titles = ['SISWA', 'ORTU', 'ALAMAT', 'JALUR'];
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
+      ),
+      child: Row(
+        children: List.generate(titles.length, (index) {
+          final isActive = _currentStep == index;
+          final isCompleted = _currentStep > index;
+          return Expanded(
+            child: Column(
+              children: [
+                Container(
+                  height: 4,
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: isActive || isCompleted
+                        ? const Color(0xFF00DDCB)
+                        : Colors.grey[200],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  titles[index],
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: isActive ? const Color(0xFF00DDCB) : Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 
-  Widget _requiredField(
-    TextEditingController ctrl,
-    String label, {
-    TextInputType? keyboard,
-  }) {
-    return TextFormField(
-      controller: ctrl,
-      decoration: InputDecoration(labelText: '$label *'),
-      keyboardType: keyboard,
-      validator: (v) => v == null || v.isEmpty ? 'Wajib diisi' : null,
+  Widget _buildStepContent(List waves) {
+    switch (_currentStep) {
+      case 0:
+        return _buildSiswaStep();
+      case 1:
+        return _buildOrtuStep();
+      case 2:
+        return _buildAlamatStep();
+      case 3:
+        return _buildJalurStep(waves);
+      default:
+        return const SizedBox();
+    }
+  }
+
+  Widget _buildSiswaStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Identitas Siswa',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        const Text(
+          'Mohon isi data diri calon siswa dengan benar sesuai ijazah atau akte kelahiran.',
+          style: TextStyle(fontSize: 12, color: Colors.grey),
+        ),
+        const SizedBox(height: 25),
+        _buildInputField(
+          _nisnController,
+          'NISN',
+          Icons.badge_outlined,
+          keyboard: TextInputType.number,
+        ),
+        const SizedBox(height: 16),
+        _buildInputField(
+          _namaController,
+          'Nama Lengkap',
+          Icons.person_outline_rounded,
+        ),
+        const SizedBox(height: 16),
+        const Text(
+          'Jenis Kelamin',
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: _genderOptions.map((g) {
+            final isSelected = _selectedGender == g;
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    backgroundColor: isSelected
+                        ? const Color(0xFF00DDCB).withValues(alpha: 0.1)
+                        : Colors.white,
+                    side: BorderSide(
+                      color: isSelected
+                          ? const Color(0xFF00DDCB)
+                          : Colors.grey[300]!,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () => setState(() => _selectedGender = g),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        g == 'Laki-laki' ? Icons.male : Icons.female,
+                        size: 18,
+                        color: isSelected
+                            ? const Color(0xFF00DDCB)
+                            : Colors.grey,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        g,
+                        style: TextStyle(
+                          color: isSelected
+                              ? const Color(0xFF00DDCB)
+                              : Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildInputField(
+                _tempatLahirController,
+                'Tempat Lahir',
+                Icons.location_on_outlined,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildInputField(
+                TextEditingController(text: 'DD/MM/YYYY'),
+                'Tanggal Lahir',
+                Icons.calendar_today_rounded,
+                readOnly: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildInputField(
+          _asalSekolahController,
+          'Asal Sekolah',
+          Icons.school_outlined,
+        ),
+        const SizedBox(height: 16),
+        _buildInputField(
+          _teleponController,
+          'Nomor WhatsApp',
+          Icons.phone_android_rounded,
+          keyboard: TextInputType.phone,
+        ),
+      ],
     );
   }
 
-  Widget _optionalField(
+  Widget _buildOrtuStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Data Orang Tua',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 25),
+        _buildInputField(
+          _namaAyahController,
+          'Nama Ayah',
+          Icons.person_outline,
+        ),
+        const SizedBox(height: 16),
+        _buildInputField(
+          _pekerjaanAyahController,
+          'Pekerjaan Ayah',
+          Icons.work_outline,
+        ),
+        const SizedBox(height: 16),
+        _buildInputField(_namaIbuController, 'Nama Ibu', Icons.person_outline),
+        const SizedBox(height: 16),
+        _buildInputField(
+          _pekerjaanIbuController,
+          'Pekerjaan Ibu',
+          Icons.work_outline,
+        ),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          initialValue: _selectedPenghasilan,
+          decoration: InputDecoration(
+            labelText: 'Penghasilan Orang Tua',
+            prefixIcon: const Icon(Icons.payments_outlined),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          items: _penghasilanOptions
+              .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+              .toList(),
+          onChanged: (v) => setState(() => _selectedPenghasilan = v),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAlamatStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Alamat Lengkap',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 25),
+        _buildInputField(
+          _alamatJalanController,
+          'Nama Jalan, RT/RW, Dusun',
+          Icons.home_outlined,
+          maxLines: 3,
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildInputField(_alamatDesaController, 'Desa', null),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildInputField(
+                _alamatKecamatanController,
+                'Kecamatan',
+                null,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        _buildInputField(
+          _alamatKabupatenController,
+          'Kabupaten / Kota',
+          Icons.location_city_outlined,
+        ),
+        const SizedBox(height: 16),
+        _buildInputField(
+          _alamatProvinsiController,
+          'Provinsi',
+          Icons.map_outlined,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildJalurStep(List waves) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Jalur & Gelombang',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 25),
+        DropdownButtonFormField<String>(
+          initialValue: _selectedWaveId,
+          key: ValueKey(
+            _selectedWaveId,
+          ), // Add key to force rebuild when value changes externally if needed
+          decoration: InputDecoration(
+            labelText: 'Pilih Gelombang',
+            prefixIcon: const Icon(Icons.waves),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          items: waves
+              .map<DropdownMenuItem<String>>(
+                (w) => DropdownMenuItem<String>(
+                  value: w.id.toString(),
+                  child: Text(w.name.toString()),
+                ),
+              )
+              .toList(),
+          onChanged: (v) => setState(() {
+            _selectedWaveId = v;
+            _selectedJalur = null;
+          }),
+        ),
+        const SizedBox(height: 16),
+        DropdownButtonFormField<String>(
+          initialValue: _selectedJalur,
+          key: ValueKey(
+            'jalur_$_selectedWaveId',
+          ), // Key to refresh items when wave changes
+          decoration: InputDecoration(
+            labelText: 'Pilih Jalur',
+            prefixIcon: const Icon(Icons.alt_route),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            filled: true,
+            fillColor: Colors.white,
+          ),
+          items: _selectedWaveId == null
+              ? []
+              : (waves.firstWhere((w) => w.id == _selectedWaveId).jalurAllowed
+                        as List)
+                    .map<DropdownMenuItem<String>>(
+                      (j) => DropdownMenuItem<String>(
+                        value: j.toString(),
+                        child: Text(j.toString().replaceAll('_', ' ')),
+                      ),
+                    )
+                    .toList(),
+          onChanged: (v) => setState(() => _selectedJalur = v),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInputField(
     TextEditingController ctrl,
-    String label, {
+    String label,
+    IconData? icon, {
     TextInputType? keyboard,
+    bool readOnly = false,
+    int maxLines = 1,
   }) {
     return TextFormField(
       controller: ctrl,
-      decoration: InputDecoration(labelText: label),
+      readOnly: readOnly,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: icon != null ? Icon(icon, size: 20) : null,
+        suffixIcon: ctrl.text.isNotEmpty
+            ? const Icon(Icons.check_circle, color: Color(0xFF00DDCB), size: 18)
+            : null,
+      ),
       keyboardType: keyboard,
+      onChanged: (v) => setState(() {}),
     );
   }
 }

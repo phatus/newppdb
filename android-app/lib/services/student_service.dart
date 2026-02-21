@@ -6,18 +6,24 @@ import '../models/student_model.dart';
 class StudentService {
   final ApiClient _apiClient = ApiClient();
 
-  Future<Student?> getProfile() async {
+  Future<Map<String, dynamic>> getProfile() async {
     try {
       final response = await _apiClient.dio.get('/student/profile');
-      if (response.statusCode == 200 && response.data['student'] != null) {
-        return Student.fromJson(response.data['student']);
+      if (response.statusCode == 200) {
+        final rawStudents = response.data['students'];
+        return {
+          'user': response.data['user'],
+          'students': rawStudents is List
+              ? rawStudents.map((s) => Student.fromJson(s)).toList()
+              : <Student>[],
+        };
       }
     } on DioException catch (e) {
       debugPrint(
         'Get Profile Error: ${e.response?.data['message'] ?? e.message}',
       );
     }
-    return null;
+    return {'user': null, 'students': <Student>[]};
   }
 
   Future<Map<String, dynamic>> registerStudent(

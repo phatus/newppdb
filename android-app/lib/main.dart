@@ -5,9 +5,16 @@ import 'providers/student_provider.dart';
 import 'providers/document_provider.dart';
 import 'shared/theme.dart';
 import 'views/auth/login_view.dart';
-import 'views/dashboard/dashboard_view.dart';
+import 'views/main_wrapper.dart';
 
-void main() {
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('id_ID', null);
+  Intl.defaultLocale = 'id_ID';
+
   runApp(
     MultiProvider(
       providers: [
@@ -31,9 +38,7 @@ class PMBMApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
-          return auth.isAuthenticated
-              ? const DashboardView()
-              : const LoginView();
+          return auth.isAuthenticated ? const MainWrapper() : const LoginView();
         },
       ),
     );

@@ -1,190 +1,200 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/student_provider.dart';
 
-class ProfileView extends StatefulWidget {
+class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
   @override
-  State<ProfileView> createState() => _ProfileViewState();
-}
-
-class _ProfileViewState extends State<ProfileView> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StudentProvider>().refreshProfile();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
     final studentProv = context.watch<StudentProvider>();
-    final student = studentProv.student;
+    final account =
+        studentProv.accountData; // Get real-time data from StudentProvider
+    final user = auth.user; // Context user
+
+    final dispName = account?['name'] ?? user?['name'] ?? 'Pendaftar';
+    final dispEmail = account?['email'] ?? user?['email'] ?? '-';
+    final dispRole = account?['role'] ?? user?['role'] ?? 'USER';
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil Saya')),
-      body: studentProv.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : student == null
-          ? const Center(
-              child: Text(
-                'Data profil belum tersedia. Silakan daftar terlebih dahulu.',
+      backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        title: const Text(
+          'Akun Pendaftar',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            _buildAccountHeader(dispName, dispEmail),
+            const SizedBox(height: 32),
+            _buildInfoSection('Rincian Akun', [
+              _buildInfoRow(Icons.person_outline, 'Nama Akun', dispName),
+              _buildInfoRow(Icons.email_outlined, 'Email', dispEmail),
+              _buildInfoRow(
+                Icons.admin_panel_settings_outlined,
+                'Role',
+                dispRole,
               ),
-            )
-          : RefreshIndicator(
-              onRefresh: () => studentProv.refreshProfile(),
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  // Avatar
-                  Center(
-                    child: CircleAvatar(
-                      radius: 48,
-                      backgroundColor: Theme.of(context).primaryColor,
-                      child: Text(
-                        student.namaLengkap.isNotEmpty
-                            ? student.namaLengkap[0].toUpperCase()
-                            : '?',
-                        style: const TextStyle(
-                          fontSize: 36,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: Text(
-                      student.namaLengkap,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      'NISN: ${student.nisn}',
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _statusColor(
-                          student.statusVerifikasi,
-                        ).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        student.statusVerifikasi ?? 'PENDING',
-                        style: TextStyle(
-                          color: _statusColor(student.statusVerifikasi),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  _buildInfoTile('NIK', student.nik ?? '-'),
-                  _buildInfoTile('Jenis Kelamin', student.gender ?? '-'),
-                  _buildInfoTile('Tempat Lahir', student.tempatLahir ?? '-'),
-                  _buildInfoTile('Asal Sekolah', student.asalSekolah ?? '-'),
-                  _buildInfoTile('No. WhatsApp', student.telepon ?? '-'),
-                  _buildInfoTile(
-                    'Jalur Pendaftaran',
-                    student.jalur?.replaceAll('_', ' ') ?? '-',
-                  ),
-                  const Divider(height: 32),
-                  Text(
-                    'Status Kelulusan',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        children: [
-                          Icon(
-                            student.statusKelulusan == 'LULUS'
-                                ? Icons.check_circle
-                                : Icons.hourglass_top,
-                            color: _kelulusanColor(student.statusKelulusan),
-                            size: 32,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            student.statusKelulusan ?? 'BELUM DITENTUKAN',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: _kelulusanColor(student.statusKelulusan),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ]),
+            const SizedBox(height: 16),
+            _buildSettingsSection(context, auth),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildInfoTile(String label, String value) {
+  Widget _buildAccountHeader(String name, String email) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 50,
+          backgroundColor: const Color(0xFF00DDCB).withValues(alpha: 0.1),
+          child: const Icon(Icons.person, size: 50, color: Color(0xFF00DDCB)),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          name,
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 4),
+        Text(email, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+      ],
+    );
+  }
+
+  Widget _buildInfoSection(String title, List<Widget> children) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 140,
-            child: Text(label, style: TextStyle(color: Colors.grey[600])),
-          ),
+          Icon(icon, size: 20, color: const Color(0xFF00DDCB)),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              label,
+              style: const TextStyle(color: Colors.grey, fontSize: 13),
             ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
           ),
         ],
       ),
     );
   }
 
-  Color _statusColor(String? status) {
-    switch (status) {
-      case 'VERIFIED':
-        return Colors.green;
-      case 'REJECTED':
-        return Colors.red;
-      default:
-        return Colors.orange;
-    }
+  Widget _buildSettingsSection(BuildContext context, AuthProvider auth) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        children: [
+          _buildSettingsTile(Icons.lock_outline, 'Ubah Kata Sandi', () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Ubah kata sandi tersedia di website.'),
+              ),
+            );
+          }),
+          const Divider(height: 1),
+          _buildSettingsTile(
+            Icons.logout_rounded,
+            'Keluar',
+            () => _showLogoutDialog(context, auth),
+            isDestructive: true,
+          ),
+        ],
+      ),
+    );
   }
 
-  Color _kelulusanColor(String? status) {
-    switch (status) {
-      case 'LULUS':
-        return Colors.green;
-      case 'TIDAK_LULUS':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
+  Widget _buildSettingsTile(
+    IconData icon,
+    String label,
+    VoidCallback onTap, {
+    bool isDestructive = false,
+  }) {
+    return ListTile(
+      onTap: onTap,
+      leading: Icon(icon, color: isDestructive ? Colors.red : Colors.black87),
+      title: Text(
+        label,
+        style: TextStyle(
+          fontSize: 14,
+          color: isDestructive ? Colors.red : Colors.black87,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: const Icon(Icons.chevron_right, size: 20),
+      dense: true,
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AuthProvider auth) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Keluar'),
+        content: const Text('Apakah Anda yakin ingin keluar?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<StudentProvider>().clearData();
+              auth.logout();
+            },
+            child: const Text(
+              'Ya, Keluar',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

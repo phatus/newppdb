@@ -87,7 +87,7 @@ model AuditLog {
   ipAddress String?
   userAgent String?
   
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 
   createdAt DateTime @default(now())
@@ -101,7 +101,7 @@ model Announcement {
   target    String   @default("ALL")  // ALL, USER, VERIFIED
   isActive  Boolean  @default(true)
   
-  author    User     @relation(fields: [authorId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
 
   createdAt DateTime @default(now())
@@ -134,7 +134,7 @@ model Wave {
 
 model Student {
   id               String             @id @default(cuid())
-  user             User               @relation(fields: [userId], references: [id])
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId           String
   
   namaLengkap      String

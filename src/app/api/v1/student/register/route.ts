@@ -48,9 +48,18 @@ async function handler(req: Request, session: any) {
 
         const fullAddress = `${alamatJalan}, RT ${alamatRt}/RW ${alamatRw}, ${alamatDesa}, ${alamatKecamatan}, ${alamatKabupaten}`;
 
+        // Lookup user by email to get the stable DB ID
+        const user = await db.user.findUnique({
+            where: { email: session.email }
+        });
+
+        if (!user) {
+            return NextResponse.json({ message: "User not found" }, { status: 404 });
+        }
+
         const newStudent = await db.student.create({
             data: {
-                userId: session.id,
+                userId: user.id,
                 namaLengkap,
                 nisn,
                 nik,

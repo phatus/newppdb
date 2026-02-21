@@ -52,6 +52,7 @@ export async function POST(req: Request) {
         // Create token
         const tokenPayload = {
             id: user.id,
+            sub: user.id,
             email: user.email,
             role: user.role,
             name: user.name,
