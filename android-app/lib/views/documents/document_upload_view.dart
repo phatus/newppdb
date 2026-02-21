@@ -399,6 +399,7 @@ class DocumentUploadView extends StatelessWidget {
       final success = await context.read<DocumentProvider>().uploadDocument(
         field,
         File(pickedFile.path),
+        context.read<StudentProvider>().student!.id,
       );
       if (success && context.mounted) {
         context.read<StudentProvider>().refreshProfile();

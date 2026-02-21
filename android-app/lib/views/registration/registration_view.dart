@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/student_provider.dart';
 import '../../models/wave_model.dart';
+import 'package:intl/intl.dart';
+
+import '../../models/student_model.dart';
 
 class RegistrationView extends StatefulWidget {
-  const RegistrationView({super.key});
+  final Student? student;
+  const RegistrationView({super.key, this.student});
 
   @override
   State<RegistrationView> createState() => _RegistrationViewState();
@@ -38,6 +42,7 @@ class _RegistrationViewState extends State<RegistrationView> {
   final _alamatKabupatenController = TextEditingController();
   final _alamatProvinsiController = TextEditingController();
   final _kodePosController = TextEditingController();
+  DateTime? _selectedTanggalLahir;
 
   String? _selectedJalur;
   String? _selectedWaveId;
@@ -55,7 +60,7 @@ class _RegistrationViewState extends State<RegistrationView> {
   @override
   void initState() {
     super.initState();
-    final student = context.read<StudentProvider>().student;
+    final student = widget.student;
     if (student != null) {
       _namaController.text = student.namaLengkap;
       _nisnController.text = student.nisn;
@@ -64,6 +69,7 @@ class _RegistrationViewState extends State<RegistrationView> {
       _teleponController.text = student.telepon ?? '';
       _tempatLahirController.text = student.tempatLahir ?? '';
       _asalSekolahController.text = student.asalSekolah ?? '';
+      _selectedTanggalLahir = student.tanggalLahir;
       _selectedGender = student.gender;
       _selectedJalur = student.jalur;
       _selectedWaveId = student.waveId;
@@ -165,9 +171,12 @@ class _RegistrationViewState extends State<RegistrationView> {
         'kodePos': _kodePosController.text.isNotEmpty
             ? _kodePosController.text
             : null,
+        'tanggalLahir': _selectedTanggalLahir?.toIso8601String(),
       };
 
-      final result = await studentProv.register(data);
+      final result = widget.student == null
+          ? await studentProv.register(data)
+          : await studentProv.updateStudent(widget.student!.id, data);
 
       if (result['success'] && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -195,9 +204,9 @@ class _RegistrationViewState extends State<RegistrationView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Pendaftaran Baru',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+        title: Text(
+          widget.student == null ? 'Pendaftaran Baru' : 'Edit Data Siswa',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -412,11 +421,32 @@ class _RegistrationViewState extends State<RegistrationView> {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _buildInputField(
-                TextEditingController(text: 'DD/MM/YYYY'),
-                'Tanggal Lahir',
-                Icons.calendar_today_rounded,
-                readOnly: true,
+              child: InkWell(
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: _selectedTanggalLahir ?? DateTime(2010),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime.now(),
+                  );
+                  if (picked != null) {
+                    setState(() => _selectedTanggalLahir = picked);
+                  }
+                },
+                child: AbsorbPointer(
+                  child: _buildInputField(
+                    TextEditingController(
+                      text: _selectedTanggalLahir != null
+                          ? DateFormat(
+                              'dd/MM/yyyy',
+                            ).format(_selectedTanggalLahir!)
+                          : 'Pilih Tanggal',
+                    ),
+                    'Tanggal Lahir',
+                    Icons.calendar_today_rounded,
+                    readOnly: true,
+                  ),
+                ),
               ),
             ),
           ],

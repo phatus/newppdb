@@ -5,18 +5,21 @@ import { db } from "@/lib/db";
 async function handler(req: Request, session: any) {
     try {
         const body = await req.json();
-        const { field, url } = body;
+        const { field, url, studentId } = body;
 
-        if (!field || !url) {
-            return NextResponse.json({ message: "Field and URL are required" }, { status: 400 });
+        if (!field || !url || !studentId) {
+            return NextResponse.json({ message: "Field, URL, and Student ID are required" }, { status: 400 });
         }
 
-        const student = await db.student.findFirst({
-            where: { userId: session.id }
+        const student = await db.student.findUnique({
+            where: {
+                id: studentId,
+                userId: session.id
+            }
         });
 
         if (!student) {
-            return NextResponse.json({ message: "Student record not found" }, { status: 404 });
+            return NextResponse.json({ message: "Student record not found or unauthorized" }, { status: 404 });
         }
 
         const updatedDocs = await db.documents.upsert({
@@ -45,8 +48,18 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
     return withAuth(req, async (req, session) => {
-        const student = await db.student.findFirst({
-            where: { userId: session.id },
+        const { searchParams } = new URL(req.url);
+        const studentId = searchParams.get('studentId');
+
+        if (!studentId) {
+            return NextResponse.json({ message: "Student ID is required" }, { status: 400 });
+        }
+
+        const student = await db.student.findUnique({
+            where: {
+                id: studentId,
+                userId: session.id
+            },
             include: { documents: true }
         });
         return NextResponse.json({ documents: student?.documents || null });

@@ -11,7 +11,7 @@ class DocumentProvider with ChangeNotifier {
   bool isUploading(String field) => _uploadingStates[field] ?? false;
   double getProgress(String field) => _uploadProgress[field] ?? 0.0;
 
-  Future<bool> uploadDocument(String field, File file) async {
+  Future<bool> uploadDocument(String field, File file, String studentId) async {
     _uploadingStates[field] = true;
     _uploadProgress[field] = 0.5;
     notifyListeners();
@@ -19,7 +19,11 @@ class DocumentProvider with ChangeNotifier {
     final result = await _documentService.uploadFile(file);
 
     if (result['success']) {
-      final linked = await _documentService.linkDocument(field, result['url']);
+      final linked = await _documentService.linkDocument(
+        field,
+        result['url'],
+        studentId,
+      );
       _uploadingStates[field] = false;
       _uploadProgress[field] = 1.0;
       notifyListeners();

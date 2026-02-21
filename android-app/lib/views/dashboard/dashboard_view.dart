@@ -9,6 +9,7 @@ import '../documents/document_upload_view.dart';
 import '../announcements/announcement_view.dart';
 import 'student_detail_view.dart';
 import '../../models/student_model.dart';
+import '../../core/api_client.dart';
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key});
@@ -115,7 +116,9 @@ class _DashboardViewState extends State<DashboardView> {
         CircleAvatar(
           radius: 24,
           backgroundColor: const Color(0xFF00DDCB).withValues(alpha: 0.1),
-          backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+          backgroundImage: photoUrl != null
+              ? NetworkImage(ApiClient.getAssetUrl(photoUrl))
+              : null,
           child: photoUrl == null
               ? const Icon(Icons.person, color: Color(0xFF00DDCB))
               : null,
@@ -223,7 +226,9 @@ class _DashboardViewState extends State<DashboardView> {
           ElevatedButton(
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const RegistrationView()),
+              MaterialPageRoute(
+                builder: (_) => const RegistrationView(student: null),
+              ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,

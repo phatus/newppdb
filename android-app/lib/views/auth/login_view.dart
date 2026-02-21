@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import 'user_registration_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -22,7 +23,9 @@ class _LoginViewState extends State<LoginView> {
 
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login gagal. Silakan cek email dan password Anda.')),
+        const SnackBar(
+          content: Text('Login gagal. Silakan cek email dan password Anda.'),
+        ),
       );
     }
   }
@@ -45,9 +48,9 @@ class _LoginViewState extends State<LoginView> {
                 'PMBM Online',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1B5E20),
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1B5E20),
+                ),
               ),
               const Text(
                 'MTsN 1 Pacitan',
@@ -75,16 +78,84 @@ class _LoginViewState extends State<LoginView> {
               const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: auth.isLoading ? null : _handleLogin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1B5E20),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 child: auth.isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('MASUK'),
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : const Text(
+                        'MASUK',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
               ),
               const SizedBox(height: 16),
-              TextButton(
-                onPressed: () {
-                  // Link to web registration
-                },
-                child: const Text('Belum punya akun? Daftar di Web'),
+              OutlinedButton.icon(
+                onPressed: auth.isLoading
+                    ? null
+                    : () async {
+                        final success = await auth.signInWithGoogle();
+                        if (!success && mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Login Google Gagal')),
+                          );
+                        }
+                      },
+                icon: const Icon(
+                  Icons.g_mobiledata,
+                  size: 30,
+                  color: Colors.blue,
+                ),
+                label: auth.isLoading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text(
+                        'MASUK DENGAN GOOGLE',
+                        style: TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: BorderSide(color: Colors.grey.shade300),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Belum punya akun?'),
+                  TextButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UserRegistrationView(),
+                      ),
+                    ),
+                    child: const Text(
+                      'Daftar Sekarang',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

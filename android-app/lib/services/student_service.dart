@@ -5,6 +5,7 @@ import '../models/student_model.dart';
 
 class StudentService {
   final ApiClient _apiClient = ApiClient();
+  ApiClient get apiClient => _apiClient;
 
   Future<Map<String, dynamic>> getProfile() async {
     try {

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/student_provider.dart';
 import '../../models/student_model.dart';
+import '../registration/registration_view.dart';
+import '../../core/api_client.dart';
 
 class StudentDetailView extends StatelessWidget {
   const StudentDetailView({super.key});
@@ -35,12 +37,10 @@ class StudentDetailView extends StatelessWidget {
             IconButton(
               icon: const Icon(Icons.edit_outlined, color: Color(0xFF00DDCB)),
               onPressed: () {
-                // Future implementation: Pre-fill RegistrationView or similar
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Gunakan menu Pendaftaran untuk memperbarui data.',
-                    ),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => RegistrationView(student: student),
                   ),
                 );
               },
@@ -118,7 +118,9 @@ class StudentDetailView extends StatelessWidget {
           CircleAvatar(
             radius: 50,
             backgroundColor: const Color(0xFF00DDCB).withValues(alpha: 0.1),
-            backgroundImage: photoUrl != null ? NetworkImage(photoUrl) : null,
+            backgroundImage: photoUrl != null
+                ? NetworkImage(ApiClient.getAssetUrl(photoUrl))
+                : null,
             child: photoUrl == null
                 ? const Icon(Icons.person, size: 50, color: Color(0xFF00DDCB))
                 : null,

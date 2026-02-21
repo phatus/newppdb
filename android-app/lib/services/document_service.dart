@@ -30,11 +30,11 @@ class DocumentService {
     }
   }
 
-  Future<bool> linkDocument(String field, String url) async {
+  Future<bool> linkDocument(String field, String url, String studentId) async {
     try {
       final response = await _apiClient.dio.post(
         '/student/documents',
-        data: {'field': field, 'url': url},
+        data: {'field': field, 'url': url, 'studentId': studentId},
       );
       return response.statusCode == 200;
     } on DioException catch (e) {
