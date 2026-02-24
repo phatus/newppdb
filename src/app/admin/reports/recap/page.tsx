@@ -1,16 +1,35 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/lib/db";
 import Link from "next/link";
 import ExportButton from "@/components/admin/students/ExportButton";
 import PrintButton from "@/components/admin/PrintButton";
 import { formatInWIB } from "@/lib/date-utils";
 
-export default async function RecapPage() {
-    // Fetch ALL students for report
+export default async function RecapPage(props: {
+    searchParams: Promise<{ waveId?: string }>
+}) {
+    const searchParams = await props.searchParams;
+    const waveId = searchParams.waveId;
+
+    // Fetch all waves for the filter
+    const waves = await db.wave.findMany({
+        orderBy: { startDate: 'desc' }
+    });
+
+    // Build query
+    const where: any = {};
+    if (waveId && waveId !== "all") {
+        where.waveId = waveId;
+    }
+
+    // Fetch students based on filter
     const students = await db.student.findMany({
+        where,
         orderBy: { namaLengkap: 'asc' },
         include: {
             user: {
-                select: { email: true, phoneNumber: true } // Include phone if available
+                select: { email: true, phoneNumber: true }
             },
             grades: true
         }
@@ -18,6 +37,7 @@ export default async function RecapPage() {
 
     const settings: any = await db.schoolSettings.findFirst();
     const cityOnly = (settings?.schoolCity || "Karanganyar").split(',')[0].trim();
+    const selectedWave = waves.find(w => w.id === waveId);
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
@@ -32,7 +52,27 @@ export default async function RecapPage() {
                         Rekapitulasi Data Pendaftar
                     </h1>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
+                    <form className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gelombang:</span>
+                        <select
+                            name="waveId"
+                            defaultValue={waveId || "all"}
+                            // @ts-ignore
+                            onChange={(e) => {
+                                const url = new URL(window.location.href);
+                                url.searchParams.set("waveId", e.target.value);
+                                window.location.href = url.toString();
+                            }}
+                            className="text-sm border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-primary/20"
+                        >
+                            <option value="all">Semua Gelombang</option>
+                            {waves.map(w => (
+                                <option key={w.id} value={w.id}>{w.name}</option>
+                            ))}
+                        </select>
+                    </form>
+                    <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2" />
                     <ExportButton students={students} />
                     <PrintButton />
                 </div>
@@ -53,7 +93,10 @@ export default async function RecapPage() {
                 </div>
 
                 <div className="mb-4 flex justify-between items-end">
-                    <h4 className="font-bold text-lg">Data Pendaftar Masuk</h4>
+                    <div>
+                        <h4 className="font-bold text-lg">Data Pendaftar Masuk</h4>
+                        {selectedWave && <p className="text-xs text-slate-500 font-medium">Gelombang: {selectedWave.name}</p>}
+                    </div>
                     <span className="text-sm text-slate-500">Total: {students.length} Murid</span>
                 </div>
 

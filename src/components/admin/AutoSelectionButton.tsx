@@ -4,20 +4,24 @@ import { autoSelectStudents } from "@/app/actions/ranking";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 
-export default function AutoSelectionButton({ quota }: { quota: number }) {
+export default function AutoSelectionButton({ quota, waveId }: { quota: number, waveId?: string }) {
     const [loading, setLoading] = useState(false);
 
     async function handleAutoSelect() {
-        if (!confirm(`Apakah Anda yakin ingin melakukan seleksi otomatis?\n\n${quota} murid dengan peringkat tertinggi akan dinyatakan LULUS.\nSisanya akan dinyatakan TIDAK LULUS.\n\nTindakan ini akan mengupdate status kelulusan murid.`)) {
+        const confirmMsg = waveId && waveId !== "all"
+            ? `Apakah Anda yakin ingin melakukan seleksi otomatis khusus untuk GELOMBANG ini?\n\nSistem akan menggunakan kuota per jalur yang diatur pada gelombang ini.\n\nTindakan ini akan mengupdate status kelulusan murid.`
+            : `Apakah Anda yakin ingin melakukan seleksi otomatis untuk SEMUA GELOMBANG?\n\n${quota} murid dengan peringkat tertinggi akan dinyatakan LULUS.\n\nTindakan ini akan mengupdate status kelulusan murid.`;
+
+        if (!confirm(confirmMsg)) {
             return;
         }
 
         setLoading(true);
         try {
-            const res = await autoSelectStudents();
+            const filters = waveId && waveId !== "all" ? { waveId } : undefined;
+            const res = await autoSelectStudents(filters);
             if (res.success) {
                 toast.success(res.message || "Seleksi berhasil");
-                // Optional: Reload to see updated table if it showed status
                 window.location.reload();
             } else {
                 toast.error(res.error || "Gagal melakukan seleksi");

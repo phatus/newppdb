@@ -1,43 +1,77 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { getRankingData } from "@/app/actions/ranking";
 import PrintButton from "@/components/admin/PrintButton";
 import AutoSelectionButton from "@/components/admin/AutoSelectionButton";
 
-export default async function RankingReportPage() {
-    // Reuse existing ranking logic
-    const rankedStudents = await getRankingData();
+export default async function RankingReportPage(props: {
+    searchParams: Promise<{ waveId?: string }>
+}) {
+    const searchParams = await props.searchParams;
+    const waveId = searchParams.waveId;
 
-    // Use Raw Query to fetch settings to avoid stale Prisma Client issues
+    // Fetch all waves for the filter
+    const waves = await db.wave.findMany({
+        orderBy: { startDate: 'desc' }
+    });
+
+    // Reuse existing ranking logic with filter
+    const rankedStudents = await getRankingData({ waveId });
+
+    // Use Raw Query to fetch settings
     const settingsRaw = await db.$queryRaw<import("@prisma/client").SchoolSettings[]>`SELECT * FROM "SchoolSettings" LIMIT 1`;
     const settings = settingsRaw[0] || {};
 
-    // Fix for double date: Take only the city name part if comma exists
+    // Fix for double date
     const rawCity = settings?.schoolCity || "Pacitan";
     const cityOnly = rawCity.split(',')[0].trim();
-
     const dateStr = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const selectedWave = waves.find(w => w.id === waveId);
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
             <div className="flex items-center justify-between no-print">
-                <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-                    <Link href="/admin/reports" className="hover:text-primary">Laporan</Link>
-                    <span>/</span>
-                    <span>Berita Acara</span>
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+                        <Link href="/admin/reports" className="hover:text-primary">Laporan</Link>
+                        <span>/</span>
+                        <span>Berita Acara</span>
+                    </div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                        Berita Acara Ranking
+                    </h1>
                 </div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                    Berita Acara Ranking
-                </h1>
-                <div className="flex gap-2">
-                    <AutoSelectionButton quota={settings?.studentQuota || 100} />
+
+                <div className="flex items-center gap-3">
+                    <form className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gelombang:</span>
+                        <select
+                            name="waveId"
+                            defaultValue={waveId || "all"}
+                            // @ts-ignore
+                            onChange={(e) => {
+                                const url = new URL(window.location.href);
+                                url.searchParams.set("waveId", e.target.value);
+                                window.location.href = url.toString();
+                            }}
+                            className="text-sm border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-primary/20"
+                        >
+                            <option value="all">Semua Gelombang</option>
+                            {waves.map(w => (
+                                <option key={w.id} value={w.id}>{w.name}</option>
+                            ))}
+                        </select>
+                    </form>
+                    <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2" />
+                    <AutoSelectionButton quota={settings?.studentQuota || 100} waveId={waveId} />
                     <PrintButton />
                 </div>
             </div>
 
             {/* Printable Document */}
             <div className="bg-white p-12 rounded-xl border border-slate-200 shadow-sm print:shadow-none print:border-none print:p-0 min-h-[1000px] print:min-h-0 relative">
-
                 {/* Kop Surat */}
                 <div className="border-b-4 border-double border-black pb-4 mb-8 text-center flex items-center justify-center gap-6">
                     {settings?.schoolLogo && (
@@ -53,6 +87,7 @@ export default async function RankingReportPage() {
                 {/* Judul Berita Acara */}
                 <div className="text-center mb-8">
                     <h3 className="text-lg font-bold underline underline-offset-4 uppercase">Berita Acara Hasil Seleksi</h3>
+                    {selectedWave && <p className="text-sm mt-1 font-bold">Gelombang: {selectedWave.name}</p>}
                     <p className="text-sm mt-1">Nomor: ........................................................................</p>
                 </div>
 

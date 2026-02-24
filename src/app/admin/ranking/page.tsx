@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { db } from "@/lib/db";
 import { getRankingData } from "@/app/actions/ranking";
 import RankingTable from "@/components/admin/RankingTable";
