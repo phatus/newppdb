@@ -5,6 +5,8 @@ import '../models/announcement_model.dart';
 import 'package:dio/dio.dart';
 import '../services/student_service.dart';
 import '../services/announcement_service.dart';
+import '../models/exam_schedule_model.dart';
+import '../models/grade_model.dart';
 
 class StudentProvider with ChangeNotifier {
   final StudentService _studentService = StudentService();
@@ -14,9 +16,11 @@ class StudentProvider with ChangeNotifier {
   int _selectedStudentIndex = 0;
   List<Wave> _activeWaves = [];
   List<Announcement> _announcements = [];
+  List<ExamSchedule> _examSchedules = [];
   bool _isLoading = false;
   Map<String, dynamic> _settings = {};
   Map<String, dynamic>? _accountData;
+  GradeSetup? _gradeSetup;
 
   List<Student> get students => _students;
   int get selectedStudentIndex => _selectedStudentIndex;
@@ -28,7 +32,16 @@ class StudentProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   List<Wave> get activeWaves => _activeWaves;
   List<Announcement> get announcements => _announcements;
+  List<ExamSchedule> get examSchedules => _examSchedules;
   Map<String, dynamic> get settings => _settings;
+  GradeSetup? get gradeSetup => _gradeSetup;
+
+  void setSelectedStudent(int index) {
+    if (index >= 0 && index < _students.length) {
+      _selectedStudentIndex = index;
+      notifyListeners();
+    }
+  }
 
   Future<void> refreshProfile() async {
     _isLoading = true;
@@ -41,16 +54,10 @@ class StudentProvider with ChangeNotifier {
       ]);
 
       final profileData = results[0] as Map<String, dynamic>;
-      final rawStudents = profileData['students'];
-      _students = rawStudents is List
-          ? rawStudents.map((s) => s as Student).toList()
-          : [];
+      _students = List<Student>.from(profileData['students']);
       _accountData = profileData['user'];
 
-      final rawAnnouncements = results[1];
-      _announcements = rawAnnouncements is List
-          ? rawAnnouncements.map((a) => a as Announcement).toList()
-          : [];
+      _announcements = results[1] as List<Announcement>;
 
       // Keep selection within bounds
       if (_students.isNotEmpty && _selectedStudentIndex >= _students.length) {
@@ -72,14 +79,64 @@ class StudentProvider with ChangeNotifier {
   }
 
   Future<void> fetchSettings() async {
-    final data = await _studentService.getSettings();
-    _settings = data['settings'] ?? {};
-    if (data['waves'] != null) {
-      _activeWaves = (data['waves'] as List)
-          .map((w) => Wave.fromJson(w))
-          .toList();
-    }
+    _isLoading = true;
     notifyListeners();
+    try {
+      final data = await _studentService.getSettings();
+      _settings = data['settings'] ?? {};
+      if (data['waves'] != null) {
+        _activeWaves = (data['waves'] as List)
+            .map((w) => Wave.fromJson(w))
+            .toList();
+      }
+      if (data['examSchedules'] != null) {
+        _examSchedules = (data['examSchedules'] as List)
+            .map((e) => ExamSchedule.fromJson(e))
+            .toList();
+      }
+      if (data['semesters'] != null && data['subjects'] != null) {
+        _gradeSetup = GradeSetup.fromJson(data);
+      } else {
+        debugPrint(
+          'Grade setup data missing in settings response: semesters=${data['semesters'] != null}, subjects=${data['subjects'] != null}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Fetch Settings Error: $e');
+    }
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  List<String> getMissingDocuments() {
+    final s = student;
+    if (s == null) return [];
+
+    final missing = <String>[];
+    final docs = s.documents ?? {};
+
+    if (docs['fileKK'] == null) missing.add('Kartu Keluarga');
+    if (docs['fileAkta'] == null) missing.add('Akta Kelahiran');
+    if (docs['pasFoto'] == null) missing.add('Pas Foto 3x4');
+    if (docs['fileRaport'] == null) missing.add('Raport');
+
+    // Check grades
+    final g = s.grades;
+    if (g == null ||
+        g['semesterGrades'] == null ||
+        (g['semesterGrades'] as List).isEmpty) {
+      missing.add('Nilai Raport');
+    }
+
+    if (s.jalur == 'PRESTASI_AKADEMIK' || s.jalur == 'PRESTASI_NON_AKADEMIK') {
+      if (docs['filePrestasi'] == null ||
+          (docs['filePrestasi'] is List &&
+              (docs['filePrestasi'] as List).isEmpty)) {
+        missing.add('Sertifikat Prestasi');
+      }
+    }
+
+    return missing;
   }
 
   Future<Map<String, dynamic>> register(Map<String, dynamic> data) async {
@@ -105,7 +162,7 @@ class StudentProvider with ChangeNotifier {
     notifyListeners();
     try {
       final response = await _studentService.apiClient.dio.put(
-        '/student/$id',
+        'student/$id',
         data: data,
       );
       if (response.statusCode == 200) {
@@ -125,6 +182,45 @@ class StudentProvider with ChangeNotifier {
     _isLoading = false;
     notifyListeners();
     return {'success': false, 'message': 'Terjadi kesalahan'};
+  }
+
+  Future<void> fetchGradeSetup() async {
+    if (_gradeSetup != null) return;
+    await fetchSettings();
+  }
+
+  Future<Map<String, dynamic>> saveGrades(
+    String studentId,
+    List<GradePayload> payloads,
+  ) async {
+    _isLoading = true;
+    notifyListeners();
+
+    final result = await _studentService.saveGrades(studentId, payloads);
+    if (result['success']) {
+      await refreshProfile();
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return result;
+  }
+
+  Future<Map<String, dynamic>> reRegisterStudent(
+    String studentId,
+    String newJalur,
+  ) async {
+    _isLoading = true;
+    notifyListeners();
+
+    final result = await _studentService.reRegister(studentId, newJalur);
+    if (result['success']) {
+      await refreshProfile();
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    return result;
   }
 
   void clearData() {

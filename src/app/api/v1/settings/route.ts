@@ -22,11 +22,16 @@ export async function GET() {
             orderBy: { order: 'asc' }
         });
 
+        const examSchedules = await db.examSchedule.findMany({
+            orderBy: { order: 'asc' }
+        });
+
         return NextResponse.json({
             settings,
             waves,
             subjects,
-            semesters
+            semesters,
+            examSchedules
         });
 
     } catch (error) {

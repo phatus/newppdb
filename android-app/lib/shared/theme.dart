@@ -12,8 +12,8 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
-        primary: accentCyan,
-        secondary: secondaryColor,
+        primary: primaryColor,
+        secondary: accentCyan,
         surface: Colors.white,
         // ignore: deprecated_member_use
         background: backgroundColor,
@@ -49,11 +49,11 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: Colors.grey.shade200),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: accentCyan, width: 2),
+          borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
         filled: true,
         fillColor: Colors.white,

@@ -7,7 +7,7 @@ class ApiClient {
 
   // Replace with your actual live URL or local IP address if testing locally
   static const String baseDomain = 'https://pmbm.mtsn1pacitan.sch.id';
-  static const String baseUrl = '$baseDomain/api/v1';
+  static const String baseUrl = '$baseDomain/api/v1/';
 
   static String getAssetUrl(String? path) {
     if (path == null || path.isEmpty) return '';

@@ -126,6 +126,9 @@ model Wave {
   // Array of allowed jalurs for this wave stored as JSON
   jalurAllowed Json    // ["PRESTASI_AKADEMIK", "AFIRMASI"]
   
+  quota       Int      @default(0)
+  pathQuotas  Json?    // { "REGULER": 5, "PRESTASI_AKADEMIK": 3 }
+
   students    Student[]
   
   createdAt   DateTime @default(now())
@@ -323,6 +326,9 @@ model SchoolSettings {
   quotaPrestasiAkademik Int  @default(15)
   quotaPrestasiNonAkademik Int @default(15)
   quotaAfirmasi     Int      @default(20)
+
+  // Class & Wave Quota Setup
+  studentsPerClass  Int      @default(32)
 
   // Committee Info
   committeeName     String?  @default("Ketua Panitia")

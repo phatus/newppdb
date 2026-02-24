@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dashboard/dashboard_view.dart';
-import 'registration/registration_view.dart';
+import 'registration/student_list_view.dart';
 import 'announcements/announcement_view.dart';
 import 'profile/profile_view.dart';
 
@@ -16,7 +16,7 @@ class _MainWrapperState extends State<MainWrapper> {
 
   final List<Widget> _pages = [
     const DashboardView(),
-    const RegistrationView(),
+    const StudentListView(),
     const AnnouncementView(),
     const ProfileView(),
   ];
@@ -29,8 +29,10 @@ class _MainWrapperState extends State<MainWrapper> {
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF00DDCB),
-        unselectedItemColor: Colors.grey,
+        selectedItemColor: Theme.of(context).colorScheme.secondary,
+        unselectedItemColor: Theme.of(
+          context,
+        ).colorScheme.onSurfaceVariant, // Replaced hardcoded color
         selectedFontSize: 12,
         unselectedFontSize: 12,
         showUnselectedLabels: true,
@@ -41,14 +43,16 @@ class _MainWrapperState extends State<MainWrapper> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.assignment_rounded),
-            label: 'Daftar',
+            label: 'Daftar Siswa',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.campaign_rounded),
             label: 'Info',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_rounded),
+            icon: Icon(
+              Icons.person_rounded,
+            ), // Kept original icon, color is handled by selected/unselectedItemColor
             label: 'Akun',
           ),
         ],

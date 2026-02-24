@@ -5,7 +5,6 @@ import ScheduleSettings from "@/components/admin/settings/ScheduleSettings";
 import RankingSettings from "@/components/admin/settings/RankingSettings";
 import CommitteeSettings from "@/components/admin/settings/CommitteeSettings";
 import WASettings from "@/components/admin/settings/WASettings";
-import QuotaSettings from "@/components/admin/settings/QuotaSettings";
 import WeightSettings from "@/components/admin/settings/WeightSettings";
 import JuknisSettings from "@/components/admin/settings/JuknisSettings";
 
@@ -77,14 +76,6 @@ export default async function SettingsPage() {
                         </div>
                     </section>
 
-                    {/* Quota Settings */}
-                    <section id="quota" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-                            <span className="material-symbols-outlined text-primary">pie_chart</span>
-                            Kuota Penerimaan
-                        </h2>
-                        <QuotaSettings settings={settings} />
-                    </section>
 
                     {/* Juknis Settings */}
                     <section id="juknis" className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
@@ -129,10 +120,6 @@ export default async function SettingsPage() {
                             <a href="#ranking" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all font-medium text-primary bg-primary/5">
                                 <span className="material-symbols-outlined text-[18px]">leaderboard</span>
                                 Bobot Ranking
-                            </a>
-                            <a href="#quota" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all">
-                                <span className="material-symbols-outlined text-[18px]">pie_chart</span>
-                                Kuota
                             </a>
                             <a href="#juknis" className="flex items-center gap-3 px-3 py-2 text-sm text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-all">
                                 <span className="material-symbols-outlined text-[18px]">description</span>

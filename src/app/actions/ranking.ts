@@ -133,25 +133,46 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
         const settingsRaw = await db.$queryRaw<SchoolSettings[]>`SELECT * FROM "SchoolSettings" LIMIT 1`;
         const settings = settingsRaw[0] || {};
 
-        // Quotas
-        const quotaReguler = settings.quotaReguler || 50;
-        const quotaPrestasiAkademik = settings.quotaPrestasiAkademik || 15;
-        const quotaPrestasiNonAkademik = settings.quotaPrestasiNonAkademik || 15;
-        const quotaAfirmasi = settings.quotaAfirmasi || 20;
+        // Default Global Quotas
+        const globalQuotas: Record<string, number> = {
+            "REGULER": settings.quotaReguler || 50,
+            "PRESTASI_AKADEMIK": settings.quotaPrestasiAkademik || 15,
+            "PRESTASI_NON_AKADEMIK": settings.quotaPrestasiNonAkademik || 15,
+            "AFIRMASI": settings.quotaAfirmasi || 20
+        };
 
-        // 2. Get Verified Students with Ranking Data based on filters
+        let activeQuotas = { ...globalQuotas };
+        let totalWaveLimit = settings.studentQuota || 100;
+
+        // 2. Override with Wave Specific Quotas if filter provided
+        if (filters?.waveId) {
+            const wave = await db.wave.findUnique({
+                where: { id: filters.waveId }
+            });
+
+            if (wave) {
+                if (wave.quota > 0) totalWaveLimit = wave.quota;
+
+                if (wave.pathQuotas && typeof wave.pathQuotas === 'object') {
+                    const wavePaths = wave.pathQuotas as Record<string, number>;
+                    // Path quotas in wave override global ones for paths that are defined
+                    Object.keys(wavePaths).forEach(path => {
+                        activeQuotas[path] = wavePaths[path];
+                    });
+                }
+            }
+        }
+
+        // 3. Get Verified Students with Ranking Data based on filters
         const allStudents = await getRankingData(filters);
 
         if (allStudents.length === 0) {
             return { success: false, error: "Tidak ada data murid terverifikasi pada filter ini." };
         }
 
-        // 3. Project-specific selection logic
+        // 4. Project-specific selection logic
         // If filters.jalur is set, we only process that specific path
         const jalurToProcess = filters?.jalur ? [filters.jalur] : ["REGULER", "PRESTASI_AKADEMIK", "PRESTASI_NON_AKADEMIK", "AFIRMASI"];
-
-        let passedCount = 0;
-        let totalCount = 0;
 
         const passedIds: string[] = [];
         const failedIds: string[] = [];
@@ -167,19 +188,19 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
 
         if (jalurToProcess.includes("REGULER")) {
             const group = allStudents.filter(s => s.jalur === "REGULER");
-            passedCount += processGroup(group, quotaReguler);
+            processGroup(group, activeQuotas["REGULER"]);
         }
         if (jalurToProcess.includes("PRESTASI_AKADEMIK")) {
             const group = allStudents.filter(s => s.jalur === "PRESTASI_AKADEMIK");
-            passedCount += processGroup(group, quotaPrestasiAkademik);
+            processGroup(group, activeQuotas["PRESTASI_AKADEMIK"]);
         }
         if (jalurToProcess.includes("PRESTASI_NON_AKADEMIK")) {
             const group = allStudents.filter(s => s.jalur === "PRESTASI_NON_AKADEMIK");
-            passedCount += processGroup(group, quotaPrestasiNonAkademik);
+            processGroup(group, activeQuotas["PRESTASI_NON_AKADEMIK"]);
         }
         if (jalurToProcess.includes("AFIRMASI")) {
             const group = allStudents.filter(s => s.jalur === "AFIRMASI");
-            passedCount += processGroup(group, quotaAfirmasi);
+            processGroup(group, activeQuotas["AFIRMASI"]);
         }
 
         // 5. Update Database

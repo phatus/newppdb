@@ -7,7 +7,11 @@ import '../core/api_client.dart';
 class AuthProvider with ChangeNotifier {
   final ApiClient _apiClient = ApiClient();
   final _storage = const FlutterSecureStorage();
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email', 'profile'],
+    serverClientId:
+        '731868938860-1ucehbl0fplnadaakui6i449bsqo8t91.apps.googleusercontent.com',
+  );
 
   bool _isLoading = false;
   String? _token;

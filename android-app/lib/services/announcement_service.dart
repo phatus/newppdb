@@ -8,7 +8,7 @@ class AnnouncementService {
 
   Future<List<Announcement>> getAnnouncements() async {
     try {
-      final response = await _apiClient.dio.get('/announcements');
+      final response = await _apiClient.dio.get('announcements');
       if (response.statusCode == 200) {
         final rawAnnouncements = response.data['announcements'];
         return rawAnnouncements is List

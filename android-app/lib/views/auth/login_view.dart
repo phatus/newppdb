@@ -15,14 +15,16 @@ class _LoginViewState extends State<LoginView> {
   final _passwordController = TextEditingController();
 
   void _handleLogin() async {
+    final messenger = ScaffoldMessenger.of(context);
     final auth = Provider.of<AuthProvider>(context, listen: false);
     final success = await auth.login(
       _emailController.text,
       _passwordController.text,
     );
 
-    if (!success && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
+    if (!mounted) return;
+    if (!success) {
+      messenger.showSnackBar(
         const SnackBar(
           content: Text('Login gagal. Silakan cek email dan password Anda.'),
         ),
@@ -42,14 +44,18 @@ class _LoginViewState extends State<LoginView> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.school, size: 80, color: Color(0xFF1B5E20)),
+              Icon(
+                Icons.school,
+                size: 80,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               const SizedBox(height: 16),
               Text(
                 'PMBM Online',
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1B5E20),
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               const Text(
@@ -79,7 +85,7 @@ class _LoginViewState extends State<LoginView> {
               ElevatedButton(
                 onPressed: auth.isLoading ? null : _handleLogin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1B5E20),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
@@ -105,9 +111,11 @@ class _LoginViewState extends State<LoginView> {
                 onPressed: auth.isLoading
                     ? null
                     : () async {
+                        final messenger = ScaffoldMessenger.of(context);
                         final success = await auth.signInWithGoogle();
-                        if (!success && mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
+                        if (!mounted) return;
+                        if (!success) {
+                          messenger.showSnackBar(
                             const SnackBar(content: Text('Login Google Gagal')),
                           );
                         }

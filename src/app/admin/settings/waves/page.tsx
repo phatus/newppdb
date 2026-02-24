@@ -1,3 +1,4 @@
+import { db } from "@/lib/db";
 import { getWaves } from "@/app/actions/waves";
 import WaveManager from "@/components/admin/settings/WaveManager";
 
@@ -6,6 +7,7 @@ export const dynamic = "force-dynamic";
 export default async function WaveSettingsPage() {
     const wavesResult = await getWaves();
     const waves = wavesResult.success ? wavesResult.data : [];
+    const settings = await db.schoolSettings.findFirst();
 
     return (
         <div className="p-6 lg:p-10 max-w-[1240px] mx-auto space-y-6">
@@ -14,7 +16,7 @@ export default async function WaveSettingsPage() {
                 <p className="text-slate-500 dark:text-slate-400">Kelola periode dan jalur pendaftaran yang dibuka.</p>
             </div>
 
-            <WaveManager initialWaves={waves || []} />
+            <WaveManager initialWaves={waves || []} settings={settings} />
         </div>
     );
 }

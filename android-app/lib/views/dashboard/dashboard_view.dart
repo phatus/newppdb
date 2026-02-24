@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/student_provider.dart';
 import '../registration/registration_view.dart';
-import '../documents/document_upload_view.dart';
 import '../announcements/announcement_view.dart';
+import 'registration_proof_view.dart';
+import 'exam_card_view.dart';
+import '../ranking/ranking_view.dart';
+import 'registration_history_view.dart';
 import 'student_detail_view.dart';
 import '../../models/student_model.dart';
+import '../../models/wave_model.dart';
 import '../../core/api_client.dart';
 
 class DashboardView extends StatefulWidget {
@@ -47,7 +50,10 @@ class _DashboardViewState extends State<DashboardView> {
       backgroundColor: const Color(0xFFF8F9FA),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => studentProv.refreshProfile(),
+          onRefresh: () async {
+            await studentProv.refreshProfile();
+            await studentProv.fetchSettings();
+          },
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
@@ -60,11 +66,7 @@ class _DashboardViewState extends State<DashboardView> {
                   _buildStudentSwitcher(studentProv),
                 ],
                 const SizedBox(height: 20),
-                _buildRegistrationBanner(context, student),
-                if (student == null && !studentProv.isLoading) ...[
-                  const SizedBox(height: 10),
-                  _buildDiagnosticInfo(studentProv),
-                ],
+                _buildStatusBanners(studentProv, student),
                 const SizedBox(height: 20),
                 _buildStatusCard(student, progress),
                 const SizedBox(height: 30),
@@ -105,9 +107,9 @@ class _DashboardViewState extends State<DashboardView> {
             ),
             Text(
               email,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Color(0xFF00DDCB),
+                color: Theme.of(context).colorScheme.secondary,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -115,12 +117,17 @@ class _DashboardViewState extends State<DashboardView> {
         ),
         CircleAvatar(
           radius: 24,
-          backgroundColor: const Color(0xFF00DDCB).withValues(alpha: 0.1),
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.secondary.withValues(alpha: 0.1),
           backgroundImage: photoUrl != null
               ? NetworkImage(ApiClient.getAssetUrl(photoUrl))
               : null,
           child: photoUrl == null
-              ? const Icon(Icons.person, color: Color(0xFF00DDCB))
+              ? Icon(
+                  Icons.person,
+                  color: Theme.of(context).colorScheme.secondary,
+                )
               : null,
         ),
       ],
@@ -128,57 +135,43 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Widget _buildStudentSwitcher(StudentProvider prov) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Pilih Siswa:',
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: Colors.grey,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 40,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: prov.students.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 8),
-            itemBuilder: (context, index) {
-              final s = prov.students[index];
-              final isSelected = prov.selectedStudentIndex == index;
-              return InkWell(
-                onTap: () => prov.selectStudent(index),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF00DDCB) : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: isSelected
-                          ? const Color(0xFF00DDCB)
-                          : Colors.grey[300]!,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.people_outline, size: 20, color: Colors.grey),
+          const SizedBox(width: 12),
+          Expanded(
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<int>(
+                value: prov.selectedStudentIndex,
+                isExpanded: true,
+                items: List.generate(prov.students.length, (index) {
+                  final s = prov.students[index];
+                  return DropdownMenuItem(
+                    value: index,
+                    child: Text(
+                      s.namaLengkap,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    s.namaLengkap,
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                ),
-              );
-            },
+                  );
+                }),
+                onChanged: (val) {
+                  if (val != null) prov.selectStudent(val);
+                },
+              ),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -250,6 +243,221 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  Widget _buildStatusBanners(StudentProvider prov, Student? student) {
+    if (student == null) {
+      return Column(
+        children: [
+          _buildRegistrationBanner(context, null),
+          if (!prov.isLoading) ...[
+            const SizedBox(height: 10),
+            _buildDiagnosticInfo(prov),
+          ],
+        ],
+      );
+    }
+
+    final isLulus = student.statusKelulusan == 'LULUS';
+    final isTidakLulus = student.statusKelulusan == 'TIDAK_LULUS';
+
+    List<Widget> banners = [];
+
+    // 1. Graduation Banner
+    if (isLulus) {
+      banners.add(
+        _buildFancyBanner(
+          title: 'Selamat! Anda Dinyatakan LULUS',
+          subtitle:
+              'Silakan lakukan daftar ulang sesuai jadwal yang ditentukan.',
+          icon: Icons.celebration,
+          color: Colors.green,
+        ),
+      );
+    } else if (isTidakLulus) {
+      final activeWave = prov.activeWaves.isNotEmpty
+          ? prov.activeWaves.first
+          : null;
+      bool canReRegister =
+          activeWave != null && activeWave.id != student.waveId;
+
+      banners.add(
+        _buildFancyBanner(
+          title: 'Mohon Maaf, Belum Lulus',
+          subtitle: 'Jangan berkecil hati, tetap semangat menuntut ilmu.',
+          icon: Icons.sentiment_dissatisfied,
+          color: Colors.red,
+          action: Wrap(
+            spacing: 8,
+            children: [
+              if (canReRegister)
+                ElevatedButton(
+                  onPressed: () => _showReRegistrationDialog(
+                    context,
+                    prov,
+                    student,
+                    activeWave,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.red,
+                    elevation: 0,
+                    side: const BorderSide(color: Colors.red),
+                  ),
+                  child: const Text(
+                    'Daftar Gelombang Selanjutnya',
+                    style: TextStyle(fontSize: 10),
+                  ),
+                ),
+              if (student.history != null && student.history!.isNotEmpty)
+                TextButton(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => RegistrationHistoryView(student: student),
+                    ),
+                  ),
+                  child: const Text(
+                    'Lihat Riwayat',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (banners.isEmpty) return _buildRegistrationBanner(context, student);
+
+    return Column(children: banners);
+  }
+
+  Widget _buildFancyBanner({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+    Widget? action,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: color is MaterialColor ? color[900] : color,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: color is MaterialColor ? color[700] : color,
+                  ),
+                ),
+                if (action != null) ...[const SizedBox(height: 12), action],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showReRegistrationDialog(
+    BuildContext context,
+    StudentProvider prov,
+    Student student,
+    Wave wave,
+  ) {
+    String? selectedJalur;
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Daftar Ulang: ${wave.name}'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Silakan pilih jalur pendaftaran baru untuk mendaftar ulang.',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 16),
+              ...wave.jalurAllowed.map(
+                (j) => RadioListTile<String>(
+                  title: Text(
+                    j.toString().replaceAll('_', ' '),
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                  value: j.toString(),
+                  groupValue: selectedJalur,
+                  onChanged: (v) => setDialogState(() => selectedJalur = v),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: selectedJalur == null
+                  ? null
+                  : () async {
+                      final res = await prov.reRegisterStudent(
+                        student.id,
+                        selectedJalur!,
+                      );
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(res['message']),
+                            backgroundColor: res['success']
+                                ? Colors.green
+                                : Colors.red,
+                          ),
+                        );
+                      }
+                    },
+              child: const Text('Daftar Sekarang'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStatusCard(Student? student, double progress) {
     String statusLabel = student == null
         ? 'Belum Terdaftar'
@@ -258,8 +466,10 @@ class _DashboardViewState extends State<DashboardView> {
               : 'Belum Lengkap');
     Color statusColor =
         student != null && student.statusVerifikasi == 'VERIFIED'
-        ? const Color(0xFF00DDCB)
+        ? Theme.of(context).colorScheme.secondary
         : Colors.orange;
+
+    final missingDocs = context.read<StudentProvider>().getMissingDocuments();
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -318,17 +528,52 @@ class _DashboardViewState extends State<DashboardView> {
           LinearProgressIndicator(
             value: progress,
             backgroundColor: Colors.grey[200],
-            color: const Color(0xFF00DDCB),
+            color: Theme.of(context).colorScheme.secondary,
             minHeight: 8,
             borderRadius: BorderRadius.circular(10),
           ),
-          const SizedBox(height: 8),
-          Text(
-            student == null
-                ? 'Anda belum mendaftarkan calon siswa'
-                : 'Lengkapi dokumen untuk mempercepat verifikasi.',
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
+          const SizedBox(height: 12),
+          if (student != null && missingDocs.isNotEmpty) ...[
+            Text(
+              'Dokumen Belum Lengkap:',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Colors.red[700],
+              ),
+            ),
+            const SizedBox(height: 4),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: missingDocs
+                  .map(
+                    (doc) => Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.red[50],
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.red[100]!),
+                      ),
+                      child: Text(
+                        doc,
+                        style: TextStyle(fontSize: 9, color: Colors.red[900]),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ] else ...[
+            Text(
+              student == null
+                  ? 'Anda belum mendaftarkan calon siswa'
+                  : 'Dokumen lengkap. Menunggu verifikasi panitia.',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
         ],
       ),
     );
@@ -353,17 +598,46 @@ class _DashboardViewState extends State<DashboardView> {
           context,
           Icons.file_copy_outlined,
           'Dokumen',
-          const DocumentUploadView(),
+          student != null
+              ? RegistrationView(student: student, initialStep: 4)
+              : null,
         ),
-        _buildMenuCard(context, Icons.event_note_rounded, 'Jadwal', null),
+        _buildMenuCard(
+          context,
+          Icons.grade_outlined,
+          'Nilai Raport',
+          student != null
+              ? RegistrationView(student: student, initialStep: 5)
+              : null,
+        ),
+        _buildMenuCard(
+          context,
+          Icons.event_note_rounded,
+          'Jadwal',
+          null,
+          onTap: () => _showExamSchedule(context),
+        ),
         _buildMenuCard(
           context,
           Icons.assignment_turned_in_outlined,
           'Hasil Seleksi',
           null,
+          onTap: () => _showSelectionResult(context, student),
         ),
-        _buildPrintCard('Bukti Daftar', student?.id),
-        _buildPrintCard('Kartu Ujian', student?.id, isExamCard: true),
+        _buildMenuCard(
+          context,
+          Icons.leaderboard_outlined,
+          'Ranking',
+          const RankingView(),
+        ),
+        _buildMenuCard(
+          context,
+          Icons.history_rounded,
+          'Riwayat',
+          student != null ? RegistrationHistoryView(student: student) : null,
+        ),
+        _buildPrintCard(context, 'Bukti Daftar', student?.id),
+        _buildPrintCard(context, 'Kartu Ujian', student?.id, isExamCard: true),
       ],
     );
   }
@@ -372,13 +646,16 @@ class _DashboardViewState extends State<DashboardView> {
     BuildContext context,
     IconData icon,
     String label,
-    Widget? destination,
-  ) {
+    Widget? destination, {
+    VoidCallback? onTap,
+  }) {
     return Column(
       children: [
         InkWell(
           onTap: () {
-            if (destination != null) {
+            if (onTap != null) {
+              onTap();
+            } else if (destination != null) {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (_) => destination),
@@ -398,7 +675,11 @@ class _DashboardViewState extends State<DashboardView> {
                 ),
               ],
             ),
-            child: Icon(icon, color: const Color(0xFF00DDCB), size: 24),
+            child: Icon(
+              icon,
+              color: Theme.of(context).colorScheme.secondary,
+              size: 24,
+            ),
           ),
         ),
         const SizedBox(height: 8),
@@ -416,6 +697,7 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   Widget _buildPrintCard(
+    BuildContext context,
     String label,
     String? studentId, {
     bool isExamCard = false,
@@ -425,10 +707,14 @@ class _DashboardViewState extends State<DashboardView> {
         InkWell(
           onTap: () {
             if (studentId != null) {
-              final type = isExamCard ? 'exam-card' : 'registration-proof';
-              final url =
-                  'https://pmbm.mtsn1pacitan.sch.id/dashboard/student/$type?studentId=$studentId';
-              launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => isExamCard
+                      ? const ExamCardView()
+                      : const RegistrationProofView(),
+                ),
+              );
             }
           },
           child: Container(
@@ -461,6 +747,129 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
+  void _showExamSchedule(BuildContext context) {
+    final schedules = context.read<StudentProvider>().examSchedules;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Jadwal Ujian',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            if (schedules.isEmpty)
+              const Center(child: Text('Jadwal belum tersedia.'))
+            else
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: schedules.length,
+                  separatorBuilder: (_, __) => const Divider(),
+                  itemBuilder: (_, index) {
+                    final s = schedules[index];
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00DDCB).withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.event,
+                          color: Color(0xFF00DDCB),
+                          size: 20,
+                        ),
+                      ),
+                      title: Text(
+                        s.subject,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text('${s.dayDate} • ${s.time}'),
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Tutup'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showSelectionResult(BuildContext context, Student? student) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) {
+        final status = student?.statusKelulusan ?? 'PENDING';
+        final isAccepted = status == 'LULUS';
+        final isRejected = status == 'TIDAK_LULUS';
+
+        return Container(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isAccepted
+                    ? Icons.check_circle_rounded
+                    : (isRejected
+                          ? Icons.cancel_rounded
+                          : Icons.hourglass_empty_rounded),
+                size: 64,
+                color: isAccepted
+                    ? Colors.green
+                    : (isRejected ? Colors.red : Colors.orange),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Hasil Seleksi',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                isAccepted
+                    ? 'SELAMAT! Anda dinyatakan Lulus Seleksi PMBM.'
+                    : (isRejected
+                          ? 'MAAF, Anda dinyatakan Tidak Lulus Seleksi.'
+                          : 'Hasil seleksi belum diumumkan. Silakan cek berkala.'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, height: 1.5),
+              ),
+              const SizedBox(height: 32),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Tutup'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildInfoSection(BuildContext context, StudentProvider prov) {
     final announcements = prov.announcements;
 
@@ -479,9 +888,11 @@ class _DashboardViewState extends State<DashboardView> {
                 context,
                 MaterialPageRoute(builder: (_) => const AnnouncementView()),
               ),
-              child: const Text(
+              child: Text(
                 'Lihat Semua',
-                style: TextStyle(color: Color(0xFF00DDCB)),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               ),
             ),
           ],
@@ -578,7 +989,9 @@ class _InfoItem extends StatelessWidget {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isNew ? const Color(0xFF00DDCB) : Colors.grey[300],
+            color: isNew
+                ? Theme.of(context).colorScheme.secondary
+                : Colors.grey[300],
             shape: BoxShape.circle,
           ),
         ),

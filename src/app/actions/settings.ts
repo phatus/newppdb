@@ -30,6 +30,7 @@ export async function updateSettings(data: {
     quotaPrestasiAkademik?: number;
     quotaPrestasiNonAkademik?: number;
     quotaAfirmasi?: number;
+    studentsPerClass?: number;
     waGatewayToken?: string;
     waGatewayUrl?: string;
     isWaEnabled?: boolean;
@@ -42,6 +43,7 @@ export async function updateSettings(data: {
             schoolName, schoolAddress, academicYear, isRegistrationOpen, showQuota,
             committeeName, committeeNip, principalName, principalNip, schoolCity,
             studentQuota, quotaReguler, quotaPrestasiAkademik, quotaPrestasiNonAkademik, quotaAfirmasi,
+            studentsPerClass,
             waGatewayToken, waGatewayUrl, isWaEnabled,
             heroTitle, heroDescription, pathWeights
         } = data;
@@ -86,6 +88,10 @@ export async function updateSettings(data: {
             if (quotaAfirmasi !== undefined) {
                 updates.push(`"quotaAfirmasi" = $${i++}`);
                 values.push(quotaAfirmasi);
+            }
+            if (studentsPerClass !== undefined) {
+                updates.push(`"studentsPerClass" = $${i++}`);
+                values.push(studentsPerClass);
             }
 
             if (data.committeeName !== undefined) {

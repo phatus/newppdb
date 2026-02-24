@@ -1,3 +1,5 @@
+import 'registration_history_model.dart';
+
 class Student {
   final String id;
   final String namaLengkap;
@@ -16,6 +18,8 @@ class Student {
   final String? alamatLengkap;
   final String? catatanPenolakan;
   final String? nomorUjian;
+  final String? passwordCbt;
+  final DateTime? createdAt;
 
   // Parent fields
   final String? namaAyah;
@@ -37,6 +41,7 @@ class Student {
   // Relations as Maps
   final Map<String, dynamic>? documents;
   final Map<String, dynamic>? grades;
+  final List<RegistrationHistory>? history;
 
   Student({
     required this.id,
@@ -56,6 +61,7 @@ class Student {
     this.alamatLengkap,
     this.catatanPenolakan,
     this.nomorUjian,
+    this.passwordCbt,
     this.namaAyah,
     this.pekerjaanAyah,
     this.namaIbu,
@@ -71,9 +77,14 @@ class Student {
     this.kodePos,
     this.documents,
     this.grades,
+    this.history,
+    this.createdAt,
   });
 
-  factory Student.fromJson(Map<String, dynamic> json) {
+  factory Student.fromJson(dynamic json) {
+    if (json is! Map) {
+      return Student(id: 'error', namaLengkap: 'Format Error', nisn: '');
+    }
     try {
       return Student(
         id: json['id']?.toString() ?? '',
@@ -95,6 +106,7 @@ class Student {
         alamatLengkap: json['alamatLengkap']?.toString(),
         catatanPenolakan: json['catatanPenolakan']?.toString(),
         nomorUjian: json['nomorUjian']?.toString(),
+        passwordCbt: json['passwordCbt']?.toString(),
         namaAyah: json['namaAyah']?.toString(),
         pekerjaanAyah: json['pekerjaanAyah']?.toString(),
         namaIbu: json['namaIbu']?.toString(),
@@ -113,6 +125,14 @@ class Student {
             : null,
         grades: json['grades'] is Map
             ? Map<String, dynamic>.from(json['grades'])
+            : null,
+        history: json['history'] is List
+            ? (json['history'] as List)
+                  .map((h) => RegistrationHistory.fromJson(h))
+                  .toList()
+            : null,
+        createdAt: json['createdAt'] != null
+            ? DateTime.tryParse(json['createdAt'].toString())
             : null,
       );
     } catch (e) {

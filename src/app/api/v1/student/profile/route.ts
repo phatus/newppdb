@@ -21,6 +21,9 @@ async function handler(req: Request, session: any) {
                 documents: true,
                 grades: true,
                 wave: true,
+                history: {
+                    orderBy: { createdAt: 'desc' }
+                },
             },
             orderBy: {
                 createdAt: 'desc'

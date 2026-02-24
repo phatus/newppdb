@@ -28,6 +28,8 @@ export async function createWave(data: {
     startDate: Date;
     endDate: Date;
     jalurAllowed: string[];
+    quota?: number;
+    pathQuotas?: any;
     isActive?: boolean;
 }) {
     try {
@@ -43,6 +45,8 @@ export async function createWave(data: {
                 startDate: data.startDate,
                 endDate: data.endDate,
                 jalurAllowed: data.jalurAllowed as Prisma.InputJsonValue,
+                quota: data.quota ?? 0,
+                pathQuotas: data.pathQuotas as Prisma.InputJsonValue,
                 isActive: data.isActive ?? true,
             }
         });
@@ -63,6 +67,8 @@ export async function updateWave(id: string, data: {
     startDate?: Date;
     endDate?: Date;
     jalurAllowed?: string[];
+    quota?: number;
+    pathQuotas?: any;
     isActive?: boolean;
 }) {
     try {
@@ -74,6 +80,9 @@ export async function updateWave(id: string, data: {
         const updateData: any = { ...data };
         if (data.jalurAllowed) {
             updateData.jalurAllowed = data.jalurAllowed as Prisma.InputJsonValue;
+        }
+        if (data.pathQuotas) {
+            updateData.pathQuotas = data.pathQuotas as Prisma.InputJsonValue;
         }
 
         const wave = await db.wave.update({
