@@ -81,13 +81,15 @@ async function handler(req: Request, session: any, { params }: { params: { id: s
     }
 }
 
-export async function PUT(req: Request, context: any) {
-    return withAuth(req, (req, session) => handler(req, session, context));
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    return withAuth(req, (req, session) => handler(req, session, { params: resolvedParams }));
 }
 
-export async function GET(req: Request, context: any) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
     return withAuth(req, async (req, session) => {
-        const studentId = context.params.id;
+        const studentId = resolvedParams.id;
         const user = await db.user.findUnique({ where: { email: session.email } });
 
         const student = await db.student.findUnique({

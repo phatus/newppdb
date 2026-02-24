@@ -4,8 +4,9 @@ import { reRegisterStudent } from "@/app/actions/student-re-registration";
 
 export async function POST(
     req: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
+    const { id } = await params;
     return withAuth(req, async (req, session) => {
         try {
             const body = await req.json();
@@ -18,7 +19,7 @@ export async function POST(
                 );
             }
 
-            const result = await reRegisterStudent(params.id, { newJalur });
+            const result = await reRegisterStudent(id, { newJalur });
 
             if (result.success) {
                 return NextResponse.json({

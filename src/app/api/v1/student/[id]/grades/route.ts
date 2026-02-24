@@ -127,6 +127,7 @@ async function handler(req: Request, session: any, { params }: { params: { id: s
     }
 }
 
-export async function POST(req: Request, context: any) {
-    return withAuth(req, (req, session) => handler(req, session, context));
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    const resolvedParams = await params;
+    return withAuth(req, (req, session) => handler(req, session, { params: resolvedParams }));
 }
