@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getRankingData } from "@/app/actions/ranking";
 import PrintButton from "@/components/admin/PrintButton";
 import AutoSelectionButton from "@/components/admin/AutoSelectionButton";
+import WaveSelector from "@/components/admin/WaveSelector";
 
 export default async function RankingReportPage(props: {
     searchParams: Promise<{ waveId?: string }>
@@ -45,25 +46,7 @@ export default async function RankingReportPage(props: {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <form className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gelombang:</span>
-                        <select
-                            name="waveId"
-                            defaultValue={waveId || "all"}
-                            // @ts-ignore
-                            onChange={(e) => {
-                                const url = new URL(window.location.href);
-                                url.searchParams.set("waveId", e.target.value);
-                                window.location.href = url.toString();
-                            }}
-                            className="text-sm border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-primary/20"
-                        >
-                            <option value="all">Semua Gelombang</option>
-                            {waves.map(w => (
-                                <option key={w.id} value={w.id}>{w.name}</option>
-                            ))}
-                        </select>
-                    </form>
+                    <WaveSelector waves={waves} initialWaveId={waveId} />
                     <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2" />
                     <AutoSelectionButton quota={settings?.studentQuota || 100} waveId={waveId} />
                     <PrintButton />
