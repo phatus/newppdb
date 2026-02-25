@@ -292,8 +292,8 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
     const hasDocuments = student.documents?.filePrestasi && student.documents.filePrestasi.length > 0;
 
     // Inputs eligibility
-    // Teori: Reguler, Prestasi Akademik, Afirmasi
-    const enableTeori = isReguler || isPrestasiAkademik || isAfirmasi;
+    // Teori: Reguler, Prestasi, Afirmasi
+    const enableTeori = isReguler || isPrestasi || isAfirmasi;
 
     // SKUA: All
     const enableSkua = true;
