@@ -60,6 +60,22 @@ export default function ReportsHubPage() {
                         </Link>
                     </div>
                 </div>
+
+                {/* 4. Rekapitulasi Hasil Seleksi */}
+                <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow">
+                    <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/40 rounded-lg flex items-center justify-center text-amber-600 dark:text-amber-400">
+                        <span className="material-symbols-outlined text-2xl">fact_check</span>
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2">Hasil Seleksi</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+                            Rekapitulasi murid yang Diterima dan TIDAK Diterima berdasarkan hasil seleksi otomatis. Excel & PDF.
+                        </p>
+                        <Link href="/admin/reports/selection" className="inline-flex items-center gap-2 text-primary text-sm font-semibold hover:underline">
+                            Lihat Hasil Seleksi &rarr;
+                        </Link>
+                    </div>
+                </div>
             </div>
         </div>
     );
