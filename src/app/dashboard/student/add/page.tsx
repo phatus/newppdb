@@ -46,6 +46,7 @@ function AddStudentForm() {
         jalur: "REGULER",
         catatanPenolakan: "",
         telepon: "",
+        statusVerifikasi: "PENDING",
     });
 
     useEffect(() => {
@@ -100,6 +101,7 @@ function AddStudentForm() {
                         jalur: data.jalur || "REGULER",
                         catatanPenolakan: data.catatanPenolakan || "",
                         telepon: data.telepon || "",
+                        statusVerifikasi: data.statusVerifikasi || "PENDING",
                     });
                 })
                 .catch((err) => {
@@ -283,8 +285,38 @@ function AddStudentForm() {
                     </div>
                 )}
 
+                {/* Verified Locked Alert */}
+                {isEditMode && formData.statusVerifikasi === "VERIFIED" && (
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-6 flex flex-col md:flex-row items-start gap-4 animate-in slide-in-from-top-2">
+                        <div className="p-3 bg-amber-100 dark:bg-amber-900/40 rounded-full flex-shrink-0 text-amber-600 dark:text-amber-400">
+                            <span className="material-symbols-outlined text-2xl">
+                                lock
+                            </span>
+                        </div>
+                        <div className="flex-1">
+                            <h3 className="text-lg font-bold text-amber-800 dark:text-amber-200 mb-1">
+                                Data Terverifikasi
+                            </h3>
+                            <p className="text-amber-700 dark:text-amber-300 text-sm leading-relaxed">
+                                Data pendaftaran Anda telah diverifikasi oleh panitia dan saat ini <strong>terkunci</strong>. Data yang sudah diverifikasi tidak dapat dirubah kembali.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => router.push("/dashboard")}
+                                className="mt-4 px-4 py-2 bg-amber-100 dark:bg-amber-800/40 text-amber-800 dark:text-amber-200 rounded-lg text-xs font-bold hover:bg-amber-200 transition-colors"
+                            >
+                                Kembali ke Dashboard
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Main Form Card */}
-                <form onSubmit={handleSubmit} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <form
+                    onSubmit={handleSubmit}
+                    className={`bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden ${isEditMode && formData.statusVerifikasi === "VERIFIED" ? "opacity-75 pointer-events-none grayscale-[0.5]" : ""}`}
+                >
+                    {/* ... existing form content ... */}
                     {/* Section 0: Jalur Pendaftaran (Centered & Top) */}
                     <div className="p-6 md:p-8 space-y-6 bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-200 dark:border-slate-700">
                         <div className="text-center max-w-2xl mx-auto space-y-2">

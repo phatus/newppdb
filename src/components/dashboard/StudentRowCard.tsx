@@ -85,6 +85,14 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                         </div>
                     )}
 
+                    {/* Path Move Notice */}
+                    {student.catatanPenolakan?.includes("Dipindahkan dari jalur") && (
+                        <div className="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded border border-amber-200 dark:border-amber-800">
+                            <span className="material-symbols-outlined text-[14px]">info</span>
+                            Dipindahkan ke Jalur REGULER
+                        </div>
+                    )}
+
                     {/* Conditional Graduation Status for Multi-Student Accounts */}
                     {showGraduationStatus && student.statusKelulusan === "LULUS" && (
                         <div className="flex items-start gap-2 mt-2 p-2 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg">
@@ -139,13 +147,15 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
             {/* 2. Action Buttons (Right Aligned on Desktop) */}
             <div className="flex flex-wrap items-center gap-2 justify-start md:justify-end border-t md:border-t-0 border-slate-100 dark:border-slate-800 pt-3 md:pt-0">
 
-                {/* Edit Button */}
-                <Link href={`/dashboard/student/add?studentId=${student.id}`} title="Edit Biodata">
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold transition-colors">
-                        <span className="material-symbols-outlined text-[16px]">edit</span>
-                        <span className="hidden lg:inline">Edit</span>
-                    </button>
-                </Link>
+                {/* Edit Button - Only if NOT Verified or IF Rejected */}
+                {(!isVerified || isRejected) && (
+                    <Link href={`/dashboard/student/add?studentId=${student.id}`} title="Edit Biodata">
+                        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold transition-colors">
+                            <span className="material-symbols-outlined text-[16px]">edit</span>
+                            <span className="hidden lg:inline">Edit</span>
+                        </button>
+                    </Link>
+                )}
 
                 {/* Docs Button */}
                 <Link href={`/dashboard/student/documents?studentId=${student.id}`} title="Upload Dokumen">
@@ -155,9 +165,9 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                     </button>
                 </Link>
 
-                {/* Grades Button - Only for PRESTASI_AKADEMIK */}
-                {student.jalur === "PRESTASI_AKADEMIK" && (
-                    <Link href={`/dashboard/student/grades?studentId=${student.id}`} title="Input Nilai">
+                {/* Grades Button - For PRESTASI path and REGULER (Test Theory) */}
+                {(student.jalur?.includes("PRESTASI") || student.jalur === "REGULER") && (
+                    <Link href={`/dashboard/student/grades?studentId=${student.id}`} title="Input Nilai / Kartu Ujian">
                         <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-purple-50 border border-purple-200 hover:bg-purple-100 dark:bg-purple-900/20 dark:border-purple-800 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-bold transition-colors">
                             <span className="material-symbols-outlined text-[16px]">score</span>
                             <span className="hidden lg:inline">Nilai</span>

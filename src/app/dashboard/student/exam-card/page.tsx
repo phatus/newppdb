@@ -243,9 +243,9 @@ export default async function ExamCardPage({
 
                                                     {/* Move Notice (Optional) */}
                                                     {student.catatanPenolakan?.includes("Dipindahkan dari jalur") && (
-                                                        <div className="mt-4 p-2 bg-blue-50 border border-blue-200 rounded text-[10px] flex items-center gap-2 print:bg-white print:border-slate-400">
-                                                            <span className="material-symbols-outlined text-sm text-blue-600 print:text-black">info</span>
-                                                            <span className="font-semibold italic">Catatan: Peserta telah dipindahkan ke jalur REGULER karena kuota prestasi penuh.</span>
+                                                        <div className="mt-4 p-2 bg-amber-50 border border-amber-200 rounded text-[10px] flex items-center gap-2 print:bg-white print:border-slate-400">
+                                                            <span className="material-symbols-outlined text-sm text-amber-600 print:text-black">info</span>
+                                                            <span className="font-semibold italic text-amber-800 print:text-black">Catatan: Peserta telah dipindahkan ke jalur REGULER karena kuota prestasi penuh.</span>
                                                         </div>
                                                     )}
 

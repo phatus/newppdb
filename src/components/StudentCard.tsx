@@ -115,6 +115,14 @@ export default function StudentCard({ student }: StudentCardProps) {
                             <p className="text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5">NISN: {student.nisn}</p>
                         </div>
 
+                        {/* Path Move Notice */}
+                        {student.catatanPenolakan?.includes("Dipindahkan dari jalur") && (
+                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-[10px] font-bold text-amber-700 dark:text-amber-400 w-fit">
+                                <span className="material-symbols-outlined text-[14px]">info</span>
+                                Dipindahkan ke Jalur REGULER
+                            </div>
+                        )}
+
                         {/* School Info */}
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-4 mt-0.5">
                             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
@@ -147,7 +155,7 @@ export default function StudentCard({ student }: StudentCardProps) {
                                     Perbaiki Data
                                 </button>
                             </Link>
-                        ) : (
+                        ) : !isVerified && (
                             <Link href={`/dashboard/student/add?studentId=${student.id}`}>
                                 <button className="flex items-center justify-center gap-1.5 rounded-lg h-8 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors">
                                     Edit
@@ -162,14 +170,16 @@ export default function StudentCard({ student }: StudentCardProps) {
                             </button>
                         </Link>
 
-                        <Link href={`/dashboard/student/grades?studentId=${student.id}`}>
-                            <button
-                                className="flex items-center justify-center gap-1.5 rounded-lg h-8 px-3 bg-purple-50 border border-purple-200 hover:bg-purple-100 dark:bg-purple-900/10 dark:border-purple-800 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium transition-colors"
-                            >
-                                <span className="material-symbols-outlined text-[16px]">score</span>
-                                Input Nilai
-                            </button>
-                        </Link>
+                        {(student.jalur?.includes("PRESTASI") || student.jalur === "REGULER") && (
+                            <Link href={`/dashboard/student/grades?studentId=${student.id}`}>
+                                <button
+                                    className="flex items-center justify-center gap-1.5 rounded-lg h-8 px-3 bg-purple-50 border border-purple-200 hover:bg-purple-100 dark:bg-purple-900/10 dark:border-purple-800 dark:hover:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium transition-colors"
+                                >
+                                    <span className="material-symbols-outlined text-[16px]">score</span>
+                                    Input Nilai
+                                </button>
+                            </Link>
+                        )}
 
                         {/* Print Registration Proof Button */}
                         <Link href={`/dashboard/student/registration-proof?studentId=${student.id}`}>

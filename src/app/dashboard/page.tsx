@@ -179,10 +179,10 @@ export default async function DashboardPage() {
                 const isMovedToReguler = student.catatanPenolakan?.includes("Dipindahkan dari jalur");
                 if (isMovedToReguler) {
                     return (
-                        <div key={`moved-${student.id}`} className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-xl shadow-sm border-y border-r border-blue-200 dark:border-blue-800 mb-4 animate-in fade-in slide-in-from-top-2">
+                        <div key={`moved-${student.id}`} className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-xl shadow-sm border-y border-r border-amber-200 dark:border-amber-800 mb-4 animate-in fade-in slide-in-from-top-2">
                             <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800/40 rounded-full flex items-center justify-center shrink-0">
-                                    <span className="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[24px]">info</span>
+                                <div className="w-10 h-10 bg-amber-100 dark:bg-amber-800/40 rounded-full flex items-center justify-center shrink-0">
+                                    <span className="material-symbols-outlined text-amber-600 dark:text-amber-400 text-[24px]">info</span>
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-1">
@@ -191,7 +191,7 @@ export default async function DashboardPage() {
                                     <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-2">
                                         Pendaftaran {student.namaLengkap} telah dipindahkan ke jalur <strong>REGULER</strong> karena kuota pada jalur prestasi telah penuh. Peringkat Anda sekarang dihitung berdasarkan sistem seleksi jalur reguler.
                                     </p>
-                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 dark:bg-blue-800/50 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-full">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 dark:bg-amber-800/50 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-full">
                                         <span className="material-symbols-outlined text-sm">priority_high</span>
                                         Status: {student.statusKelulusan === 'LULUS' ? 'DITERIMA' : (student.statusKelulusan === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' : 'Dalam Proses Ranking')}
                                     </div>
