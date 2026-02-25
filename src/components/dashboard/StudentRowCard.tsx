@@ -89,7 +89,7 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                     {student.catatanPenolakan?.includes("Dipindahkan dari jalur") && (
                         <div className="flex items-center gap-1.5 mt-1 text-[10px] font-bold text-amber-700 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded border border-amber-200 dark:border-amber-800">
                             <span className="material-symbols-outlined text-[14px]">info</span>
-                            Dipindahkan ke Jalur REGULER
+                            Dipindahkan ke Jalur REGULER (Kuota Penuh)
                         </div>
                     )}
 

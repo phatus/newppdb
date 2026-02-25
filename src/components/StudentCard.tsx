@@ -119,7 +119,7 @@ export default function StudentCard({ student }: StudentCardProps) {
                         {student.catatanPenolakan?.includes("Dipindahkan dari jalur") && (
                             <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-[10px] font-bold text-amber-700 dark:text-amber-400 w-fit">
                                 <span className="material-symbols-outlined text-[14px]">info</span>
-                                Dipindahkan ke Jalur REGULER
+                                Dipindahkan ke Jalur REGULER (Kuota Penuh)
                             </div>
                         )}
 
