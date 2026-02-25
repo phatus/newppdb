@@ -241,6 +241,14 @@ export default async function ExamCardPage({
                                                         </div>
                                                     </div>
 
+                                                    {/* Move Notice (Optional) */}
+                                                    {student.catatanPenolakan?.includes("Dipindahkan dari jalur") && (
+                                                        <div className="mt-4 p-2 bg-blue-50 border border-blue-200 rounded text-[10px] flex items-center gap-2 print:bg-white print:border-slate-400">
+                                                            <span className="material-symbols-outlined text-sm text-blue-600 print:text-black">info</span>
+                                                            <span className="font-semibold italic">Catatan: Peserta telah dipindahkan ke jalur REGULER karena kuota prestasi penuh.</span>
+                                                        </div>
+                                                    )}
+
                                                     {/* Schedule */}
                                                     <div className="mt-8">
                                                         <h4 className="font-bold text-sm mb-2 border-l-4 border-slate-800 pl-2">Jadwal Ujian</h4>
