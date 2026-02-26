@@ -91,6 +91,10 @@ model AuditLog {
   userId    String
 
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
 }
 
 model Announcement {
@@ -106,6 +110,9 @@ model Announcement {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([isActive, createdAt])
+  @@index([isActive, target])
 }
 
 enum JalurPendaftaran {
@@ -185,6 +192,9 @@ model Student {
 
   @@index([statusVerifikasi])
   @@index([createdAt])
+  @@index([jalur])
+  @@index([statusKelulusan])
+  @@index([asalSekolah])
 }
 
 model Documents {
@@ -287,6 +297,8 @@ model SemesterGrade {
   updatedAt       DateTime     @updatedAt
   
   @@unique([gradeId, semesterId])
+  @@index([gradeId])
+  @@index([semesterId])
 }
 
 model GradeEntry {
@@ -300,6 +312,7 @@ model GradeEntry {
   score           Float
   
   @@unique([semesterGradeId, subjectId])
+  @@index([semesterGradeId])
 }
 
 model SchoolSettings {
