@@ -6,6 +6,8 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import QuotaInfo from "@/components/public/QuotaInfo";
 import { getSchoolSettings } from "@/lib/cached-data";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
+import type { Announcement } from "@/app/actions/announcements";
 
 // Helper to get icon based on title keywords or index
 const getIcon = (title: string, index: number) => {
@@ -43,6 +45,20 @@ export default async function Home() {
   const schedule = (Array.isArray(rawSchedule) && rawSchedule.length > 0)
     ? rawSchedule as any[]
     : getDefaultSchedule();
+
+  // Fetch active announcements for public homepage (INFO & IMPORTANT, target ALL)
+  let publicAnnouncements: Announcement[] = [];
+  try {
+    const rawAnnouncements = await db.$queryRawUnsafe(
+      `SELECT * FROM "Announcement" WHERE "isActive" = true AND "type" IN ('INFO', 'IMPORTANT') AND "target" = 'ALL' ORDER BY CASE WHEN "type" = 'IMPORTANT' THEN 0 ELSE 1 END, "createdAt" DESC`
+    ) as any[];
+    publicAnnouncements = rawAnnouncements.map(item => ({
+      ...item,
+      isActive: item.isActive === true || item.isActive === 1,
+    })) as Announcement[];
+  } catch (error) {
+    console.error("Error fetching public announcements:", error);
+  }
 
   return (
     <div className="min-h-screen font-sans bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 transition-colors duration-200">
@@ -153,6 +169,21 @@ export default async function Home() {
       {/* Pengumuman Section */}
       <section className="py-12 bg-slate-50 dark:bg-slate-900" id="pengumuman">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+          {publicAnnouncements.length > 0 && (
+            <div className="mb-10">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-3">
+                  📢 Pengumuman & Informasi
+                </h2>
+                <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
+                  Informasi penting seputar Penerimaan Murid Baru Madrasah.
+                </p>
+              </div>
+              <div className="max-w-[960px] mx-auto">
+                <AnnouncementBanner announcements={publicAnnouncements} />
+              </div>
+            </div>
+          )}
           <QuotaInfo />
         </div>
       </section>
