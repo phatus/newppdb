@@ -3,6 +3,8 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/audit";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 // --- Fetch Helper for Frontend ---
 export async function getGradeFormSetup() {
@@ -214,6 +216,79 @@ export async function saveAllSemesterGrades(studentId: string, payload: {
         return { success: true };
     } catch (error: any) {
         console.error("Error saving all grades:", error);
+        return { success: false, error: error.message || "Gagal menyimpan semua nilai" };
+    }
+}
+
+// --- Admin Bulk Save (Allows editing even if VERIFIED) ---
+export async function adminSaveAllGrades(studentId: string, payload: {
+    semesterId: string;
+    entries: { subjectId: string; score: number }[];
+}[]) {
+    const session = await getServerSession(authOptions);
+    if (session?.user?.role !== "ADMIN") {
+        return { success: false, error: "Unauthorized" };
+    }
+
+    try {
+        const gradeRecord = await db.grades.upsert({
+            where: { studentId },
+            create: { studentId },
+            update: {}
+        });
+
+        for (const item of payload) {
+            // Calculate Average
+            const totalScore = item.entries.reduce((acc, curr) => acc + curr.score, 0);
+            const average = item.entries.length > 0
+                ? parseFloat((totalScore / item.entries.length).toFixed(2))
+                : 0;
+
+            const semesterGrade = await db.semesterGrade.upsert({
+                where: {
+                    gradeId_semesterId: {
+                        gradeId: gradeRecord.id,
+                        semesterId: item.semesterId
+                    }
+                },
+                create: {
+                    gradeId: gradeRecord.id,
+                    semesterId: item.semesterId,
+                    rataRataSemester: average
+                },
+                update: {
+                    rataRataSemester: average
+                }
+            });
+
+            await db.$transaction(async (tx: any) => {
+                await tx.gradeEntry.deleteMany({
+                    where: { semesterGradeId: semesterGrade.id }
+                });
+
+                if (item.entries.length > 0) {
+                    await tx.gradeEntry.createMany({
+                        data: item.entries.map(e => ({
+                            semesterGradeId: semesterGrade.id,
+                            subjectId: e.subjectId,
+                            score: e.score
+                        }))
+                    });
+                }
+            });
+        }
+
+        await recalculateGlobalAverage(gradeRecord.id);
+
+        revalidatePath(`/admin/verification/${studentId}`);
+        revalidatePath("/admin/ranking");
+        revalidatePath("/admin/grades");
+
+        await logActivity("UPDATE_GRADE_ADMIN", "GRADE", gradeRecord.id, `Admin bulk update ${payload.length} semesters`);
+
+        return { success: true };
+    } catch (error: any) {
+        console.error("Error admin saving all grades:", error);
         return { success: false, error: error.message || "Gagal menyimpan semua nilai" };
     }
 }

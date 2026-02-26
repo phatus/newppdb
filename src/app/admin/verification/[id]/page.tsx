@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import DocumentList from "@/components/admin/DocumentList";
+import EditableGradeTable from "@/components/admin/EditableGradeTable";
 
 interface PageProps {
     params: {
@@ -141,86 +142,15 @@ export default async function VerificationDetailPage({ params }: any) {
 
             {/* Split View Container for Grades */}
             <div className="flex flex-col gap-6">
-                <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                    <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center">
-                        <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                            <span className="material-symbols-outlined text-purple-600">analytics</span>
-                            Verifikasi Nilai Raport
-                        </h3>
-                        <div className="text-sm text-slate-500">
-                            Total Rata-Rata: <span className="font-bold text-slate-900 dark:text-white">{student.grades?.rataRataNilai?.toFixed(2) || "-"}</span>
-                        </div>
-                    </div>
-
-                    <div className="p-0 grid grid-cols-1 xl:grid-cols-2 h-[600px] divide-y xl:divide-y-0 xl:divide-x divide-slate-200 dark:divide-slate-700">
-                        {/* Left: PDF Viewer */}
-                        <div className="relative h-[600px] w-full bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
-                            {student.documents?.fileRaport ? (
-                                <iframe
-                                    src={`${student.documents.fileRaport}#toolbar=0`}
-                                    className="w-full h-full"
-                                    title="Raport PDF"
-                                />
-                            ) : (
-                                <div className="text-center p-8">
-                                    <span className="material-symbols-outlined text-4xl text-slate-400 mb-2">picture_as_pdf</span>
-                                    <p className="text-slate-500">Dokumen Raport (PDF) belum diunggah.</p>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Right: Grades Table */}
-                        <div className="p-6 overflow-auto h-full">
-                            <p className="text-sm text-slate-500 mb-4 px-1">
-                                Cocokkan nilai yang diinput di bawah ini dengan dokumen di samping.
-                            </p>
-
-                            <div className="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
-                                <table className="w-full text-sm text-left">
-                                    <thead className="text-xs text-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-slate-300">
-                                        <tr>
-                                            <th className="px-4 py-3 sticky left-0 bg-slate-50 dark:bg-slate-800 z-10 border-r border-slate-200 dark:border-slate-700">Mata Pelajaran</th>
-                                            {/* Dynamic Headers */}
-                                            {semesters.map((sem: any) => (
-                                                <th key={sem.id} className="px-4 py-3 text-center whitespace-nowrap min-w-[80px]">
-                                                    {sem.name}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                                        {/* Dynamic Subjects */}
-                                        {subjects.map((subj: any) => (
-                                            <tr key={subj.id} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                                                <th className="px-4 py-2 font-medium text-slate-900 dark:text-white sticky left-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 truncate max-w-[150px]" title={subj.name}>
-                                                    {subj.name}
-                                                </th>
-                                                {semesters.map((sem: any) => {
-                                                    const score = gradesMap[sem.id]?.[subj.id];
-                                                    return (
-                                                        <td key={sem.id} className={`px-4 py-2 text-center ${score !== undefined ? 'text-slate-600 dark:text-slate-300' : 'text-slate-300 dark:text-slate-600'}`}>
-                                                            {score !== undefined ? score : "-"}
-                                                        </td>
-                                                    );
-                                                })}
-                                            </tr>
-                                        ))}
-
-                                        {/* Semester Average Row */}
-                                        <tr className="bg-slate-50 dark:bg-slate-800/50 font-bold border-t-2 border-slate-200 dark:border-slate-700">
-                                            <td className="px-4 py-3 sticky left-0 bg-slate-50 dark:bg-slate-800/50 border-r border-slate-200 dark:border-slate-700">Rata-Rata</td>
-                                            {semesters.map((sem: any) => (
-                                                <td key={sem.id} className="px-4 py-3 text-center text-primary">
-                                                    {semesterAverageMap[sem.id]?.toFixed(2) || "-"}
-                                                </td>
-                                            ))}
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <EditableGradeTable
+                    studentId={student.id}
+                    subjects={subjects}
+                    semesters={semesters}
+                    initialGradesMap={gradesMap}
+                    semesterAverageMap={semesterAverageMap}
+                    totalAverage={student.grades?.rataRataNilai || 0}
+                    fileRaport={student.documents?.fileRaport}
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Data Murid Card */}
