@@ -773,7 +773,7 @@ class _DashboardViewState extends State<DashboardView> {
                 child: ListView.separated(
                   shrinkWrap: true,
                   itemCount: schedules.length,
-                  separatorBuilder: (_, __) => const Divider(),
+                  separatorBuilder: (_, _) => const Divider(),
                   itemBuilder: (_, index) {
                     final s = schedules[index];
                     return ListTile(

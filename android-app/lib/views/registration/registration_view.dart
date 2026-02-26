@@ -48,7 +48,7 @@ class _RegistrationViewState extends State<RegistrationView> {
   final _alamatProvinsiController = TextEditingController();
   final _kodePosController = TextEditingController();
   DateTime? _selectedTanggalLahir;
-  Map<String, double> _gradeInputs = {}; // semesterId_subjectId -> score
+  final Map<String, double> _gradeInputs = {}; // semesterId_subjectId -> score
   bool _isSdOrigins = true; // true if SD, false if MI
 
   String? _selectedJalur;
@@ -471,11 +471,13 @@ class _RegistrationViewState extends State<RegistrationView> {
                                             subj.name.contains('Akidah') ||
                                             subj.name.contains('Fiqih') ||
                                             subj.name.contains('SKI');
-                                        if (_isSdOrigins && isReligious)
+                                        if (_isSdOrigins && isReligious) {
                                           continue;
+                                        }
                                         if (!_isSdOrigins &&
-                                            subj.name == 'Pendidikan Agama')
+                                            subj.name == 'Pendidikan Agama') {
                                           continue;
+                                        }
 
                                         double? score =
                                             _gradeInputs['${sem.id}_${subj.id}'];
