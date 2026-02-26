@@ -6,7 +6,16 @@ import PhotoExportButton from "@/components/admin/PhotoExportButton";
 export default async function AccountsPage() {
     // Fetch users for the management component
     const users = await db.user.findMany({
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            password: true,
+            emailVerified: true,
+            createdAt: true,
+        }
     });
 
     return (

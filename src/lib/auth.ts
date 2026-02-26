@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "./db";
 import { compare } from "bcryptjs";
-import { logActivity } from "./audit";
+import crypto from "crypto";
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(db),
@@ -84,9 +84,33 @@ export const authOptions: NextAuthOptions = {
         },
     },
     events: {
-        async signIn({ user }) {
-            if (user?.id) {
-                await logActivity("LOGIN", "USER", user.id, `User logged in: ${user.email}`, user.id);
+        async signIn({ user, account }) {
+            try {
+                if (user?.id) {
+                    const provider = account?.provider || "credentials";
+                    const id = crypto.randomUUID();
+                    const now = new Date();
+                    await db.$executeRawUnsafe(`
+                        INSERT INTO "AuditLog" ("id", "action", "entity", "entityId", "details", "userId", "createdAt")
+                        VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    `, id, "LOGIN", "USER", user.id, `User logged in via ${provider}: ${user.email}`, user.id, now);
+                }
+            } catch (e) {
+                console.error("SignIn event log error:", e);
+            }
+        },
+        async createUser({ user }) {
+            try {
+                if (user?.id) {
+                    const id = crypto.randomUUID();
+                    const now = new Date();
+                    await db.$executeRawUnsafe(`
+                        INSERT INTO "AuditLog" ("id", "action", "entity", "entityId", "details", "userId", "createdAt")
+                        VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    `, id, "REGISTER_USER", "USER", user.id, `User registered via Google: ${user.email}`, user.id, now);
+                }
+            } catch (e) {
+                console.error("CreateUser event log error:", e);
             }
         }
     }
