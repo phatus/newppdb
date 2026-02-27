@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
         const body = await req.json();
         const {
-            namaLengkap, nisn, nik, noKk, gender, tempatLahir, tanggalLahir, asalSekolah,
+            namaLengkap, nisn, nik, noKk, gender, tempatLahir, tanggalLahir, jenjang, asalSekolah,
             namaAyah, pekerjaanAyah, namaIbu, pekerjaanIbu, penghasilanOrtu,
             alamatJalan, alamatRt, alamatRw, alamatDesa, alamatKecamatan, alamatKabupaten, alamatProvinsi, kodePos,
             jalur, telepon
@@ -67,6 +67,7 @@ export async function POST(req: Request) {
                 gender: gender as string,
                 tempatLahir,
                 tanggalLahir: tanggalLahir ? new Date(tanggalLahir) : null,
+                jenjang: jenjang || "SD",
                 asalSekolah,
 
                 // Parent Info

@@ -51,7 +51,12 @@ async function getVerificationData(id: string) {
 
     // Fetch All Semesters for Headers (Ordered)
     const semesters = await db.semester.findMany({
-        where: { isActive: true },
+        where: {
+            isActive: true,
+            NOT: {
+                name: { contains: "Kelas 6 Semester 2" }
+            }
+        },
         orderBy: { order: 'asc' }
     });
 
@@ -150,6 +155,7 @@ export default async function VerificationDetailPage({ params }: any) {
                     semesterAverageMap={semesterAverageMap}
                     totalAverage={student.grades?.rataRataNilai || 0}
                     fileRaport={student.documents?.fileRaport}
+                    jenjang={student.jenjang}
                 />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

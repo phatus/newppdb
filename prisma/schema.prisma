@@ -152,6 +152,7 @@ model Student {
   gender           String?
   tempatLahir      String?
   tanggalLahir     DateTime?
+  jenjang          String?            @default("SD") // SD atau MI
   asalSekolah      String?
   alamatLengkap    String?
   jalur            JalurPendaftaran   @default(REGULER)

@@ -58,8 +58,15 @@ export default async function FinalizePage({
     const selectedStudent = students.find((s) => s.id === selectedStudentId) || students[0];
     const docs = selectedStudent.documents || {};
 
-    // Check if documents are complete
-    const isComplete = !!(docs.fileAkta && docs.fileKK && docs.fileRaport && docs.pasFoto);
+    // Fetch grades to check completion
+    const grades = await db.grades.findUnique({
+        where: { studentId: selectedStudent.id },
+        include: { semesterGrades: true }
+    });
+    const hasGrades = !!grades && grades.semesterGrades.length > 0;
+
+    // Check if documents and grades are complete
+    const isComplete = !!(docs.fileAkta && docs.fileKK && docs.fileRaport && docs.pasFoto && hasGrades);
     const isFinalized = selectedStudent.statusVerifikasi !== "DRAFT" && selectedStudent.statusVerifikasi !== "REJECTED" && selectedStudent.statusVerifikasi !== undefined; // Adjust logic based on default status
     // Actually default is PENDING usually? Let's check schema. Schema default is PENDING.
     // So if it is PENDING, it might be auto-finalized or we need a specific flag?
@@ -254,6 +261,10 @@ export default async function FinalizePage({
                                     <span className="text-sm font-medium">Raport</span>
                                     {docs.fileRaport ? <span className="text-green-600 material-symbols-outlined text-sm">check_circle</span> : <span className="text-red-500 material-symbols-outlined text-sm">cancel</span>}
                                 </div>
+                                <div className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-slate-700/50">
+                                    <span className="text-sm font-medium">Nilai Raport/SKUA</span>
+                                    {hasGrades ? <span className="text-green-600 material-symbols-outlined text-sm">check_circle</span> : <span className="text-red-500 material-symbols-outlined text-sm">cancel</span>}
+                                </div>
                                 {(selectedStudent.jalur === "PRESTASI_AKADEMIK" || selectedStudent.jalur === "PRESTASI_NON_AKADEMIK" || (docs.filePrestasi && docs.filePrestasi.length > 0)) && (
                                     <div className="flex items-center justify-between p-2 rounded bg-slate-50 dark:bg-slate-700/50">
                                         <span className="text-sm font-medium">Dokumen Prestasi</span>
@@ -268,7 +279,7 @@ export default async function FinalizePage({
                             {!isComplete ? (
                                 <div className="p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100 flex gap-2">
                                     <span className="material-symbols-outlined text-lg">error</span>
-                                    <p>Mohon lengkapi semua dokumen di menu Unggah Dokumen sebelum finalisasi.</p>
+                                    <p>Mohon lengkapi semua dokumen dan nilai raport sebelum finalisasi.</p>
                                 </div>
                             ) : null}
 

@@ -36,6 +36,16 @@ export async function POST(
             return NextResponse.json({ message: "Documents incomplete" }, { status: 400 });
         }
 
+        // Check grades
+        const grades = await db.grades.findUnique({
+            where: { studentId: studentId },
+            include: { semesterGrades: true }
+        });
+
+        if (!grades || grades.semesterGrades.length === 0) {
+            return NextResponse.json({ message: "Nilai raport belum diisi" }, { status: 400 });
+        }
+
         // Update status to PENDING (if not already verified or rejected)
         // If already verified, maybe don't allow? Or allow re-submission?
         // Usually finalize means "Submit for review".

@@ -93,49 +93,92 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
 
     return (
         <div>
-            <div className="p-4 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Gelombang:</span>
-                        <select
-                            value={waveFilter}
-                            onChange={(e) => setWaveFilter(e.target.value)}
-                            className="text-sm border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-primary/20"
-                        >
-                            <option value="all">Semua Gelombang</option>
-                            {waves.map(w => (
-                                <option key={w.id} value={w.id}>{w.name}</option>
+            <div className="p-6 flex flex-col gap-6 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex flex-col gap-5">
+                    {/* Wave Pills */}
+                    <div className="flex flex-col gap-2">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <span className="material-symbols-outlined text-sm">waves</span>
+                            Pilih Gelombang
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            <button
+                                onClick={() => setWaveFilter("all")}
+                                className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all shadow-sm ${waveFilter === "all"
+                                    ? "bg-primary text-white scale-105 shadow-primary/25"
+                                    : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
+                                    }`}
+                            >
+                                Semua Gelombang
+                            </button>
+                            {waves.map((w) => (
+                                <button
+                                    key={w.id}
+                                    onClick={() => setWaveFilter(w.id)}
+                                    className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all shadow-sm ${waveFilter === w.id
+                                        ? "bg-primary text-white scale-105 shadow-primary/25"
+                                        : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
+                                        }`}
+                                >
+                                    {w.name}
+                                </button>
                             ))}
-                        </select>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Jalur:</span>
-                        <select
-                            value={jalurFilter}
-                            onChange={(e) => setJalurFilter(e.target.value)}
-                            className="text-sm border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 focus:ring-primary/20"
-                        >
-                            <option value="all">Semua Jalur</option>
-                            <option value="REGULER">Reguler</option>
-                            <option value="AFIRMASI">Afirmasi</option>
-                            <option value="PRESTASI_AKADEMIK">Prestasi Akademik</option>
-                            <option value="PRESTASI_NON_AKADEMIK">Prestasi Non-Akademik</option>
-                        </select>
-                    </div>
-                    <div className="text-xs text-slate-500 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 font-medium">
-                        Total: {filteredData.length} Murid
+
+                    {/* Path (Jalur) Pills */}
+                    <div className="flex flex-col gap-2">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+                            <span className="material-symbols-outlined text-sm">route</span>
+                            Jalur Pendaftaran
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                { id: "all", label: "Semua Jalur" },
+                                { id: "REGULER", label: "Reguler" },
+                                { id: "AFIRMASI", label: "Afirmasi" },
+                                { id: "PRESTASI_AKADEMIK", label: "Prestasi Akd" },
+                                { id: "PRESTASI_NON_AKADEMIK", label: "Prestasi Non-Akd" },
+                            ].map((path) => (
+                                <button
+                                    key={path.id}
+                                    onClick={() => setJalurFilter(path.id)}
+                                    className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all shadow-sm ${jalurFilter === path.id
+                                        ? "bg-indigo-600 text-white scale-105 shadow-indigo-600/25"
+                                        : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
+                                        }`}
+                                >
+                                    {path.label}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-                    <RankingExportButton data={filteredData} />
-                    <button
-                        onClick={handleGenerate}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm"
-                    >
-                        <span className="material-symbols-outlined text-[20px]">fact_check</span>
-                        Generate Seleksi
-                    </button>
+                <div className="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700 gap-4">
+                    <div className="flex items-center gap-2">
+                        <div className="flex -space-x-2 overflow-hidden px-1">
+                            {filteredData.slice(0, 5).map((s, i) => (
+                                <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-800 bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                                    {s.namaLengkap.charAt(0)}
+                                </div>
+                            ))}
+                        </div>
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                            Menampilkan <span className="text-slate-900 dark:text-white font-bold">{filteredData.length}</span> Murid Pendaftar
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                        <RankingExportButton data={filteredData} />
+                        <button
+                            onClick={handleGenerate}
+                            className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
+                        >
+                            <span className="material-symbols-outlined text-[20px]">magic_button</span>
+                            Proses Seleksi Otomatis
+                        </button>
+                    </div>
                 </div>
             </div>
             <div className="overflow-x-auto">

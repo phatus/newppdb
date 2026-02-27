@@ -13,6 +13,7 @@ interface EditableGradeTableProps {
     semesterAverageMap: Record<string, number>;
     totalAverage: number;
     fileRaport?: string | null;
+    jenjang?: string | null;
 }
 
 export default function EditableGradeTable({
@@ -22,12 +23,26 @@ export default function EditableGradeTable({
     initialGradesMap,
     semesterAverageMap,
     totalAverage,
-    fileRaport
+    fileRaport,
+    jenjang
 }: EditableGradeTableProps) {
     const router = useRouter();
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [grades, setGrades] = useState<Record<string, Record<string, number>>>(initialGradesMap);
+    const [schoolType, setSchoolType] = useState<'SD' | 'MI'>((jenjang as 'SD' | 'MI') || 'SD');
+
+    const visibleSubjects = subjects.filter(sub => {
+        if (sub.category === 'AGAMA') {
+            const isGeneralAgama = sub.name.toLowerCase().includes('pendidikan agama') || sub.name.toLowerCase() === 'agama';
+            if (schoolType === 'SD') {
+                return isGeneralAgama;
+            } else {
+                return !isGeneralAgama;
+            }
+        }
+        return true;
+    });
 
     const handleScoreChange = (semesterId: string, subjectId: string, value: string) => {
         const score = parseFloat(value) || 0;
@@ -45,7 +60,7 @@ export default function EditableGradeTable({
         try {
             const payload = semesters.map(sem => ({
                 semesterId: sem.id,
-                entries: subjects.map(subj => ({
+                entries: visibleSubjects.map(subj => ({
                     subjectId: subj.id,
                     score: grades[sem.id]?.[subj.id] || 0
                 }))
@@ -71,9 +86,12 @@ export default function EditableGradeTable({
     semesters.forEach(sem => {
         let sum = 0;
         let count = 0;
-        subjects.forEach(subj => {
-            sum += grades[sem.id]?.[subj.id] || 0;
-            count++;
+        visibleSubjects.forEach(subj => {
+            const score = grades[sem.id]?.[subj.id];
+            if (score !== undefined && score !== null) {
+                sum += score;
+                count++;
+            }
         });
         currentSemesterAverages[sem.id] = count > 0 ? parseFloat((sum / count).toFixed(2)) : 0;
     });
@@ -89,6 +107,30 @@ export default function EditableGradeTable({
                     <span className="material-symbols-outlined text-purple-600">analytics</span>
                     Verifikasi Nilai Raport
                 </h3>
+                <div className="flex items-center gap-3 bg-white dark:bg-slate-700 p-1.5 rounded-lg border border-slate-200 dark:border-slate-600">
+                    <button
+                        onClick={() => { if (isEditing) setSchoolType('SD'); }}
+                        disabled={!isEditing}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${schoolType === 'SD'
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined text-[16px]">school</span>
+                        SD (Umum)
+                    </button>
+                    <button
+                        onClick={() => { if (isEditing) setSchoolType('MI'); }}
+                        disabled={!isEditing}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${schoolType === 'MI'
+                            ? 'bg-primary text-white shadow-sm'
+                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined text-[16px]">mosque</span>
+                        MI (Agama)
+                    </button>
+                </div>
                 <div className="flex items-center gap-4">
                     <div className="text-sm text-slate-500">
                         Total Rata-Rata: <span className="font-bold text-slate-900 dark:text-white">{currentTotalAverage.toFixed(2)}</span>
@@ -167,7 +209,7 @@ export default function EditableGradeTable({
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                                {subjects.map((subj: any) => (
+                                {visibleSubjects.map((subj: any) => (
                                     <tr key={subj.id} className="bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                         <th className="px-4 py-2 font-medium text-slate-900 dark:text-white sticky left-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 truncate max-w-[150px] shadow-[2px_0_5px_rgba(0,0,0,0.05)]" title={subj.name}>
                                             {subj.name}

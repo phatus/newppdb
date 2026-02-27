@@ -24,6 +24,7 @@ function AddStudentForm() {
         gender: "",
         tempatLahir: "",
         tanggalLahir: "",
+        jenjang: "SD",
         asalSekolah: "",
 
         // Parent Data
@@ -79,6 +80,7 @@ function AddStudentForm() {
                         gender: data.gender || "",
                         tempatLahir: data.tempatLahir || "",
                         tanggalLahir: data.tanggalLahir ? new Date(data.tanggalLahir).toISOString().split('T')[0] : "",
+                        jenjang: data.jenjang || "SD",
                         asalSekolah: data.asalSekolah || "",
 
                         // Parents
@@ -150,6 +152,7 @@ function AddStudentForm() {
                     gender: formData.gender,
                     tempatLahir: formData.tempatLahir,
                     tanggalLahir: formData.tanggalLahir,
+                    jenjang: formData.jenjang,
                     asalSekolah: formData.asalSekolah,
 
                     namaAyah: formData.namaAyah,
@@ -564,11 +567,52 @@ function AddStudentForm() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="col-span-1 md:col-span-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                                    Asal Jenjang Sekolah
+                                </label>
+                                <div className="flex gap-4 items-center mb-4">
+                                    <label className={`
+                                        flex-1 cursor-pointer flex items-center justify-center py-3 px-4 rounded-xl border-2 transition-all font-bold text-sm
+                                        ${formData.jenjang === 'SD'
+                                            ? 'border-primary bg-blue-50 text-primary dark:bg-blue-900/20 dark:border-blue-500 dark:text-blue-400'
+                                            : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400'
+                                        }`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="jenjang"
+                                            value="SD"
+                                            checked={formData.jenjang === 'SD'}
+                                            onChange={handleChange}
+                                            className="hidden"
+                                        />
+                                        Sekolah Dasar (SD)
+                                    </label>
+                                    <label className={`
+                                        flex-1 cursor-pointer flex items-center justify-center py-3 px-4 rounded-xl border-2 transition-all font-bold text-sm
+                                        ${formData.jenjang === 'MI'
+                                            ? 'border-primary bg-blue-50 text-primary dark:bg-blue-900/20 dark:border-blue-500 dark:text-blue-400'
+                                            : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-slate-700 dark:text-slate-400'
+                                        }`}
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="jenjang"
+                                            value="MI"
+                                            checked={formData.jenjang === 'MI'}
+                                            onChange={handleChange}
+                                            className="hidden"
+                                        />
+                                        Madrasah Ibtidaiyah (MI)
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="col-span-1 md:col-span-2">
                                 <label
                                     htmlFor="asal_sekolah"
                                     className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
                                 >
-                                    Asal Sekolah (SD/MI)
+                                    Nama Asal Sekolah Lengkap
                                 </label>
                                 <input
                                     type="text"
@@ -577,7 +621,7 @@ function AddStudentForm() {
                                     value={formData.asalSekolah}
                                     onChange={handleChange}
                                     className="w-full rounded-xl border-2 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:border-primary focus:ring-0 sm:text-sm py-2.5 px-4 transition-all placeholder:text-slate-400"
-                                    placeholder="Masukkan nama sekolah asal Anda"
+                                    placeholder="Contoh: SD Negeri 1 Pacitan / MIN 1 Pacitan"
                                 />
                             </div>
                         </div>

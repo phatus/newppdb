@@ -41,7 +41,7 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
 
     // UI State
     const [activeSemesterId, setActiveSemesterId] = useState<string>("");
-    const [schoolType, setSchoolType] = useState<'SD' | 'MI'>('SD');
+    const [schoolType, setSchoolType] = useState<'SD' | 'MI'>(initialData?.jenjang || 'SD');
 
     // Data State
     const [grades, setGrades] = useState<GradeState>({});
@@ -263,37 +263,7 @@ export default function GradeInputModal({ studentId, isOpen, onClose, initialDat
                     })}
                 </div>
 
-                {/* School Type Toggle (Compact) */}
-                <div className="px-4 py-2 bg-white dark:bg-[#1c2936] border-b border-slate-100 dark:border-slate-800 flex flex-row items-center gap-3 overflow-x-auto">
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider shrink-0">
-                        Jenjang:
-                    </span>
-                    <div className="flex gap-2">
-                        <button
-                            onClick={() => setSchoolType('SD')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all ${schoolType === 'SD'
-                                ? 'border-primary/50 bg-primary/5 text-primary'
-                                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                                }`}
-                        >
-                            <span className="material-symbols-outlined text-[18px]">school</span>
-                            <span className="text-sm font-bold">SD (Umum)</span>
-                            {schoolType === 'SD' && <span className="material-symbols-outlined text-[16px]">check</span>}
-                        </button>
-
-                        <button
-                            onClick={() => setSchoolType('MI')}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all ${schoolType === 'MI'
-                                ? 'border-primary/50 bg-primary/5 text-primary'
-                                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                                }`}
-                        >
-                            <span className="material-symbols-outlined text-[18px]">mosque</span>
-                            <span className="text-sm font-bold">MI (Agama)</span>
-                            {schoolType === 'MI' && <span className="material-symbols-outlined text-[16px]">check</span>}
-                        </button>
-                    </div>
-                </div>
+                {/* Removed School Type Toggle (Compact) - Now derived purely from initialData DB */}
 
                 {/* Content */}
                 <div className="p-6 overflow-y-auto flex-1">

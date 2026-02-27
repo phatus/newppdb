@@ -85,6 +85,7 @@ export async function PUT(
                 gender: body.gender,
                 tempatLahir: body.tempatLahir,
                 tanggalLahir: body.tanggalLahir ? new Date(body.tanggalLahir) : null,
+                jenjang: body.jenjang,
                 asalSekolah: body.asalSekolah,
 
                 // Parent Info

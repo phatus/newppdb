@@ -1,25 +1,46 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 import BatchGradeTable from "@/components/admin/BatchGradeTable";
+import WaveSelector from "@/components/admin/WaveSelector";
 
-export default async function GradesPage() {
-    const students = await db.student.findMany({
-        where: {
-            statusVerifikasi: "VERIFIED" // Only allow grading verified students
-        },
-        include: {
-            grades: {
-                include: {
-                    semesterGrades: true
-                }
+export default async function GradesPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ waveId?: string }>;
+}) {
+    const resolvedParams = await searchParams;
+    const waveId = resolvedParams?.waveId;
+
+    const whereClause: any = {
+        statusVerifikasi: "VERIFIED" // Only allow grading verified students
+    };
+
+    if (waveId) {
+        whereClause.waveId = waveId;
+    }
+
+    const [students, waves] = await Promise.all([
+        db.student.findMany({
+            where: whereClause,
+            include: {
+                grades: {
+                    include: {
+                        semesterGrades: true
+                    }
+                },
+                user: true,
+                documents: true,
             },
-            user: true,
-            documents: true,
-        },
-        orderBy: {
-            namaLengkap: 'asc'
-        }
-    });
+            orderBy: {
+                namaLengkap: 'asc'
+            }
+        }),
+        db.wave.findMany({
+            orderBy: {
+                startDate: 'desc'
+            }
+        })
+    ]);
 
     return (
         <div className="p-6">
@@ -30,12 +51,15 @@ export default async function GradesPage() {
                         Input nilai ujian teori, SKUA, dan nilai raport murid yang telah terverifikasi.
                     </p>
                 </div>
-                <Link href="/admin/grades/import" className="w-full md:w-auto">
-                    <button className="w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-bold transition-colors shadow">
-                        <span className="material-symbols-outlined">upload_file</span>
-                        Import Nilai CBT
-                    </button>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <WaveSelector waves={waves} initialWaveId={waveId} />
+                    <Link href="/admin/grades/import" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-bold transition-colors shadow">
+                            <span className="material-symbols-outlined">upload_file</span>
+                            Import Nilai CBT
+                        </button>
+                    </Link>
+                </div>
             </div>
 
             <div className="flex flex-col gap-6">

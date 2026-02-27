@@ -1,18 +1,20 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 import SearchInput from "@/components/admin/SearchInput";
+import WaveSelector from "@/components/admin/WaveSelector";
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
 
 export default async function VerificationListPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q: string }>;
+    searchParams: Promise<{ q?: string; waveId?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const query = resolvedParams?.q || "";
+    const waveId = resolvedParams?.waveId;
 
-    const whereClause = query
+    const whereClause: any = query
         ? {
             OR: [
                 { namaLengkap: { contains: query, mode: "insensitive" } },
@@ -21,18 +23,29 @@ export default async function VerificationListPage({
         }
         : {};
 
-    const students = await db.student.findMany({
-        where: whereClause as any,
-        orderBy: {
-            createdAt: "desc"
-        },
-        include: {
-            documents: true,
-            user: {
-                select: { email: true }
+    if (waveId) {
+        whereClause.waveId = waveId;
+    }
+
+    const [students, waves] = await Promise.all([
+        db.student.findMany({
+            where: whereClause,
+            orderBy: {
+                createdAt: "desc"
+            },
+            include: {
+                documents: true,
+                user: {
+                    select: { email: true }
+                }
             }
-        }
-    });
+        }),
+        db.wave.findMany({
+            orderBy: {
+                startDate: 'desc'
+            }
+        })
+    ]);
 
     const pendingCount = students.filter((s: any) => s.statusVerifikasi === "PENDING").length;
     const verifiedCount = students.filter((s: any) => s.statusVerifikasi === "VERIFIED").length;
@@ -52,21 +65,36 @@ export default async function VerificationListPage({
             </div>
 
             {/* Stats/Filter Bar */}
-            <div className="bg-white dark:bg-[#1e293b] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row gap-4 justify-between items-center">
-                <div className="flex gap-4 w-full sm:w-auto">
-                    <button className="px-4 py-2 bg-yellow-50 text-yellow-700 border border-yellow-200 rounded-lg text-sm font-bold flex items-center gap-2">
-                        Pending <span className="bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded text-xs">{pendingCount}</span>
-                    </button>
-                    <button className="px-4 py-2 bg-white text-slate-600 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
-                        Terverifikasi <span className="bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded text-xs ml-1">{verifiedCount}</span>
-                    </button>
-                    <button className="px-4 py-2 bg-white text-slate-600 border border-slate-200 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
-                        Ditolak <span className="bg-red-100 text-red-500 px-1.5 py-0.5 rounded text-xs ml-1">{rejectedCount}</span>
-                    </button>
+            <div className="bg-white dark:bg-[#1e293b] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col lg:flex-row gap-6 justify-between items-center lg:items-end">
+                <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Status Verifikasi</span>
+                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
+                            <button className="px-4 py-1.5 bg-white dark:bg-slate-700 text-yellow-700 dark:text-yellow-400 shadow-sm rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
+                                Pending <span className="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300 px-1.5 py-0.5 rounded text-[10px]">{pendingCount}</span>
+                            </button>
+                            <button className="px-4 py-1.5 text-slate-500 dark:text-slate-400 hover:text-primary transition-all rounded-lg text-xs font-medium flex items-center gap-2">
+                                Terverifikasi <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px]">{verifiedCount}</span>
+                            </button>
+                            <button className="px-4 py-1.5 text-slate-500 dark:text-slate-400 hover:text-red-500 transition-all rounded-lg text-xs font-medium flex items-center gap-2">
+                                Ditolak <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px]">{rejectedCount}</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="h-12 w-px bg-slate-100 dark:bg-slate-700 hidden lg:block mx-2" />
+
+                    <div className="flex-1 lg:flex-none">
+                        <WaveSelector waves={waves} initialWaveId={waveId} />
+                    </div>
                 </div>
-                <Suspense fallback={<div className="w-full sm:w-72 h-10 bg-slate-100 rounded-lg animate-pulse" />}>
-                    <SearchInput />
-                </Suspense>
+
+                <div className="w-full lg:w-auto lg:min-w-[320px]">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1 block mb-1.5">Cari Pendaftar</span>
+                    <Suspense fallback={<div className="w-full h-10 bg-slate-100 rounded-lg animate-pulse" />}>
+                        <SearchInput />
+                    </Suspense>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

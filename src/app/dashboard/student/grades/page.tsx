@@ -73,13 +73,6 @@ function GradeInputForm() {
                     toast("Nilai terkunci karena sudah diverifikasi", { icon: "🔒" });
                 }
 
-                // Check Jalur (Access Control) - Both Prestasi Akademik and Non-Akademik need to input report grades
-                if (studentRes.jalur !== "PRESTASI_AKADEMIK" && studentRes.jalur !== "PRESTASI_NON_AKADEMIK") {
-                    toast.error("Halaman ini hanya untuk jalur Prestasi");
-                    router.push("/dashboard");
-                    return;
-                }
-
                 setSemesters(semList);
                 setSubjects(subList);
 
@@ -91,6 +84,11 @@ function GradeInputForm() {
                     semList.forEach((s: Semester) => {
                         initialGrades[s.id] = {};
                     });
+
+                    // Set school type based on DB value so religion correctly shows
+                    if (studentRes.jenjang) {
+                        setSchoolType(studentRes.jenjang as 'SD' | 'MI');
+                    }
 
                     // Load existing grades if any
                     const existingGrades = studentRes.grades;
@@ -250,46 +248,18 @@ function GradeInputForm() {
                         Input Nilai Raport
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 text-base font-normal leading-normal">
-                        Lengkapi nilai raport dari Kelas 4 Semester 1 hingga Kelas 6 Semester 1.
+                        Lengkapi nilai raport dari Kelas 5 Semester 1 hingga Kelas 6 Semester 1.
                         {isVerified && <span className="block mt-2 font-bold text-amber-600">🔒 Nilai telah diverifikasi dan tidak dapat diubah.</span>}
                     </p>
                 </div>
 
                 <div className="bg-white dark:bg-[#1c2936] rounded-2xl w-full shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
 
-                    {/* Header Controls */}
-                    <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white dark:bg-[#1c2936]">
-                        {/* School Type Toggle */}
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs font-bold text-slate-500 shrink-0">
-                                Jenjang Asal:
-                            </span>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => setSchoolType('SD')}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all ${schoolType === 'SD'
-                                        ? 'border-primary/50 bg-primary/5 text-primary'
-                                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                                        }`}
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">school</span>
-                                    <span className="text-sm font-bold">SD (Umum)</span>
-                                    {schoolType === 'SD' && <span className="material-symbols-outlined text-[16px]">check</span>}
-                                </button>
-
-                                <button
-                                    onClick={() => setSchoolType('MI')}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md border transition-all ${schoolType === 'MI'
-                                        ? 'border-primary/50 bg-primary/5 text-primary'
-                                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                                        }`}
-                                >
-                                    <span className="material-symbols-outlined text-[18px]">mosque</span>
-                                    <span className="text-sm font-bold">MI (Agama)</span>
-                                    {schoolType === 'MI' && <span className="material-symbols-outlined text-[16px]">check</span>}
-                                </button>
-                            </div>
-                        </div>
+                    {/* Header Controls - Removed School Type Toggle as it's determined by DB */}
+                    <div className="p-4 md:p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-[#1c2936]">
+                        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                            Formulir Nilai ({schoolType === 'SD' ? 'Sekolah Dasar' : 'Madrasah Ibtidaiyah'})
+                        </h2>
                     </div>
 
                     {/* Tabs (Semesters) */}
