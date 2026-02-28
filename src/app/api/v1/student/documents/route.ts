@@ -31,6 +31,14 @@ async function handler(req: Request, session: any) {
             }
         });
 
+        // Reset student status to PENDING if it was REJECTED
+        if (student.statusVerifikasi === 'REJECTED') {
+            await db.student.update({
+                where: { id: student.id },
+                data: { statusVerifikasi: 'PENDING' }
+            });
+        }
+
         return NextResponse.json({
             message: "Document updated successfully",
             documents: updatedDocs

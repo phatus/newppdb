@@ -67,6 +67,7 @@ async function handler(req: Request, session: any, { params }: { params: { id: s
                 jalur: body.jalur,
                 telepon: body.telepon,
                 waveId: body.waveId,
+                statusVerifikasi: existingStudent.statusVerifikasi === 'REJECTED' ? 'PENDING' : undefined,
             },
         });
 
