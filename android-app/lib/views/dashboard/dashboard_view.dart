@@ -412,16 +412,24 @@ class _DashboardViewState extends State<DashboardView> {
                 style: TextStyle(fontSize: 13),
               ),
               const SizedBox(height: 16),
-              ...wave.jalurAllowed.map(
-                (j) => RadioListTile<String>(
-                  title: Text(
-                    j.toString().replaceAll('_', ' '),
-                    style: const TextStyle(fontSize: 13),
-                  ),
-                  value: j.toString(),
-                  groupValue: selectedJalur,
-                  onChanged: (v) => setDialogState(() => selectedJalur = v),
-                ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: wave.jalurAllowed.map((j) {
+                  final val = j.toString();
+                  return ChoiceChip(
+                    label: Text(
+                      val.replaceAll('_', ' '),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                    selected: selectedJalur == val,
+                    onSelected: (bool selected) {
+                      if (selected) {
+                        setDialogState(() => selectedJalur = val);
+                      }
+                    },
+                  );
+                }).toList(),
               ),
             ],
           ),

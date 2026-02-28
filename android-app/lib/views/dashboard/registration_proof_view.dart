@@ -32,7 +32,7 @@ class RegistrationProofView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.share_outlined),
             onPressed: () {
-              // TODO: Implement share as Image/PDF
+              // Implement share as Image/PDF feature later
             },
           ),
         ],

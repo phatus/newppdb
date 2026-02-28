@@ -42,7 +42,7 @@ async function main() {
         for (let i = 0; i < 5; i++) {
             randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        finalNumber = `${yearPrefix}-${randomPart}`;
+        finalNumber = `${yearPrefix}${randomPart}`;
 
         const existing = await db.student.findFirst({
             where: { nomorUjian: finalNumber },
@@ -75,9 +75,9 @@ async function main() {
     console.log("Password CBT:", updatedStudent.passwordCbt);
 
     // Check format
-    const formatRegex = /^\d{2}-[A-Z0-9]{5}$/;
+    const formatRegex = /^\d{2}[A-Z0-9]{5}$/;
     if (formatRegex.test(updatedStudent.nomorUjian || "")) {
-        console.log("✓ Format Nomor Ujian Matches [Tahun]-[5 Karakter]!");
+        console.log("✓ Format Nomor Ujian Matches [Tahun][5 Karakter]!");
     } else {
         console.log("X Format Mismatch!");
     }

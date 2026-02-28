@@ -37,7 +37,7 @@ export async function verifyStudent(studentId: string) {
                 for (let i = 0; i < 5; i++) {
                     randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
-                finalNumber = `${yearPrefix}-${randomPart}`;
+                finalNumber = `${yearPrefix}${randomPart}`;
 
                 // Check if this number already exists
                 const existing = await db.student.findFirst({

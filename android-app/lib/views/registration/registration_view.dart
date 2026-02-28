@@ -502,7 +502,9 @@ class _RegistrationViewState extends State<RegistrationView> {
                                       studentId,
                                       payloads,
                                     );
-                                    if (res['success'] && mounted) {
+                                    if (!mounted) return;
+
+                                    if (res['success']) {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -512,7 +514,7 @@ class _RegistrationViewState extends State<RegistrationView> {
                                         ),
                                       );
                                       Navigator.pop(context);
-                                    } else if (mounted) {
+                                    } else {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
