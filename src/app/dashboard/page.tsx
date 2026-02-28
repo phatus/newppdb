@@ -23,6 +23,7 @@ export default async function DashboardPage() {
                 orderBy: { createdAt: 'desc' },
                 include: {
                     documents: true,
+                    wave: true, // Include wave
                     history: { orderBy: { createdAt: 'desc' } }, // Add history
                     grades: {
                         include: {
@@ -145,7 +146,11 @@ export default async function DashboardPage() {
                                     {/* Re-registration Check */}
                                     {(() => {
                                         // Find the next available wave for this specific student
-                                        const nextWave = allActiveWaves.find(w => w.id !== student.waveId);
+                                        // We look for waves that start after the student's current wave's start date
+                                        const nextWave = allActiveWaves.find(w => {
+                                            if (!student.wave) return w.id !== student.waveId;
+                                            return w.startDate > student.wave.startDate;
+                                        });
                                         if (!nextWave) return null;
 
                                         return (
@@ -325,7 +330,11 @@ export default async function DashboardPage() {
             </section>
 
             {/* Student List */}
-            <StudentListManager students={studentList} showGraduationStatus={totalStudents > 1} />
+            <StudentListManager
+                students={studentList}
+                allActiveWaves={allActiveWaves}
+                showGraduationStatus={totalStudents > 1}
+            />
 
             {/* Help Section */}
             <section className="mt-4 p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-white dark:from-[#1e293b] dark:to-[#101a22] border border-slate-200 dark:border-slate-700/50 shadow-sm">

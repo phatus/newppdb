@@ -4,7 +4,7 @@ import { useState } from "react";
 import StudentRowCard from "@/components/dashboard/StudentRowCard";
 import Link from "next/link";
 
-export default function StudentListManager({ students, showGraduationStatus = false }: { students: any[], showGraduationStatus?: boolean }) {
+export default function StudentListManager({ students, allActiveWaves = [], showGraduationStatus = false }: { students: any[], allActiveWaves?: any[], showGraduationStatus?: boolean }) {
     const [query, setQuery] = useState("");
 
     const filteredStudents = students.filter((s) =>
@@ -46,7 +46,12 @@ export default function StudentListManager({ students, showGraduationStatus = fa
             ) : (
                 <div className="flex flex-col gap-3">
                     {filteredStudents.map((student) => (
-                        <StudentRowCard key={student.id} student={student} showGraduationStatus={showGraduationStatus} />
+                        <StudentRowCard
+                            key={student.id}
+                            student={student}
+                            allActiveWaves={allActiveWaves}
+                            showGraduationStatus={showGraduationStatus}
+                        />
                     ))}
                 </div>
             )}

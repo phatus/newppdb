@@ -6,13 +6,15 @@ import { useState, useTransition } from "react";
 import { moveToNextStage } from "@/app/actions/admission";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import ReRegistrationModal from "./ReRegistrationModal";
 
 interface StudentRowCardProps {
     student: any;
+    allActiveWaves?: any[];
     showGraduationStatus?: boolean;
 }
 
-export default function StudentRowCard({ student, showGraduationStatus = false }: StudentRowCardProps) {
+export default function StudentRowCard({ student, allActiveWaves = [], showGraduationStatus = false }: StudentRowCardProps) {
     const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
     const [isPendingMove, startTransition] = useTransition();
@@ -115,16 +117,31 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                                 <h4 className="text-xs font-bold text-red-800 dark:text-red-200">TIDAK DITERIMA</h4>
                                 <p className="text-[10px] text-red-700 dark:text-red-300 leading-tight mb-2">Mohon maaf, Anda belum diterima seleksi.</p>
 
-                                {student.jalur?.includes("PRESTASI") && student.statusVerifikasi === "VERIFIED" && (
-                                    <button
-                                        onClick={handleMoveToNextStage}
-                                        disabled={isPendingMove}
-                                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold rounded-full transition-colors disabled:opacity-50"
-                                    >
-                                        <span className="material-symbols-outlined text-[14px]">forward</span>
-                                        {isPendingMove ? "Memproses..." : "Ikuti Tahap Berikutnya (Gelombang 2)"}
-                                    </button>
-                                )}
+                                {(() => {
+                                    // 1. Find the next chronological active wave
+                                    const nextWave = allActiveWaves.find(w => {
+                                        if (!student.wave) return w.id !== student.waveId;
+                                        return new Date(w.startDate) > new Date(student.wave.startDate);
+                                    });
+
+                                    if (!nextWave) return null;
+
+                                    // 2. Determine the re-registration/move mode
+                                    // If current jalur is PRESTASI or AFIRMASI and student is NOT_LULUS,
+                                    // they might just want to move to REGULER (if allowed in same wave or next)
+                                    // The user specifically wants AFIRMASI to REGULER to be "otomatis".
+
+                                    return (
+                                        <div className="mt-2">
+                                            <ReRegistrationModal
+                                                studentId={student.id}
+                                                studentName={student.namaLengkap}
+                                                activeWaveName={nextWave.name}
+                                                allowedJalur={nextWave.jalurAllowed as string[] || []}
+                                            />
+                                        </div>
+                                    );
+                                })()}
                             </div>
                         </div>
                     )}

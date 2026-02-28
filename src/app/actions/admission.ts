@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { JalurPendaftaran } from "@prisma/client";
 import { logActivity } from "@/lib/audit";
+import { getNextWave } from "./waves";
 
 export async function moveToNextStage(studentId: string, targetJalur: JalurPendaftaran = "REGULER") {
     try {
@@ -17,25 +18,17 @@ export async function moveToNextStage(studentId: string, targetJalur: JalurPenda
             return { success: false, error: "Data siswa tidak ditemukan." };
         }
 
-        // 2. Find any active wave that is different from the current one
-        const now = new Date();
-        const activeWaves = await db.wave.findMany({
-            where: {
-                isActive: true,
-                startDate: { lte: now },
-                endDate: { gte: now },
-                id: student.waveId ? { not: student.waveId } : undefined
-            }
-        });
-
-        // Filter active waves that allow the target jalur (filtering in JS for JSON safety)
-        const nextWave = activeWaves.find(w => {
-            const allowed = Array.isArray(w.jalurAllowed) ? w.jalurAllowed : [];
-            return allowed.includes(targetJalur);
-        });
+        // 2. Find the next available wave
+        const nextWave = await getNextWave(student.waveId);
 
         if (!nextWave) {
-            return { success: false, error: "Tidak ada gelombang aktif lainnya yang tersedia saat ini." };
+            return { success: false, error: "Tidak ada gelombang pendaftaran selanjutnya yang tersedia saat ini." };
+        }
+
+        // Check if the target jalur is allowed in the next wave
+        const allowed = Array.isArray(nextWave.jalurAllowed) ? nextWave.jalurAllowed : [];
+        if (!allowed.includes(targetJalur as any)) {
+            return { success: false, error: `Jalur ${targetJalur} tidak tersedia di ${nextWave.name}.` };
         }
 
         // 3. Log history before reset

@@ -239,7 +239,7 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             });
         }
 
-        // Stage 2: Process Afirmasi (usually separate and doesn't spill over to regular unless specified)
+        // Stage 2: Process Afirmasi
         const afirmasiGroup = allStudents.filter(s => s.jalur === "AFIRMASI");
         const afirmasiQuota = activeQuotas["AFIRMASI"] || 0;
         const afirmasiPassed = afirmasiGroup.slice(0, afirmasiQuota);
@@ -249,9 +249,13 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             passedIds.push(s.id);
             processedIds.add(s.id);
         });
+
+        // AFIRMASI failed students are now also moved to REGULER pool
         afirmasiFailed.forEach(s => {
-            failedIds.push(s.id);
-            processedIds.add(s.id);
+            movedStudents.push({
+                student: recalculateScore(s, "REGULER"),
+                originalJalur: "AFIRMASI"
+            });
         });
 
         // Stage 3: Process Reguler (Original Reguler + Moved from Achievement)
