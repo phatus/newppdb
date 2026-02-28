@@ -243,7 +243,7 @@ export default async function DashboardPage() {
 
                                 <div className="flex gap-2">
                                     {isPrestasiAkademik && !gradesComplete && (
-                                        <Link href={`#`} className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm shadow-amber-900/20">
+                                        <Link href={`/dashboard/student/grades?studentId=${student.id}`} className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm shadow-amber-900/20">
                                             <span className="material-symbols-outlined text-[14px]">edit_note</span>
                                             Input Nilai
                                         </Link>
