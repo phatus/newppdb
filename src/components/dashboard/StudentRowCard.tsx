@@ -138,7 +138,7 @@ export default function StudentRowCard({ student, showGraduationStatus = false }
                             <span className="material-symbols-outlined text-[12px]">
                                 {isVerified ? 'verified' : isRejected ? 'cancel' : 'hourglass_top'}
                             </span>
-                            {isVerified ? "Terverifikasi" : isRejected ? "Ditolak / Perbaikan" : "Dalam Proses"}
+                            {isVerified ? "Terverifikasi" : isRejected ? "Tolak Berkas / Perbaikan" : "Dalam Proses"}
                         </span>
                     </div>
                 </div>

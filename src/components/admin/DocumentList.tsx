@@ -115,7 +115,7 @@ export default function DocumentList({ student, docList, studentId }: DocumentLi
                         disabled={isPending}
                         className="px-5 py-2.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 font-bold text-sm transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
-                        Tolak dengan Catatan
+                        Tolak Berkas
                     </button>
                     <button
                         onClick={() => handleActionClick("VERIFY")}
