@@ -56,20 +56,31 @@ export async function PATCH(
 
             // Check if already in array to avoid duplicates if accidentally re-sent
             if (!currentFiles.includes(body.filePrestasi)) {
-                await db.documents.upsert({
-                    where: {
-                        studentId: studentId,
-                    },
-                    update: {
-                        filePrestasi: {
-                            push: body.filePrestasi
+                await db.$transaction([
+                    db.documents.upsert({
+                        where: {
+                            studentId: studentId,
+                        },
+                        update: {
+                            filePrestasi: {
+                                push: body.filePrestasi
+                            }
+                        },
+                        create: {
+                            studentId: studentId,
+                            filePrestasi: [body.filePrestasi]
+                        },
+                    }),
+                    db.student.updateMany({
+                        where: {
+                            id: studentId,
+                            statusVerifikasi: 'REJECTED'
+                        },
+                        data: {
+                            statusVerifikasi: 'PENDING'
                         }
-                    },
-                    create: {
-                        studentId: studentId,
-                        filePrestasi: [body.filePrestasi]
-                    },
-                });
+                    })
+                ]);
             }
         } else {
             // Standard single file update
@@ -88,18 +99,29 @@ export async function PATCH(
                 }
             }
 
-            await db.documents.upsert({
-                where: {
-                    studentId: studentId,
-                },
-                update: {
-                    ...updates,
-                },
-                create: {
-                    studentId: studentId,
-                    ...updates,
-                },
-            });
+            await db.$transaction([
+                db.documents.upsert({
+                    where: {
+                        studentId: studentId,
+                    },
+                    update: {
+                        ...updates,
+                    },
+                    create: {
+                        studentId: studentId,
+                        ...updates,
+                    },
+                }),
+                db.student.updateMany({
+                    where: {
+                        id: studentId,
+                        statusVerifikasi: 'REJECTED'
+                    },
+                    data: {
+                        statusVerifikasi: 'PENDING'
+                    }
+                })
+            ]);
         }
 
         return NextResponse.json({ message: "Document updated" });

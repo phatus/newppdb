@@ -107,29 +107,14 @@ export default function EditableGradeTable({
                     <span className="material-symbols-outlined text-purple-600">analytics</span>
                     Verifikasi Nilai Raport
                 </h3>
-                <div className="flex items-center gap-3 bg-white dark:bg-slate-700 p-1.5 rounded-lg border border-slate-200 dark:border-slate-600">
-                    <button
-                        onClick={() => { if (isEditing) setSchoolType('SD'); }}
-                        disabled={!isEditing}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${schoolType === 'SD'
-                            ? 'bg-primary text-white shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed'
-                            }`}
-                    >
-                        <span className="material-symbols-outlined text-[16px]">school</span>
-                        SD (Umum)
-                    </button>
-                    <button
-                        onClick={() => { if (isEditing) setSchoolType('MI'); }}
-                        disabled={!isEditing}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-bold transition-all ${schoolType === 'MI'
-                            ? 'bg-primary text-white shadow-sm'
-                            : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 bg-transparent disabled:opacity-50 disabled:cursor-not-allowed'
-                            }`}
-                    >
-                        <span className="material-symbols-outlined text-[16px]">mosque</span>
-                        MI (Agama)
-                    </button>
+                <div className="flex items-center gap-3 bg-white dark:bg-slate-700 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600">
+                    <span className="text-sm font-medium text-slate-500">Jenjang:</span>
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary rounded-md text-sm font-bold border border-primary/20">
+                        <span className="material-symbols-outlined text-[16px]">
+                            {schoolType === 'SD' ? 'school' : 'mosque'}
+                        </span>
+                        {schoolType === 'SD' ? 'SD (Umum)' : 'MI (Agama)'}
+                    </div>
                 </div>
                 <div className="flex items-center gap-4">
                     <div className="text-sm text-slate-500">

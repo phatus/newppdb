@@ -108,6 +108,7 @@ export async function PUT(
 
                 jalur: body.jalur || undefined, // Only update if provided
                 telepon: body.telepon,
+                statusVerifikasi: existingStudent.statusVerifikasi === 'REJECTED' ? 'PENDING' : undefined,
             },
         });
 

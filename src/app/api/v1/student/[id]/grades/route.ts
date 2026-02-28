@@ -119,6 +119,14 @@ async function handler(req: Request, session: any, { params }: { params: { id: s
             });
         }
 
+        // Reset status to PENDING if it was REJECTED
+        if (existingStudent.statusVerifikasi === 'REJECTED') {
+            await db.student.update({
+                where: { id: studentId },
+                data: { statusVerifikasi: 'PENDING' }
+            });
+        }
+
         return NextResponse.json({ message: "Nilai berhasil disimpan" });
 
     } catch (error) {
