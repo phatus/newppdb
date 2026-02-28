@@ -26,19 +26,36 @@ export async function verifyStudent(studentId: string) {
         };
 
         if (!student?.nomorUjian) {
-            // Generate sequence
-            const count = await db.student.count({
+            // Robust Generation: Find the highest existing sequence number for the current year
+            const yearPrefix = new Date().getFullYear().toString().slice(-2) + "A";
+
+            // Find the student with the highest nomorUjian starting with yearPrefix
+            const lastStudent = await db.student.findFirst({
                 where: {
-                    statusVerifikasi: "VERIFIED",
-                    nomorUjian: { not: null }
+                    nomorUjian: {
+                        startsWith: yearPrefix
+                    }
+                },
+                orderBy: {
+                    nomorUjian: 'desc'
+                },
+                select: {
+                    nomorUjian: true
                 }
             });
-            const sequence = (count + 1).toString().padStart(4, "0");
-            const year = new Date().getFullYear().toString().slice(-2);
-            // Format: 25A[Sequence] (e.g. 25A0001) or 25-01-[Sequence]
-            // User sample showed 24A01, 24A02.
-            // Let's us 25A[Sequence] to match that style.
-            updateData.nomorUjian = `${year}A${sequence}`;
+
+            let newSequence = 1;
+            if (lastStudent?.nomorUjian) {
+                // Extract number from 25A0001 -> 0001
+                const lastNumStr = lastStudent.nomorUjian.replace(yearPrefix, "");
+                const lastNum = parseInt(lastNumStr, 10);
+                if (!isNaN(lastNum)) {
+                    newSequence = lastNum + 1;
+                }
+            }
+
+            const sequence = newSequence.toString().padStart(4, "0");
+            updateData.nomorUjian = `${yearPrefix}${sequence}`;
 
             // Generate Password (6 chars alphanumeric)
             const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed similar looking chars
