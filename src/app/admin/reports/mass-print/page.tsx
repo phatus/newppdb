@@ -32,6 +32,20 @@ export default async function MassPrintPage() {
         // ExamSchedule model may not exist yet
     }
 
+    // Calculate document numbers based on registration time globally
+    const documentNumbers: Record<string, string> = {};
+    for (const student of students) {
+        const countBefore = await db.student.count({
+            where: {
+                createdAt: {
+                    lt: student.createdAt,
+                }
+            }
+        });
+        const sequence = countBefore + 1;
+        documentNumbers[student.id] = String(sequence).padStart(3, '0');
+    }
+
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white">
             <div className="max-w-[1100px] mx-auto space-y-6 w-full print:max-w-none print:w-full">
@@ -70,8 +84,8 @@ export default async function MassPrintPage() {
                                 <div
                                     key={student.id}
                                     className={`bg-white text-slate-900 w-full min-w-[620px] max-w-[700px] border-2 border-slate-800 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-2 ${studentIdx > 0
-                                            ? "print:break-before-page mt-8 print:mt-0"
-                                            : ""
+                                        ? "print:break-before-page mt-8 print:mt-0"
+                                        : ""
                                         }`}
                                 >
                                     {/* Header */}
@@ -96,7 +110,7 @@ export default async function MassPrintPage() {
                                             <div className="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 inline-block mb-1 print:bg-black print:text-white">
                                                 Kartu Peserta
                                             </div>
-                                            <p className="text-[10px] font-mono">No. Dok: 001/PMBM/{new Date().getFullYear()}</p>
+                                            <p className="text-[10px] font-mono">No. Dok: {documentNumbers[student.id]}/PMBM/{new Date().getFullYear()}</p>
                                         </div>
                                     </div>
 

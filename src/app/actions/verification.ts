@@ -26,42 +26,37 @@ export async function verifyStudent(studentId: string) {
         };
 
         if (!student?.nomorUjian) {
-            // Robust Generation: Find the highest existing sequence number for the current year
-            const yearPrefix = new Date().getFullYear().toString().slice(-2) + "A";
+            // Robust Generation: Generate unique random exam number
+            const yearPrefix = new Date().getFullYear().toString().slice(-2);
+            let isUnique = false;
+            let finalNumber = "";
+            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed lookalike chars (O, 0, I, 1)
 
-            // Find the student with the highest nomorUjian starting with yearPrefix
-            const lastStudent = await db.student.findFirst({
-                where: {
-                    nomorUjian: {
-                        startsWith: yearPrefix
-                    }
-                },
-                orderBy: {
-                    nomorUjian: 'desc'
-                },
-                select: {
-                    nomorUjian: true
+            while (!isUnique) {
+                let randomPart = "";
+                for (let i = 0; i < 5; i++) {
+                    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
-            });
+                finalNumber = `${yearPrefix}-${randomPart}`;
 
-            let newSequence = 1;
-            if (lastStudent?.nomorUjian) {
-                // Extract number from 25A0001 -> 0001
-                const lastNumStr = lastStudent.nomorUjian.replace(yearPrefix, "");
-                const lastNum = parseInt(lastNumStr, 10);
-                if (!isNaN(lastNum)) {
-                    newSequence = lastNum + 1;
+                // Check if this number already exists
+                const existing = await db.student.findFirst({
+                    where: { nomorUjian: finalNumber },
+                    select: { id: true }
+                });
+
+                if (!existing) {
+                    isUnique = true;
                 }
             }
 
-            const sequence = newSequence.toString().padStart(4, "0");
-            updateData.nomorUjian = `${yearPrefix}${sequence}`;
+            updateData.nomorUjian = finalNumber;
 
             // Generate Password (6 chars alphanumeric)
-            const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed similar looking chars
+            const passChars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Removed similar looking chars
             let pass = "";
             for (let i = 0; i < 6; i++) {
-                pass += chars.charAt(Math.floor(Math.random() * chars.length));
+                pass += passChars.charAt(Math.floor(Math.random() * passChars.length));
             }
             updateData.passwordCbt = pass;
         }

@@ -31,6 +31,17 @@ export default async function AdminExamCardPage({ params }: any) {
         // ExamSchedule model may not exist yet
     }
 
+    // Calculate document number based on registration time globally
+    const countBefore = await db.student.count({
+        where: {
+            createdAt: {
+                lt: student.createdAt,
+            }
+        }
+    });
+    const sequence = countBefore + 1;
+    const documentNumber = String(sequence).padStart(3, '0');
+
     return (
         <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white">
             <div className="max-w-[1100px] mx-auto space-y-6 w-full print:max-w-none print:w-full">
@@ -88,7 +99,7 @@ export default async function AdminExamCardPage({ params }: any) {
                                         <div className="bg-slate-900 text-white text-[10px] font-bold px-2 py-1 inline-block mb-1 print:bg-black print:text-white">
                                             Kartu Peserta
                                         </div>
-                                        <p className="text-[10px] font-mono">No. Dok: 001/PMBM/{new Date().getFullYear()}</p>
+                                        <p className="text-[10px] font-mono">No. Dok: {documentNumber}/PMBM/{new Date().getFullYear()}</p>
                                     </div>
                                 </div>
 
