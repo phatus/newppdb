@@ -8,8 +8,8 @@ import StudentCard from "@/components/StudentCard";
 
 import { getAnnouncements } from "@/app/actions/announcements";
 import AnnouncementBanner from "@/components/AnnouncementBanner";
-import { getActiveWave } from "@/app/actions/waves";
-import ReRegistrationModal from "@/components/dashboard/ReRegistrationModal"; // Ensure this path is correct
+import { getActiveWave, getNextWave } from "@/app/actions/waves";
+import ReRegistrationModal from "@/components/dashboard/ReRegistrationModal";
 import StudentListManager from "@/components/dashboard/StudentListManager";
 
 export default async function DashboardPage() {
@@ -44,7 +44,15 @@ export default async function DashboardPage() {
     // Fetch School Settings
     const settings = await db.schoolSettings.findFirst();
     const academicYear = settings?.academicYear || "2024/2025";
-    const activeWave = await getActiveWave(); // Fetch active wave
+
+    // Fetch all active waves to find the next one for students
+    const allActiveWaves = await db.wave.findMany({
+        where: { isActive: true },
+        orderBy: { startDate: 'asc' }
+    });
+
+    const now = new Date();
+    const currentActiveWave = allActiveWaves.find(w => w.startDate <= now && w.endDate >= now);
 
     // Fetch Active Semesters to determine required grades
     const activeSemesters = await db.semester.findMany({
@@ -135,33 +143,38 @@ export default async function DashboardPage() {
                                     </p>
 
                                     {/* Re-registration Check */}
-                                    {activeWave && activeWave.id !== student.waveId && (
-                                        <div className="mt-6 relative overflow-hidden rounded-xl border border-blue-100 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-800 shadow-sm p-5">
-                                            <div className="absolute top-0 right-0 p-4 opacity-10">
-                                                <span className="material-symbols-outlined text-[100px] text-blue-500">rocket_launch</span>
-                                            </div>
-                                            <div className="relative z-10">
-                                                <div className="flex items-center gap-3 mb-2">
-                                                    <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg text-blue-600 dark:text-blue-300">
-                                                        <span className="material-symbols-outlined text-xl">campaign</span>
-                                                    </div>
-                                                    <h3 className="font-bold text-slate-900 dark:text-white text-lg">
-                                                        Pendaftaran {activeWave.name} Dibuka!
-                                                    </h3>
+                                    {(() => {
+                                        // Find the next available wave for this specific student
+                                        const nextWave = allActiveWaves.find(w => w.id !== student.waveId);
+                                        if (!nextWave) return null;
+
+                                        return (
+                                            <div className="mt-6 relative overflow-hidden rounded-xl border border-blue-100 dark:border-blue-800 bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/20 dark:to-slate-800 shadow-sm p-5">
+                                                <div className="absolute top-0 right-0 p-4 opacity-10">
+                                                    <span className="material-symbols-outlined text-[100px] text-blue-500">rocket_launch</span>
                                                 </div>
-                                                <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 max-w-lg leading-relaxed">
-                                                    Masih ada kesempatan! Jangan menyerah. Anda dapat mendaftarkan diri kembali di gelombang ini.
-                                                    Silakan klik tombol di bawah untuk memilih jalur pendaftaran baru.
-                                                </p>
-                                                <ReRegistrationModal
-                                                    studentId={student.id}
-                                                    studentName={student.namaLengkap}
-                                                    activeWaveName={activeWave.name}
-                                                    allowedJalur={activeWave.jalurAllowed as string[] || []}
-                                                />
+                                                <div className="relative z-10">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <div className="p-2 bg-blue-100 dark:bg-blue-800/50 rounded-lg text-blue-600 dark:text-blue-300">
+                                                            <span className="material-symbols-outlined text-xl">campaign</span>
+                                                        </div>
+                                                        <h3 className="font-bold text-slate-900 dark:text-white text-lg">
+                                                            Pendaftaran {nextWave.name} Tersedia!
+                                                        </h3>
+                                                    </div>
+                                                    <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 max-w-lg leading-relaxed">
+                                                        Masih ada kesempatan! Jangan menyerah. Anda dapat mendaftarkan diri kembali di gelombang selanjutnya tanpa menunggu periode pendaftaran dibuka secara resmi.
+                                                    </p>
+                                                    <ReRegistrationModal
+                                                        studentId={student.id}
+                                                        studentName={student.namaLengkap}
+                                                        activeWaveName={nextWave.name}
+                                                        allowedJalur={nextWave.jalurAllowed as string[] || []}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
-                                    )}
+                                        );
+                                    })()}
 
                                     {/* History Check */}
                                     {student.history && student.history.length > 0 && (

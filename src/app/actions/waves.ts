@@ -129,3 +129,33 @@ export async function getActiveWave() {
         return null;
     }
 }
+
+/**
+ * Gets the next wave that is marked active, even if it hasn't started yet.
+ * Used for students who failed and want to pre-emptively register for the next round.
+ */
+export async function getNextWave(currentWaveId?: string | null) {
+    try {
+        const now = new Date();
+        // Priority 1: Wave that is actually currently active (by date)
+        const currentActive = await getActiveWave();
+
+        if (currentActive && currentActive.id !== currentWaveId) {
+            return currentActive;
+        }
+
+        // Priority 2: Next wave that is marked isActive and starts in the future
+        const nextWave = await db.wave.findFirst({
+            where: {
+                isActive: true,
+                id: currentWaveId ? { not: currentWaveId } : undefined,
+                startDate: { gt: now }
+            },
+            orderBy: { startDate: 'asc' }
+        });
+
+        return nextWave;
+    } catch (error) {
+        return null;
+    }
+}

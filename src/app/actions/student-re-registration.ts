@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { getActiveWave } from "./waves";
+import { getActiveWave, getNextWave } from "./waves";
 
 export async function reRegisterStudent(studentId: string, data: { newJalur: string }) {
     try {
@@ -30,15 +30,17 @@ export async function reRegisterStudent(studentId: string, data: { newJalur: str
             return { success: false, error: "Anda hanya bisa mendaftar ulang jika dinyatakan Tidak Lulus." };
         }
 
-        // Check Active Wave
-        const activeWave = await getActiveWave();
-        if (!activeWave) {
-            return { success: false, error: "Tidak ada gelombang pendaftaran yang dibuka saat ini." };
+        // Check Active Wave - Use a more permissive check for re-registration
+        // We look for a wave that is marked active, even if it hasn't technically started yet.
+        const targetWave = await getNextWave(student.waveId);
+
+        if (!targetWave) {
+            return { success: false, error: "Tidak ada gelombang pendaftaran selanjutnya yang dibuka saat ini." };
         }
 
-        // Check if new jalur is allowed in active wave
-        if (activeWave.jalurAllowed && Array.isArray(activeWave.jalurAllowed)) {
-            if (!activeWave.jalurAllowed.includes(data.newJalur)) {
+        // Check if new jalur is allowed in the target wave
+        if (targetWave.jalurAllowed && Array.isArray(targetWave.jalurAllowed)) {
+            if (!targetWave.jalurAllowed.includes(data.newJalur)) {
                 return { success: false, error: `Jalur ${data.newJalur} tidak dibuka pada gelombang ini.` };
             }
         }
@@ -52,7 +54,7 @@ export async function reRegisterStudent(studentId: string, data: { newJalur: str
                     waveId: student.waveId,
                     jalur: student.jalur,
                     status: student.statusKelulusan, // Should be TIDAK_LULUS
-                    notes: `Re-registered to ${data.newJalur} on Wave ${activeWave.name}`
+                    notes: `Re-registered to ${data.newJalur} on Wave ${targetWave.name}`
                 }
             });
 
@@ -62,7 +64,7 @@ export async function reRegisterStudent(studentId: string, data: { newJalur: str
             await tx.student.update({
                 where: { id: student.id },
                 data: {
-                    waveId: activeWave.id,
+                    waveId: targetWave.id,
                     jalur: data.newJalur as any, // Cast to any to avoid strict Enum type issues if mismatched
                     statusVerifikasi: "PENDING",
                     statusKelulusan: "PENDING",
