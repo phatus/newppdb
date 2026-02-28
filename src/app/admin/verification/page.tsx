@@ -2,17 +2,19 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import SearchInput from "@/components/admin/SearchInput";
 import WaveSelector from "@/components/admin/WaveSelector";
+import VerificationStatusFilter from "@/components/admin/VerificationStatusFilter";
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
 
 export default async function VerificationListPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q?: string; waveId?: string }>;
+    searchParams: Promise<{ q?: string; waveId?: string; status?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const query = resolvedParams?.q || "";
     const waveId = resolvedParams?.waveId;
+    const status = resolvedParams?.status;
 
     const whereClause: any = query
         ? {
@@ -51,6 +53,10 @@ export default async function VerificationListPage({
     const verifiedCount = students.filter((s: any) => s.statusVerifikasi === "VERIFIED").length;
     const rejectedCount = students.filter((s: any) => s.statusVerifikasi === "REJECTED").length;
 
+    const filteredStudents = status
+        ? students.filter((s: any) => s.statusVerifikasi === status)
+        : students;
+
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -67,20 +73,12 @@ export default async function VerificationListPage({
             {/* Stats/Filter Bar */}
             <div className="bg-white dark:bg-[#1e293b] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col lg:flex-row gap-6 justify-between items-center lg:items-end">
                 <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Status Verifikasi</span>
-                        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl w-fit">
-                            <button className="px-4 py-1.5 bg-white dark:bg-slate-700 text-yellow-700 dark:text-yellow-400 shadow-sm rounded-lg text-xs font-bold flex items-center gap-2 transition-all">
-                                Pending <span className="bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300 px-1.5 py-0.5 rounded text-[10px]">{pendingCount}</span>
-                            </button>
-                            <button className="px-4 py-1.5 text-slate-500 dark:text-slate-400 hover:text-primary transition-all rounded-lg text-xs font-medium flex items-center gap-2">
-                                Terverifikasi <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px]">{verifiedCount}</span>
-                            </button>
-                            <button className="px-4 py-1.5 text-slate-500 dark:text-slate-400 hover:text-red-500 transition-all rounded-lg text-xs font-medium flex items-center gap-2">
-                                Ditolak <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px]">{rejectedCount}</span>
-                            </button>
-                        </div>
-                    </div>
+                    <VerificationStatusFilter
+                        pendingCount={pendingCount}
+                        verifiedCount={verifiedCount}
+                        rejectedCount={rejectedCount}
+                        initialStatus={status}
+                    />
 
                     <div className="h-12 w-px bg-slate-100 dark:bg-slate-700 hidden lg:block mx-2" />
 
@@ -98,12 +96,21 @@ export default async function VerificationListPage({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {students.map((student: any) => (
+                {filteredStudents.map((student: any) => (
                     <div key={student.id} className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-4 hover:border-primary/50 transition-colors">
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-slate-400">person</span>
+                                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                                    {student.documents?.[0]?.pasFoto || student.documents?.pasFoto ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img
+                                            src={student.documents?.pasFoto || student.documents?.[0]?.pasFoto}
+                                            alt={student.namaLengkap}
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="material-symbols-outlined text-slate-400">person</span>
+                                    )}
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{student.namaLengkap}</h3>
@@ -140,7 +147,7 @@ export default async function VerificationListPage({
                     </div>
                 ))}
 
-                {students.length === 0 && (
+                {filteredStudents.length === 0 && (
                     <div className="col-span-full p-12 text-center text-slate-500">
                         <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
                         <p>Belum ada data murid yang perlu diverifikasi.</p>
