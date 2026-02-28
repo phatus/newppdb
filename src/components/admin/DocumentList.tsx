@@ -6,6 +6,7 @@ import DocumentPreviewModal from "./DocumentPreviewModal";
 import VerificationActionModal from "./VerificationActionModal";
 import { verifyStudent, rejectStudent } from "@/app/actions/verification";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 interface DocumentListProps {
     student: any;
@@ -14,6 +15,7 @@ interface DocumentListProps {
 }
 
 export default function DocumentList({ student, docList, studentId }: DocumentListProps) {
+    const router = useRouter();
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [previewTitle, setPreviewTitle] = useState("");
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -53,37 +55,16 @@ export default function DocumentList({ student, docList, studentId }: DocumentLi
             setActionModal({ isOpen: false, type: null });
 
             if (result.success) {
-                toast.custom((t) => (
-                    <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full bg-white dark:bg-slate-800 shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 overflow-hidden`}>
-                        <div className="flex-1 w-0 p-4">
-                            <div className="flex items-start">
-                                <div className="flex-shrink-0 pt-0.5">
-                                    <span className={`material-symbols-outlined text-3xl ${type === 'VERIFY' ? 'text-green-500' : 'text-red-500'}`}>
-                                        {type === 'VERIFY' ? 'check_circle' : 'cancel'}
-                                    </span>
-                                </div>
-                                <div className="ml-3 flex-1">
-                                    <p className="text-sm font-medium text-slate-900 dark:text-white">
-                                        {type === 'VERIFY' ? 'Verifikasi Berhasil!' : 'Murid Ditolak'}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        {type === 'VERIFY'
-                                            ? 'Status murid telah diperbarui menjadi Terverifikasi.'
-                                            : 'Notifikasi penolakan telah dikirim ke murid.'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex border-l border-gray-200 dark:border-slate-700">
-                            <button
-                                onClick={() => toast.dismiss(t.id)}
-                                className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-primary hover:text-blue-700 focus:outline-none"
-                            >
-                                Tutup
-                            </button>
-                        </div>
-                    </div>
-                ), { duration: 4000 });
+                // Redirect before toast or short delay after toast?
+                // User said "secara otomatis ke halaman verifikasi admin"
+                // Usually it's better to show success then redirect or redirect immediately.
+                // Let's redirect immediately for snappier experience as requested.
+
+                toast.success(type === 'VERIFY' ? 'Verifikasi Berhasil!' : 'Murid Ditolak');
+
+                // Navigate back to overview
+                router.push('/admin/verification');
+                router.refresh();
             } else {
                 toast.error(result.error || "Terjadi kesalahan", {
                     style: {
