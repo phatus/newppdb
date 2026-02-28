@@ -46,6 +46,17 @@ export default async function DashboardPage() {
     const academicYear = settings?.academicYear || "2024/2025";
     const activeWave = await getActiveWave(); // Fetch active wave
 
+    // Fetch Active Semesters to determine required grades
+    const activeSemesters = await db.semester.findMany({
+        where: {
+            isActive: true,
+            NOT: {
+                name: { contains: "Kelas 6 Semester 2" }
+            }
+        }
+    });
+    const requiredSemesterCount = activeSemesters.length || 5; // Fallback to 5
+
 
     const studentList = user?.students || [];
 
@@ -214,8 +225,7 @@ export default async function DashboardPage() {
                 const isPrestasiAkademik = student.jalur === "PRESTASI_AKADEMIK";
                 const gradeCount = student.grades?.semesterGrades?.length || 0;
                 // If not prestasi akademik, grades are considered "complete" for this check (as they are not required)
-                const gradesComplete = isPrestasiAkademik ? gradeCount >= 5 : true; // Assuming 5 semesters required
-
+                const gradesComplete = isPrestasiAkademik ? gradeCount >= requiredSemesterCount : true;
                 if (missingDocs.length === 0 && gradesComplete) return null;
 
                 return (
