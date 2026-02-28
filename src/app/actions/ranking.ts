@@ -35,8 +35,8 @@ export async function getRankingData(filters?: { waveId?: string; jalur?: JalurP
 
         // Smart Defaults for each Path (sum to 100%)
         const pathDefaults: Record<string, any> = {
-            "REGULER": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
-            "AFIRMASI": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
+            "REGULER": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
+            "AFIRMASI": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
             "PRESTASI_AKADEMIK": { rapor: 30, ujian: 30, skua: 30, prestasi: 10 },
             "PRESTASI_NON_AKADEMIK": { rapor: 0, ujian: 30, skua: 30, prestasi: 40 },
         };
@@ -176,8 +176,8 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
 
         // Process Scores Logic (to be reused)
         const pathDefaults: Record<string, any> = {
-            "REGULER": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
-            "AFIRMASI": { rapor: 0, ujian: 50, skua: 50, prestasi: 0 },
+            "REGULER": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
+            "AFIRMASI": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
             "PRESTASI_AKADEMIK": { rapor: 30, ujian: 30, skua: 30, prestasi: 10 },
             "PRESTASI_NON_AKADEMIK": { rapor: 0, ujian: 30, skua: 30, prestasi: 40 },
         };

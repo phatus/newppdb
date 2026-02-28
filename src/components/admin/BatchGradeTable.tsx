@@ -94,6 +94,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                             <tr>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-12 text-center">No</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">Nama Murid</th>
+                                <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">Jalur</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">Rata Raport</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">Teori (0-100)</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">SKUA (0-100)</th>
@@ -118,7 +119,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={7} className="text-center py-8 text-slate-500 italic bg-white dark:bg-slate-800">
+                                    <td colSpan={8} className="text-center py-8 text-slate-500 italic bg-white dark:bg-slate-800">
                                         Tidak ada murid yang ditemukan.
                                     </td>
                                 </tr>
@@ -333,15 +334,18 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
             <td className="px-6 py-3">
                 <div className="flex flex-col">
                     <p className="font-bold text-slate-900 dark:text-white">{student.namaLengkap}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs text-slate-500 font-mono">{student.nisn}</span>
-                        {isPrestasi && (
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-700 border border-yellow-200">
-                                PRESTASI
-                            </span>
-                        )}
-                    </div>
+                    <span className="text-xs text-slate-500 font-mono">{student.nisn}</span>
                 </div>
+            </td>
+            <td className="px-6 py-3">
+                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${student.jalur === 'REGULER'
+                    ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                    : student.jalur === 'AFIRMASI'
+                        ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                        : 'bg-yellow-100 text-yellow-700 border border-yellow-200'
+                    }`}>
+                    {student.jalur.replace('_', ' ')}
+                </span>
             </td>
             <td className="px-6 py-3">
                 <div className="w-full px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 rounded-md border border-transparent font-medium text-slate-700 dark:text-slate-300">

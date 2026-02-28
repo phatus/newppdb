@@ -235,15 +235,14 @@ export default async function DashboardPage() {
                 const docs = student.documents;
                 if (!docs?.fileKK) missingDocs.push("Kartu Keluarga");
                 if (!docs?.fileAkta) missingDocs.push("Akta Kelahiran");
-                // Check Raport (Only for PRESTASI_AKADEMIK)
-                if (student.jalur === "PRESTASI_AKADEMIK" && !docs?.fileRaport) missingDocs.push("Raport (PDF)");
+                // Check Raport (Included for PRESTASI_AKADEMIK, AFIRMASI, REGULER)
+                if ((student.jalur === "PRESTASI_AKADEMIK" || student.jalur === "AFIRMASI" || student.jalur === "REGULER") && !docs?.fileRaport) missingDocs.push("Raport (PDF)");
                 if (!docs?.pasFoto) missingDocs.push("Pas Foto");
 
                 // Check Grades
-                const isPrestasiAkademik = student.jalur === "PRESTASI_AKADEMIK";
+                const needsGrades = student.jalur === "PRESTASI_AKADEMIK" || student.jalur === "AFIRMASI" || student.jalur === "REGULER";
                 const gradeCount = student.grades?.semesterGrades?.length || 0;
-                // If not prestasi akademik, grades are considered "complete" for this check (as they are not required)
-                const gradesComplete = isPrestasiAkademik ? gradeCount >= requiredSemesterCount : true;
+                const gradesComplete = needsGrades ? gradeCount >= requiredSemesterCount : true;
                 if (missingDocs.length === 0 && gradesComplete) return null;
 
                 return (
@@ -261,7 +260,7 @@ export default async function DashboardPage() {
                                 </p>
 
                                 <div className="flex flex-wrap gap-2 mb-4">
-                                    {isPrestasiAkademik && !gradesComplete && (
+                                    {needsGrades && !gradesComplete && (
                                         <span className="px-2 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold rounded-md border border-amber-100 dark:border-amber-800">Nilai Raport</span>
                                     )}
                                     {missingDocs.map((doc, idx) => (
@@ -270,7 +269,7 @@ export default async function DashboardPage() {
                                 </div>
 
                                 <div className="flex gap-2">
-                                    {isPrestasiAkademik && !gradesComplete && (
+                                    {needsGrades && !gradesComplete && (
                                         <Link href={`/dashboard/student/grades?studentId=${student.id}`} className="inline-flex items-center gap-1.5 px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg transition-colors shadow-sm shadow-amber-900/20">
                                             <span className="material-symbols-outlined text-[14px]">edit_note</span>
                                             Input Nilai
