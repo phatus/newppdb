@@ -27,6 +27,10 @@ async function handler(req: Request, session: any, { params }: { params: { id: s
             return NextResponse.json({ message: "Akses ditolak" }, { status: 403 });
         }
 
+        if (existingStudent.statusVerifikasi === 'VERIFIED') {
+            return NextResponse.json({ message: "Data tidak dapat diubah karena sudah diverifikasi" }, { status: 400 });
+        }
+
         // Combine address parts for alamatLengkap
         const fullAddress = [
             body.alamatJalan,

@@ -70,6 +70,10 @@ export async function PUT(
             return NextResponse.json({ message: "Student not found or access denied" }, { status: 404 });
         }
 
+        if (existingStudent.statusVerifikasi === 'VERIFIED') {
+            return NextResponse.json({ message: "Data tidak dapat diubah karena sudah diverifikasi" }, { status: 400 });
+        }
+
         // Combine address parts
         const fullAddress = [body.alamatJalan, "RT " + body.alamatRt, "RW " + body.alamatRw, body.alamatDesa, body.alamatKecamatan, body.alamatKabupaten].filter(Boolean).join(", ");
 

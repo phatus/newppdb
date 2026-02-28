@@ -22,6 +22,10 @@ async function handler(req: Request, session: any) {
             return NextResponse.json({ message: "Student record not found or unauthorized" }, { status: 404 });
         }
 
+        if (student.statusVerifikasi === 'VERIFIED') {
+            return NextResponse.json({ message: "Dokumen tidak dapat diubah karena sudah diverifikasi" }, { status: 400 });
+        }
+
         const updatedDocs = await db.documents.upsert({
             where: { studentId: student.id },
             update: { [field]: url, [`status${field.replace('file', '').replace('pas', 'Pas')}`]: 'PENDING' },

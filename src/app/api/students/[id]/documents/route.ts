@@ -44,6 +44,10 @@ export async function PATCH(
             return NextResponse.json({ message: "Student not found" }, { status: 404 });
         }
 
+        if (student.statusVerifikasi === 'VERIFIED') {
+            return NextResponse.json({ message: "Dokumen tidak dapat diubah karena sudah diverifikasi" }, { status: 400 });
+        }
+
         // Create or update documents
         if (body.filePrestasi) {
             // Special handling for array push
