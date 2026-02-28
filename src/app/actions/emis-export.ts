@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function getAcceptedStudentsForEmis() {
+export async function getAcceptedStudentsForEmis(waveId?: string) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== "ADMIN") {
@@ -12,11 +12,16 @@ export async function getAcceptedStudentsForEmis() {
     }
 
     try {
+        const whereClause: any = {
+            statusVerifikasi: "VERIFIED",
+        };
+
+        if (waveId && waveId !== "all") {
+            whereClause.waveId = waveId;
+        }
+
         const students = await db.student.findMany({
-            where: {
-                statusVerifikasi: "VERIFIED", // Assuming we want verified students, or use statusKelulusan if available
-                // statusKelulusan: "LULUS" (Optional: enable this if you only want explicitly graduated students)
-            },
+            where: whereClause,
             orderBy: {
                 namaLengkap: "asc",
             },

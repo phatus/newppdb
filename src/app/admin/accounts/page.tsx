@@ -1,7 +1,5 @@
 import { db } from "@/lib/db";
 import UserManagement from "@/components/admin/settings/UserManagement";
-import ExportCbtButton from "@/components/admin/ExportCbtButton";
-import PhotoExportButton from "@/components/admin/PhotoExportButton";
 
 export default async function AccountsPage() {
     // Fetch users for the management component
@@ -24,10 +22,6 @@ export default async function AccountsPage() {
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Manajemen Akun</h1>
                     <p className="text-slate-500 dark:text-slate-400">Kelola akun pengguna administrator dan pendaftar.</p>
-                </div>
-                <div className="flex gap-3">
-                    <ExportCbtButton />
-                    <PhotoExportButton />
                 </div>
             </div>
 

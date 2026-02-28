@@ -4,7 +4,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { getAcceptedStudentsForEmis } from "@/app/actions/emis-export";
 
-export default function PhotoExportButton() {
+export default function PhotoExportButton({ waveId }: { waveId?: string }) {
     const [isLoading, setIsLoading] = useState(false);
 
     const handlePhotoExport = async () => {
@@ -13,7 +13,7 @@ export default function PhotoExportButton() {
 
         try {
             // 1. Fetch Students
-            const res = await getAcceptedStudentsForEmis();
+            const res = await getAcceptedStudentsForEmis(waveId);
             if (!res.success || !res.data || res.data.length === 0) {
                 toast.error("Tidak ada data murid untuk diexport", { id: toastId });
                 return;

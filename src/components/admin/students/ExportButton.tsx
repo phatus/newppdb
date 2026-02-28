@@ -21,7 +21,7 @@ export default function ExportButton({ students }: ExportButtonProps) {
             "NISN": student.nisn,
             "Asal Sekolah": student.asalSekolah || "-",
             "Jalur Pendaftaran": student.jalur.replace(/_/g, " "),
-            "Email": student.email || "-", // Assuming email might be joined from User or implicitly known if needed, but schema has email in User.
+            "Email": student.user?.email || student.email || "-",
             // Note: student object from findMany default might not have email if not included. 
             // In page.tsx line 25, verify if 'user' is included. It is NOT included in the current `db.student.findMany`.
             // I should update page.tsx to include user if we want email.

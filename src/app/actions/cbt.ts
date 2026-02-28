@@ -3,13 +3,19 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 
-export async function getCbtExportData() {
+export async function getCbtExportData(waveId?: string) {
     try {
+        const whereClause: any = {
+            statusVerifikasi: "VERIFIED",
+            nomorUjian: { not: null },
+        };
+
+        if (waveId && waveId !== "all") {
+            whereClause.waveId = waveId;
+        }
+
         const students = await db.student.findMany({
-            where: {
-                statusVerifikasi: "VERIFIED",
-                nomorUjian: { not: null }, // Only students with exam numbers
-            },
+            where: whereClause,
             select: {
                 nomorUjian: true,
                 namaLengkap: true,

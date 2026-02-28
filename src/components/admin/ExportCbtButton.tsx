@@ -5,13 +5,13 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import * as XLSX from "xlsx";
 
-export default function ExportCbtButton() {
+export default function ExportCbtButton({ waveId }: { waveId?: string }) {
     const [loading, setLoading] = useState(false);
 
     const handleExport = async () => {
         setLoading(true);
         try {
-            const data = await getCbtExportData();
+            const data = await getCbtExportData(waveId);
 
             if (data.length === 0) {
                 toast.error("Tidak ada data murid terverifikasi dengan nomor ujian.");
