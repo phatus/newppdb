@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import StudentRowCard from "@/components/dashboard/StudentRowCard";
 import Link from "next/link";

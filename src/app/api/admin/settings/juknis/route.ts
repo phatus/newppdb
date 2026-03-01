@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { deleteFile } from "@/lib/file-utils";
 import { uploadBufferToS3 } from "@/lib/s3-client";
-import { deleteFile } from "@/lib/file-utils";
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/audit";
 
