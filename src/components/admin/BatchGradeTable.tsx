@@ -10,6 +10,7 @@ interface StudentProps {
     namaLengkap: string;
     nisn: string;
     jalur: string;
+    statusKelulusan: string;
     grades?: {
         nilaiUjianTeori: number | null;
         nilaiUjianSKUA: number | null;
@@ -414,10 +415,19 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
                 )}
             </td>
             <td className="px-6 py-3 text-center">
-                {status === "saving" && <span className="material-symbols-outlined animate-spin text-slate-400 text-lg">sync</span>}
-                {status === "saved" && <span className="material-symbols-outlined text-green-500 text-lg animate-in zoom-in">check_circle</span>}
-                {status === "error" && <span className="material-symbols-outlined text-red-500 text-lg">error</span>}
-                {status === "idle" && <span className="block w-4 h-4"></span>}
+                <div className="flex items-center justify-center gap-2">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${student.statusKelulusan === "LULUS" ? "bg-emerald-100 text-emerald-700" :
+                        student.statusKelulusan === "TIDAK_LULUS" ? "bg-red-100 text-red-700" :
+                            "bg-slate-100 text-slate-700"
+                        }`}>
+                        {student.statusKelulusan === "LULUS" ? "DITERIMA" :
+                            student.statusKelulusan === "TIDAK_LULUS" ? "TIDAK DITERIMA" :
+                                "PENDING"}
+                    </span>
+                    {status === "saving" && <span className="material-symbols-outlined animate-spin text-slate-400 text-lg">sync</span>}
+                    {status === "saved" && <span className="material-symbols-outlined text-green-500 text-lg animate-in zoom-in">check_circle</span>}
+                    {status === "error" && <span className="material-symbols-outlined text-red-500 text-lg">error</span>}
+                </div>
             </td>
         </tr>
     );
