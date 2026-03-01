@@ -60,6 +60,15 @@ export default async function UserAnnouncementsPage() {
                                     <div className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
                                         {item.content}
                                     </div>
+                                    {item.image && (
+                                        <div className="mt-4 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
+                                            <img
+                                                src={item.image}
+                                                alt={item.title}
+                                                className="w-full h-auto max-h-[400px] object-cover hover:scale-105 transition-transform duration-500"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -13,6 +13,7 @@ export interface Announcement {
     type: "INFO" | "WARNING" | "IMPORTANT";
     target: "ALL" | "USER" | "VERIFIED";
     isActive: boolean;
+    image: string | null;
     createdAt: Date;
     authorId: string;
 }
@@ -45,6 +46,7 @@ export async function createAnnouncement(data: {
     content: string;
     type: string;
     target: string;
+    image?: string | null;
 }) {
     try {
         const session = await getServerSession(authOptions);
@@ -71,8 +73,8 @@ export async function createAnnouncement(data: {
         // Note: Postgres strings must be single quoted. We use parameterized query via executeRawUnsafe properly if possible?
         // $executeRawUnsafe supports params array.
         const query = `
-            INSERT INTO "Announcement" ("id", "title", "content", "type", "target", "isActive", "authorId", "createdAt", "updatedAt")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8::timestamp, $9::timestamp)
+            INSERT INTO "Announcement" ("id", "title", "content", "type", "target", "isActive", "authorId", "image", "createdAt", "updatedAt")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::timestamp, $10::timestamp)
         `;
 
         await db.$executeRawUnsafe(
@@ -84,6 +86,7 @@ export async function createAnnouncement(data: {
             data.target,
             true,
             user.id,
+            data.image || null,
             now,
             now
         );
@@ -97,6 +100,49 @@ export async function createAnnouncement(data: {
     } catch (error) {
         console.error("Error creating announcement (Detailed):", error);
         return { success: false, error: "Gagal membuat pengumuman: " + (error as Error).message };
+    }
+}
+
+export async function updateAnnouncement(id: string, data: {
+    title: string;
+    content: string;
+    type: string;
+    target: string;
+    image?: string | null;
+}) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || session.user.role !== "ADMIN") {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const now = new Date().toISOString();
+
+        const query = `
+            UPDATE "Announcement" 
+            SET "title" = $1, "content" = $2, "type" = $3, "target" = $4, "image" = $5, "updatedAt" = $6::timestamp
+            WHERE "id" = $7
+        `;
+
+        await db.$executeRawUnsafe(
+            query,
+            data.title,
+            data.content,
+            data.type,
+            data.target,
+            data.image || null,
+            now,
+            id
+        );
+
+        await logActivity("UPDATE_ANNOUNCEMENT", "ANNOUNCEMENT", id, `Title: ${data.title}`);
+
+        revalidatePath("/admin/announcements");
+        revalidatePath("/dashboard");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating announcement:", error);
+        return { success: false, error: "Gagal memperbarui pengumuman" };
     }
 }
 

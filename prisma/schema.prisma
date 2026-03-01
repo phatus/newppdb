@@ -105,6 +105,8 @@ model Announcement {
   target    String   @default("ALL")  // ALL, USER, VERIFIED
   isActive  Boolean  @default(true)
   
+  image     String?   @db.Text
+  
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
 

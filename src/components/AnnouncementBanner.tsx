@@ -12,14 +12,14 @@ export default function AnnouncementBanner({ announcements }: { announcements: A
                 <div
                     key={item.id}
                     className={`p-4 rounded-xl border-l-4 shadow-sm animate-in slide-in-from-top-2 ${item.type === 'IMPORTANT' ? 'bg-red-50 border-red-500 text-red-900' :
-                            item.type === 'WARNING' ? 'bg-amber-50 border-amber-500 text-amber-900' :
-                                'bg-blue-50 border-blue-500 text-blue-900'
+                        item.type === 'WARNING' ? 'bg-amber-50 border-amber-500 text-amber-900' :
+                            'bg-blue-50 border-blue-500 text-blue-900'
                         }`}
                 >
                     <div className="flex items-start gap-4">
                         <div className={`p-2 rounded-full ${item.type === 'IMPORTANT' ? 'bg-red-100 text-red-600' :
-                                item.type === 'WARNING' ? 'bg-amber-100 text-amber-600' :
-                                    'bg-blue-100 text-blue-600'
+                            item.type === 'WARNING' ? 'bg-amber-100 text-amber-600' :
+                                'bg-blue-100 text-blue-600'
                             }`}>
                             <span className="material-symbols-outlined">
                                 {item.type === 'IMPORTANT' ? 'campaign' : item.type === 'WARNING' ? 'warning' : 'info'}
@@ -33,6 +33,11 @@ export default function AnnouncementBanner({ announcements }: { announcements: A
                                 </span>
                             </div>
                             <p className="text-sm opacity-90 whitespace-pre-wrap">{item.content}</p>
+                            {item.image && (
+                                <div className="mt-3 rounded-lg overflow-hidden border border-black/10">
+                                    <img src={item.image} alt={item.title} className="w-full h-auto max-h-[300px] object-cover" />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
