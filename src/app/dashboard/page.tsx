@@ -330,7 +330,6 @@ export default async function DashboardPage() {
 
             {/* Student List */}
             <StudentListManager
-                students={studentList}
                 allActiveWaves={allActiveWaves}
                 showGraduationStatus={totalStudents > 1}
             />
