@@ -10,6 +10,7 @@ export default function AnnouncementManager({ announcements }: { announcements: 
     const [isInternalLoading, setIsInternalLoading] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [isPreviewMode, setIsPreviewMode] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -23,6 +24,7 @@ export default function AnnouncementManager({ announcements }: { announcements: 
     const resetForm = () => {
         setFormData({ title: "", content: "", type: "INFO", target: "ALL", image: null });
         setEditingId(null);
+        setIsPreviewMode(false);
     };
 
     const handleEdit = (announcement: Announcement) => {
@@ -34,6 +36,7 @@ export default function AnnouncementManager({ announcements }: { announcements: 
             image: announcement.image
         });
         setEditingId(announcement.id);
+        setIsPreviewMode(false);
         setShowModal(true);
     };
 
@@ -192,109 +195,188 @@ export default function AnnouncementManager({ announcements }: { announcements: 
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in">
-                    <div className="bg-white dark:bg-slate-900 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95">
                         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                            <h3 className="font-bold text-lg">{editingId ? 'Edit Pengumuman' : 'Buat Pengumuman Baru'}</h3>
+                            <div className="flex items-center gap-4">
+                                <h3 className="font-bold text-lg">{editingId ? 'Edit Pengumuman' : 'Buat Pengumuman Baru'}</h3>
+                                <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                                    <button
+                                        onClick={() => setIsPreviewMode(false)}
+                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${!isPreviewMode ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500'}`}
+                                    >
+                                        Form
+                                    </button>
+                                    <button
+                                        onClick={() => setIsPreviewMode(true)}
+                                        className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${isPreviewMode ? 'bg-white dark:bg-slate-700 shadow-sm text-primary' : 'text-slate-500'}`}
+                                    >
+                                        Pratinjau
+                                    </button>
+                                </div>
+                            </div>
                             <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600">
                                 <span className="material-symbols-outlined">close</span>
                             </button>
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-bold mb-1">Judul</label>
-                                <input
-                                    required
-                                    type="text"
-                                    value={formData.title}
-                                    onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-sm"
-                                    placeholder="Contoh: Jadwal Ujian Diundur"
-                                />
-                            </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                        {!isPreviewMode ? (
+                            <form onSubmit={handleSubmit} className="p-6 space-y-4">
                                 <div>
-                                    <label className="block text-sm font-bold mb-1">Tipe</label>
-                                    <select
-                                        value={formData.type}
-                                        onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                    <label className="block text-sm font-bold mb-1">Judul</label>
+                                    <input
+                                        required
+                                        type="text"
+                                        value={formData.title}
+                                        onChange={e => setFormData({ ...formData, title: e.target.value })}
                                         className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-sm"
-                                    >
-                                        <option value="INFO">Informasi</option>
-                                        <option value="WARNING">Peringatan</option>
-                                        <option value="IMPORTANT">Penting</option>
-                                    </select>
+                                        placeholder="Contoh: Jadwal Ujian Diundur"
+                                    />
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-bold mb-1">Target</label>
-                                    <select
-                                        value={formData.target}
-                                        onChange={e => setFormData({ ...formData, target: e.target.value })}
-                                        className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-sm"
-                                    >
-                                        <option value="ALL">Semua</option>
-                                        <option value="USER">Pendaftar</option>
-                                        <option value="VERIFIED">Terverifikasi</option>
-                                    </select>
-                                </div>
-                            </div>
 
-                            <div>
-                                <label className="block text-sm font-bold mb-1 px-1">Gambar (Opsional)</label>
-                                <div className="flex items-center gap-4">
-                                    {formData.image ? (
-                                        <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200">
-                                            <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, image: null }))}
-                                                className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-bl-lg"
-                                            >
-                                                <span className="material-symbols-outlined text-[16px]">close</span>
-                                            </button>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Tipe</label>
+                                        <select
+                                            value={formData.type}
+                                            onChange={e => setFormData({ ...formData, type: e.target.value })}
+                                            className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-sm"
+                                        >
+                                            <option value="INFO">Informasi</option>
+                                            <option value="WARNING">Peringatan</option>
+                                            <option value="IMPORTANT">Penting</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-bold mb-1">Target</label>
+                                        <select
+                                            value={formData.target}
+                                            onChange={e => setFormData({ ...formData, target: e.target.value })}
+                                            className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-sm"
+                                        >
+                                            <option value="ALL">Semua</option>
+                                            <option value="USER">Pendaftar</option>
+                                            <option value="VERIFIED">Terverifikasi</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 px-1">Gambar (Opsional)</label>
+                                    <div className="flex items-center gap-4">
+                                        {formData.image ? (
+                                            <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-slate-200">
+                                                <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, image: null }))}
+                                                    className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-bl-lg"
+                                                >
+                                                    <span className="material-symbols-outlined text-[16px]">close</span>
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <label className="w-20 h-20 rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors">
+                                                <span className="material-symbols-outlined text-slate-400">add_photo_alternate</span>
+                                                <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                                            </label>
+                                        )}
+                                        <p className="text-[11px] text-slate-500 flex-1">
+                                            Klik untuk unggah gambar pendukung pengumuman. Format JPG/PNG, max 2MB.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-bold mb-1">Isi Pengumuman</label>
+                                    <textarea
+                                        required
+                                        rows={4}
+                                        value={formData.content}
+                                        onChange={e => setFormData({ ...formData, content: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-sm"
+                                        placeholder="Tulis detail pengumuman di sini..."
+                                    />
+                                </div>
+
+                                <div className="pt-4 flex justify-end gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowModal(false)}
+                                        className="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg text-sm"
+                                    >
+                                        Batal
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isInternalLoading}
+                                        className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2 text-sm"
+                                    >
+                                        {isInternalLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
+                                        {editingId ? 'Simpan' : 'Publish'}
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <div className="p-6 bg-slate-50 dark:bg-slate-800/50 min-h-[400px]">
+                                <div className="mb-4 flex items-center justify-between">
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tampilan Dashboard Pendaftar</span>
+                                </div>
+
+                                <div
+                                    className={`p-5 rounded-xl border bg-white dark:bg-[#1e293b] shadow-sm ${formData.type === 'IMPORTANT' ? 'border-l-4 border-l-red-500 border-red-100 dark:border-red-900/30' :
+                                        formData.type === 'WARNING' ? 'border-l-4 border-l-amber-500 border-amber-100 dark:border-amber-900/30' :
+                                            'border-l-4 border-l-blue-500 border-slate-200 dark:border-slate-700'
+                                        }`}
+                                >
+                                    <div className="flex items-start gap-4">
+                                        <div className={`p-2.5 rounded-full shrink-0 ${formData.type === 'IMPORTANT' ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400' :
+                                            formData.type === 'WARNING' ? 'bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400' :
+                                                'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400'
+                                            }`}>
+                                            <span className="material-symbols-outlined text-[24px]">
+                                                {formData.type === 'IMPORTANT' ? 'campaign' : formData.type === 'WARNING' ? 'warning' : 'info'}
+                                            </span>
                                         </div>
-                                    ) : (
-                                        <label className="w-20 h-20 rounded-lg border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors">
-                                            <span className="material-symbols-outlined text-slate-400">add_photo_alternate</span>
-                                            <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                                        </label>
-                                    )}
-                                    <p className="text-[11px] text-slate-500 flex-1">
-                                        Klik untuk unggah gambar pendukung pengumuman. Format JPG/PNG, max 2MB.
-                                    </p>
+                                        <div className="flex-1 space-y-2">
+                                            <div className="flex items-start justify-between gap-4">
+                                                <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
+                                                    {formData.title || "Judul Pengumuman"}
+                                                </h3>
+                                                <span className="text-xs font-medium text-slate-400 whitespace-nowrap pt-1">
+                                                    {new Date().toLocaleDateString('id-ID', {
+                                                        day: 'numeric',
+                                                        month: 'long',
+                                                        year: 'numeric'
+                                                    })}
+                                                </span>
+                                            </div>
+                                            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+                                                {formData.content || "Isi pengumuman akan muncul di sini..."}
+                                            </div>
+                                            {formData.image && (
+                                                <div className="mt-4 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
+                                                    <img
+                                                        src={formData.image}
+                                                        alt="Preview"
+                                                        className="w-full h-auto max-h-[300px] object-cover"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-8 flex justify-center">
+                                    <button
+                                        onClick={() => setIsPreviewMode(false)}
+                                        className="px-4 py-2 text-sm font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-2"
+                                    >
+                                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                                        Kembali ke Form
+                                    </button>
                                 </div>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-bold mb-1">Isi Pengumuman</label>
-                                <textarea
-                                    required
-                                    rows={4}
-                                    value={formData.content}
-                                    onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-transparent text-sm"
-                                    placeholder="Tulis detail pengumuman di sini..."
-                                />
-                            </div>
-
-                            <div className="pt-4 flex justify-end gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                    className="px-4 py-2 text-slate-600 font-bold hover:bg-slate-100 rounded-lg text-sm"
-                                >
-                                    Batal
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isInternalLoading}
-                                    className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50 flex items-center gap-2 text-sm"
-                                >
-                                    {isInternalLoading && <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />}
-                                    {editingId ? 'Simpan' : 'Publish'}
-                                </button>
-                            </div>
-                        </form>
+                        )}
                     </div>
                 </div>
             )}
