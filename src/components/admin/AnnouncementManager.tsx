@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { createAnnouncement, updateAnnouncement, deleteAnnouncement, toggleAnnouncement, Announcement } from "@/app/actions/announcements";
 import { useRouter } from "next/navigation";
+import ClickableContent from "../ClickableContent";
 
 export default function AnnouncementManager({ announcements }: { announcements: Announcement[] }) {
     const router = useRouter();
@@ -350,15 +351,16 @@ export default function AnnouncementManager({ announcements }: { announcements: 
                                                     })}
                                                 </span>
                                             </div>
-                                            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
-                                                {formData.content || "Isi pengumuman akan muncul di sini..."}
-                                            </div>
+                                            <ClickableContent
+                                                content={formData.content}
+                                                className="prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-wrap"
+                                            />
                                             {formData.image && (
                                                 <div className="mt-4 rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800 shadow-sm">
                                                     <img
                                                         src={formData.image}
                                                         alt="Preview"
-                                                        className="w-full h-auto max-h-[300px] object-cover"
+                                                        className="w-full h-auto max-h-[300px] object-contain"
                                                     />
                                                 </div>
                                             )}
