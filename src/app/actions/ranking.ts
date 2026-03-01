@@ -100,6 +100,7 @@ interface UpdateScoreData {
     theory?: number;
     skua?: number;
     achievement?: number;
+    reportAvg?: number;
 }
 
 export async function updateStudentScore(studentId: string, data: UpdateScoreData) {
@@ -110,12 +111,14 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
                 studentId,
                 nilaiUjianTeori: data.theory,
                 nilaiUjianSKUA: data.skua,
-                nilaiPrestasi: data.achievement
+                nilaiPrestasi: data.achievement,
+                rataRataNilai: data.reportAvg
             },
             update: {
                 nilaiUjianTeori: data.theory,
                 nilaiUjianSKUA: data.skua,
-                nilaiPrestasi: data.achievement
+                nilaiPrestasi: data.achievement,
+                rataRataNilai: data.reportAvg
             }
         });
 

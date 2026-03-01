@@ -14,7 +14,8 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
     const [editForm, setEditForm] = useState({
         theory: 0,
         skua: 0,
-        achievement: 0
+        achievement: 0,
+        reportAvg: 0
     });
     const [loading, setLoading] = useState(false);
 
@@ -34,7 +35,8 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
         setEditForm({
             theory: student.grades?.nilaiUjianTeori || 0,
             skua: student.grades?.nilaiUjianSKUA || 0,
-            achievement: student.grades?.nilaiPrestasi || 0
+            achievement: student.grades?.nilaiPrestasi || 0,
+            reportAvg: student.grades?.rataRataNilai || 0
         });
     };
 
@@ -206,7 +208,6 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
                         ) : (
                             filteredData.map((student, idx) => {
                                 const isRegulerLike = student.jalur === "REGULER" || student.jalur === "AFIRMASI";
-                                const isNoRaporPath = isRegulerLike || student.jalur === "PRESTASI_NON_AKADEMIK";
 
                                 return (
                                     <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -230,7 +231,17 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
 
                                         {/* Rapor Average */}
                                         <td className="p-4 text-center font-mono text-slate-700 dark:text-slate-300">
-                                            {isNoRaporPath ? "-" : (student.grades?.rataRataNilai?.toFixed(2) || "-")}
+                                            {editingId === student.id ? (
+                                                <input
+                                                    type="number"
+                                                    step="0.01"
+                                                    className="w-16 p-1 border rounded text-center text-sm"
+                                                    value={editForm.reportAvg}
+                                                    onChange={e => setEditForm({ ...editForm, reportAvg: parseFloat(e.target.value) || 0 })}
+                                                />
+                                            ) : (
+                                                student.grades?.rataRataNilai?.toFixed(2) || "-"
+                                            )}
                                         </td>
 
                                         {/* Theory/Exam Scores (Always visible, but might be 0 weight) */}
