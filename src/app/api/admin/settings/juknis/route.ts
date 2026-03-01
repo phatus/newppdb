@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { db } from "@/lib/db";
+import { deleteFile } from "@/lib/file-utils";
+import { uploadBufferToS3 } from "@/lib/s3-client";
 import { deleteFile } from "@/lib/file-utils";
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/audit";
@@ -34,19 +34,9 @@ export async function POST(req: Request) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const filename = `juknis_${Date.now()}.pdf`;
 
-        const uploadDir = path.join(process.cwd(), "public/uploads");
-        try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (e) {
-            // Ignore
-        }
-
-        const filepath = path.join(uploadDir, filename);
-        await writeFile(filepath, buffer);
-
-        const fileUrl = `/uploads/${filename}`;
+        // Upload to S3 instead of local FS
+        const fileUrl = await uploadBufferToS3(buffer, file.name, file.type);
 
         // Update database
         const first = await db.schoolSettings.findFirst();

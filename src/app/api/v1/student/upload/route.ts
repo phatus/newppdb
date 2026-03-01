@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/api-middleware";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { uploadBufferToS3 } from "@/lib/s3-client";
 
 async function handler(req: Request, session: any) {
     try {
@@ -13,20 +12,12 @@ async function handler(req: Request, session: any) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const filename = Date.now() + "_" + file.name.replaceAll(" ", "_");
 
-        const uploadDir = path.join(process.cwd(), "public/uploads");
-        try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (e) { }
-
-        const filepath = path.join(uploadDir, filename);
-        await writeFile(filepath, buffer);
-
-        const fileUrl = `/uploads/${filename}`;
+        // Upload to S3 instead of local FS
+        const fileUrl = await uploadBufferToS3(buffer, file.name, file.type);
 
         return NextResponse.json({
-            message: "File uploaded successfully",
+            message: "File uploaded successfully to Cloud Storage",
             url: fileUrl,
             filename: file.name
         }, { status: 201 });

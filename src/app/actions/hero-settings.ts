@@ -2,9 +2,8 @@
 
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 import { deleteFile } from "@/lib/file-utils";
+import { uploadBufferToS3 } from "@/lib/s3-client";
 
 export async function updateHeroImage(formData: FormData) {
     try {
@@ -26,20 +25,9 @@ export async function updateHeroImage(formData: FormData) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const ext = path.extname(file.name);
-        const filename = `hero_bg_${Date.now()}${ext}`;
 
-        const uploadDir = path.join(process.cwd(), "public/uploads");
-        try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (e) {
-            // Ignore if exists
-        }
-
-        const filepath = path.join(uploadDir, filename);
-        await writeFile(filepath, buffer);
-
-        const imageUrl = `/uploads/${filename}`;
+        // Upload to S3 instead of local FS
+        const imageUrl = await uploadBufferToS3(buffer, file.name, file.type);
 
         // Update database (Raw SQL for safety against stale client)
         const first = await db.schoolSettings.findFirst();

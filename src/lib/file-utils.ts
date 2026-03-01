@@ -1,12 +1,18 @@
 import { unlink } from "fs/promises";
 import path from "path";
+import { deleteFromS3 } from "./s3-client";
 
 /**
- * Safely deletes a file from the public/uploads directory.
- * @param fileUrl The relative URL of the file (e.g., "/uploads/filename.png")
+ * Safely deletes a file from the public/uploads directory or Cloudflare R2 bucket.
+ * @param fileUrl The relative URL of the file (e.g., "/uploads/filename.png") or R2 public URL
  */
 export async function deleteFile(fileUrl: string | null | undefined) {
     if (!fileUrl || typeof fileUrl !== 'string') return;
+
+    // Check if it's a remote URL (S3/R2)
+    if (fileUrl.startsWith('http')) {
+        return await deleteFromS3(fileUrl);
+    }
 
     // Only allow deletion of files within the /uploads/ directory for security
     if (!fileUrl.startsWith("/uploads/")) {

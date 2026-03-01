@@ -187,7 +187,7 @@ export async function updateSettings(data: {
 }
 
 import { deleteFile } from "@/lib/file-utils";
-import { writeFile, mkdir } from "fs/promises";
+import { uploadBufferToS3 } from "@/lib/s3-client";
 import path from "path";
 
 export async function updateLogo(formData: FormData) {
@@ -210,22 +210,9 @@ export async function updateLogo(formData: FormData) {
         }
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        // Clean filename and add timestamp to avoid cache issues
-        const ext = path.extname(file.name);
-        const filename = `school_logo_${Date.now()}${ext}`;
 
-        // Ensure upload directory exists
-        const uploadDir = path.join(process.cwd(), "public/uploads");
-        try {
-            await mkdir(uploadDir, { recursive: true });
-        } catch (e) {
-            // Ignore if exists
-        }
-
-        const filepath = path.join(uploadDir, filename);
-        await writeFile(filepath, buffer);
-
-        const logoUrl = `/uploads/${filename}`;
+        // Upload to S3 instead of local FS
+        const logoUrl = await uploadBufferToS3(buffer, file.name, file.type);
 
         // Update database and delete old file
         const first = await db.schoolSettings.findFirst();
@@ -311,18 +298,23 @@ export async function updateRankingWeights(data: {
         }
 
         if (first) {
-            // Use RAW QUERY to bypass stale Prisma Client (EPERM error preventing regeneration)
-            // We assume table name is "SchoolSettings" and columns are camelCase as per schema default
+            // Use parameterized query to bypass stale Prisma Client but prevent SQL Injection
             const query = `
                 UPDATE "SchoolSettings" 
-                SET "weightRapor" = ${data.weightRapor}, 
-                    "weightUjian" = ${data.weightUjian}, 
-                    "weightSKUA" = ${data.weightSKUA} 
-                WHERE "id" = '${first.id}'
+                SET "weightRapor" = $1, 
+                    "weightUjian" = $2, 
+                    "weightSKUA" = $3 
+                WHERE "id" = $4
             `;
 
-            // We use executeRawUnsafe because parameterized executeRaw needs distinct template parts
-            await db.$executeRawUnsafe(query);
+            // We use parameterized executeRawUnsafe to prevent SQL Injection
+            await db.$executeRawUnsafe(
+                query,
+                data.weightRapor,
+                data.weightUjian,
+                data.weightSKUA,
+                first.id
+            );
 
             // Also try standard update for standard fields if needed, but not here.
         }
@@ -345,13 +337,9 @@ export async function updateSignature(formData: FormData) {
         if (!file) return { success: false, error: "Tidak ada file" };
 
         const buffer = Buffer.from(await file.arrayBuffer());
-        const ext = path.extname(file.name);
-        const filename = `signature_${Date.now()}${ext}`;
-        const uploadDir = path.join(process.cwd(), "public/uploads");
-        const filepath = path.join(uploadDir, filename);
 
-        await writeFile(filepath, buffer);
-        const sigUrl = `/uploads/${filename}`;
+        // Upload to S3 instead of local FS
+        const sigUrl = await uploadBufferToS3(buffer, file.name, file.type);
 
         const first = await db.schoolSettings.findFirst();
         if (first) {

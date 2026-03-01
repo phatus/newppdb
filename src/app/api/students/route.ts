@@ -117,20 +117,50 @@ export async function GET(req: Request) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const students = await db.student.findMany({
-            where: {
-                userId: session.user.id
-            },
-            include: {
-                documents: true,
-                grades: true
-            },
-            orderBy: {
-                createdAt: 'desc'
+        const url = new URL(req.url);
+        const page = parseInt(url.searchParams.get("page") || "1");
+        const limit = parseInt(url.searchParams.get("limit") || "10");
+        const query = url.searchParams.get("query") || "";
+        const skip = (page - 1) * limit;
+
+        const baseWhere: any = {
+            userId: session.user.id
+        };
+
+        if (query) {
+            baseWhere.OR = [
+                { namaLengkap: { contains: query, mode: "insensitive" } },
+                { nisn: { contains: query, mode: "insensitive" } }
+            ]
+        }
+
+        const [students, total] = await db.$transaction([
+            db.student.findMany({
+                where: baseWhere,
+                include: {
+                    documents: true,
+                    grades: true,
+                    wave: true,
+                    history: { orderBy: { createdAt: 'desc' } }
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                },
+                skip,
+                take: limit
+            }),
+            db.student.count({ where: baseWhere })
+        ]);
+
+        return NextResponse.json({
+            students,
+            pagination: {
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit)
             }
         });
-
-        return NextResponse.json({ students });
 
     } catch (error) {
         console.error("Fetch students error:", error);
