@@ -15,6 +15,17 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Copy .env from production folder
+        run: |
+          # Change this path to your actual .env location if different
+          if [ -f "/www/wwwroot/newppdb/.env" ]; then
+            cp /www/wwwroot/newppdb/.env .
+          elif [ -f "../../.env" ]; then # Fallback for relative paths in runner
+            cp ../../.env .
+          else
+            echo "Warning: .env file not found. Database commands might fail."
+          fi
+
       - name: Generate Prisma Client
         run: npx prisma generate
 
@@ -24,10 +35,22 @@ jobs:
       - name: Build Application
         run: npm run build
 
+      - name: Deploy to Production Directory
+        run: |
+          # Sync build result to the actual production folder
+          # -a: archive mode, -v: verbose, -z: compress, --delete: remove files in dest that are not in source
+          # Excluding node_modules and .git to save time (we already did npm install in previous step, 
+          # but usually we sync everything except .git and then npm install/build in dest, 
+          # or build in runner and sync build + node_modules)
+          
+          rsync -avz --delete --exclude '.git' --exclude '.github' --exclude 'node_modules' . /www/wwwroot/newppdb/
+          
+          # We also need node_modules in production. 
+          # Option A: rsync it (slow)
+          # Option B: cd and npm install (safer if different node versions, but here it's the same machine)
+          rsync -avz --exclude '.git' node_modules /www/wwwroot/newppdb/
+
       - name: Restart Application
         run: |
-          # If using PM2 (recommended in LIVE_UPDATE_INSTRUCTIONS.md)
+          cd /www/wwwroot/newppdb
           pm2 restart newppdb || pm2 start npm --name "newppdb" -- start
-          
-          # If not using PM2 but aaPanel Node Manager, it usually detects file changes, 
-          # but a manual restart is safer if enabled.
