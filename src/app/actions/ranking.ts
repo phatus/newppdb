@@ -15,6 +15,10 @@ type RankedStudent = StudentWithRelations & {
     grades: (Grades & { finalScore: number }) | null;
 };
 
+/**
+ * Fetches and ranks student data with optional pagination and filters.
+ * Returns an object containing the ranked students and total count.
+ */
 export async function getRankingData(filters?: { waveId?: string; jalur?: JalurPendaftaran }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
     try {
         // 1. Fetch Students who are verified
