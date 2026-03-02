@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Suspense } from "react";
+import PaginationControl from "@/components/admin/PaginationControl";
 // import { toast } from "react-hot-toast"; // Keeping generic toast for other potential uses if needed, or remove. 
 // Swal handles notifications for delete now.
 import Swal from "sweetalert2";
@@ -9,9 +11,13 @@ import { deleteStudents, deleteAllStudents } from "@/app/actions/students";
 
 interface StudentTableProps {
     students: any[];
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
 }
 
-export default function StudentTable({ students }: StudentTableProps) {
+export default function StudentTable({ students, currentPage, totalPages, totalItems, itemsPerPage }: StudentTableProps) {
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -186,7 +192,7 @@ export default function StudentTable({ students }: StudentTableProps) {
                                                 className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
                                             />
                                         </td>
-                                        <td className="px-6 py-4 text-slate-500">{index + 1}</td>
+                                        <td className="px-6 py-4 text-slate-500">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                                         <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">{student.namaLengkap}</td>
                                         <td className="px-6 py-4 text-slate-500 font-mono">{student.nisn}</td>
                                         <td className="px-6 py-4 text-slate-500">{student.asalSekolah || "-"}</td>
@@ -233,21 +239,28 @@ export default function StudentTable({ students }: StudentTableProps) {
                     </table>
                 </div>
 
-                {/* Footer with Delete All */}
+                {/* Footer */}
                 <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="text-sm text-slate-500">
-                        Total: <span className="font-bold text-slate-900 dark:text-white">{students.length}</span> Murid
+                    <div className="flex items-center gap-4">
+                        {students.length > 0 && (
+                            <button
+                                onClick={handleDeleteAll}
+                                className="text-xs text-red-500 hover:text-red-700 hover:underline flex items-center gap-1 opacity-70 hover:opacity-100 transition-all font-medium"
+                            >
+                                <span className="material-symbols-outlined text-[16px]">dangerous</span>
+                                Reset (Hapus Semua Data)
+                            </button>
+                        )}
                     </div>
 
-                    {students.length > 0 && (
-                        <button
-                            onClick={handleDeleteAll}
-                            className="text-xs text-red-500 hover:text-red-700 hover:underline flex items-center gap-1 opacity-70 hover:opacity-100 transition-all font-medium"
-                        >
-                            <span className="material-symbols-outlined text-[16px]">dangerous</span>
-                            Reset (Hapus Semua Data)
-                        </button>
-                    )}
+                    <Suspense fallback={null}>
+                        <PaginationControl
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={totalItems}
+                            itemsPerPage={itemsPerPage}
+                        />
+                    </Suspense>
                 </div>
             </div>
         </div>

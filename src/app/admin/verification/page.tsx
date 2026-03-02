@@ -3,59 +3,61 @@ import Link from "next/link";
 import SearchInput from "@/components/admin/SearchInput";
 import WaveSelector from "@/components/admin/WaveSelector";
 import VerificationStatusFilter from "@/components/admin/VerificationStatusFilter";
+import PaginationControl from "@/components/admin/PaginationControl";
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
+
+const PAGE_SIZE = 12;
 
 export default async function VerificationListPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q?: string; waveId?: string; status?: string }>;
+    searchParams: Promise<{ q?: string; waveId?: string; status?: string; page?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const query = resolvedParams?.q || "";
     const waveId = resolvedParams?.waveId;
     const status = resolvedParams?.status;
+    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
 
-    const whereClause: any = query
-        ? {
-            OR: [
-                { namaLengkap: { contains: query, mode: "insensitive" } },
-                { nisn: { contains: query } },
-            ],
-        }
-        : {};
-
+    // Base where clause (untuk search & wave)
+    const baseWhere: any = {};
+    if (query) {
+        baseWhere.OR = [
+            { namaLengkap: { contains: query, mode: "insensitive" } },
+            { nisn: { contains: query } },
+        ];
+    }
     if (waveId) {
-        whereClause.waveId = waveId;
+        baseWhere.waveId = waveId;
     }
 
-    const [students, waves] = await Promise.all([
+    // Where clause dengan filter status (untuk data paginasi)
+    const whereClause: any = { ...baseWhere };
+    if (status) {
+        whereClause.statusVerifikasi = status;
+    }
+
+    const [students, totalFiltered, pendingCount, verifiedCount, rejectedCount, waves] = await Promise.all([
         db.student.findMany({
             where: whereClause,
-            orderBy: {
-                createdAt: "desc"
-            },
+            orderBy: { createdAt: "desc" },
             include: {
                 documents: true,
-                user: {
-                    select: { email: true }
-                }
-            }
+                user: { select: { email: true } }
+            },
+            skip,
+            take: PAGE_SIZE,
         }),
-        db.wave.findMany({
-            orderBy: {
-                startDate: 'desc'
-            }
-        })
+        db.student.count({ where: whereClause }),
+        db.student.count({ where: { ...baseWhere, statusVerifikasi: "PENDING" } }),
+        db.student.count({ where: { ...baseWhere, statusVerifikasi: "VERIFIED" } }),
+        db.student.count({ where: { ...baseWhere, statusVerifikasi: "REJECTED" } }),
+        db.wave.findMany({ orderBy: { startDate: 'desc' } }),
     ]);
 
-    const pendingCount = students.filter((s: any) => s.statusVerifikasi === "PENDING").length;
-    const verifiedCount = students.filter((s: any) => s.statusVerifikasi === "VERIFIED").length;
-    const rejectedCount = students.filter((s: any) => s.statusVerifikasi === "REJECTED").length;
-
-    const filteredStudents = status
-        ? students.filter((s: any) => s.statusVerifikasi === status)
-        : students;
+    const totalPages = Math.ceil(totalFiltered / PAGE_SIZE);
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
@@ -96,7 +98,7 @@ export default async function VerificationListPage({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredStudents.map((student: any) => (
+                {students.map((student: any) => (
                     <div key={student.id} className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-4 hover:border-primary/50 transition-colors">
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
@@ -147,13 +149,27 @@ export default async function VerificationListPage({
                     </div>
                 ))}
 
-                {filteredStudents.length === 0 && (
+                {students.length === 0 && (
                     <div className="col-span-full p-12 text-center text-slate-500">
                         <span className="material-symbols-outlined text-4xl mb-2">inbox</span>
                         <p>Belum ada data murid yang perlu diverifikasi.</p>
                     </div>
                 )}
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="bg-white dark:bg-[#1e293b] p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+                    <Suspense fallback={null}>
+                        <PaginationControl
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={totalFiltered}
+                            itemsPerPage={PAGE_SIZE}
+                        />
+                    </Suspense>
+                </div>
+            )}
         </div>
     );
 }

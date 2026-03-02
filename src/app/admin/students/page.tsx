@@ -9,16 +9,20 @@ import ExportCbtButton from "@/components/admin/ExportCbtButton";
 import PhotoExportButton from "@/components/admin/PhotoExportButton";
 import { Suspense } from "react";
 
+const PAGE_SIZE = 20;
+
 export default async function StudentListPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q: string; jalur: string; status: string; waveId: string }>;
+    searchParams: Promise<{ q: string; jalur: string; status: string; waveId: string; page: string }>;
 }) {
     const resolvedParams = await searchParams;
     const query = resolvedParams?.q || "";
     const jalur = resolvedParams?.jalur;
     const status = resolvedParams?.status;
     const waveId = resolvedParams?.waveId;
+    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
 
     // Fetch waves for filter
     const waves = await db.wave.findMany({
@@ -48,20 +52,24 @@ export default async function StudentListPage({
         whereClause.waveId = waveId;
     }
 
-    const students = await db.student.findMany({
-        where: whereClause,
-        include: {
-            user: true,
-            documents: true,
-            wave: true,
-        },
-        orderBy: { createdAt: "desc" },
-    });
+    const [students, filteredCount, totalCount, verifiedCount] = await Promise.all([
+        db.student.findMany({
+            where: whereClause,
+            include: {
+                user: true,
+                documents: true,
+                wave: true,
+            },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: PAGE_SIZE,
+        }),
+        db.student.count({ where: whereClause }),
+        db.student.count(),
+        db.student.count({ where: { statusVerifikasi: "VERIFIED" } }),
+    ]);
 
-    const totalCount = await db.student.count();
-    const verifiedCount = await db.student.count({
-        where: { statusVerifikasi: "VERIFIED" },
-    });
+    const totalPages = Math.ceil(filteredCount / PAGE_SIZE);
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
@@ -103,7 +111,13 @@ export default async function StudentListPage({
             </div>
 
             {/* Table Section */}
-            <StudentTable students={students} />
+            <StudentTable
+                students={students}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={filteredCount}
+                itemsPerPage={PAGE_SIZE}
+            />
         </div>
     );
 }

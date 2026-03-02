@@ -2,14 +2,20 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import BatchGradeTable from "@/components/admin/BatchGradeTable";
 import WaveSelector from "@/components/admin/WaveSelector";
+import PaginationControl from "@/components/admin/PaginationControl";
+import { Suspense } from "react";
+
+const PAGE_SIZE = 20;
 
 export default async function GradesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ waveId?: string }>;
+    searchParams: Promise<{ waveId?: string; page?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const waveId = resolvedParams?.waveId;
+    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
 
     const whereClause: any = {
         statusVerifikasi: "VERIFIED" // Only allow grading verified students
@@ -19,7 +25,7 @@ export default async function GradesPage({
         whereClause.waveId = waveId;
     }
 
-    const [students, waves] = await Promise.all([
+    const [students, totalFiltered, waves] = await Promise.all([
         db.student.findMany({
             where: whereClause,
             include: {
@@ -31,16 +37,15 @@ export default async function GradesPage({
                 user: true,
                 documents: true,
             },
-            orderBy: {
-                namaLengkap: 'asc'
-            }
+            orderBy: { namaLengkap: 'asc' },
+            skip,
+            take: PAGE_SIZE,
         }),
-        db.wave.findMany({
-            orderBy: {
-                startDate: 'desc'
-            }
-        })
+        db.student.count({ where: whereClause }),
+        db.wave.findMany({ orderBy: { startDate: 'desc' } }),
     ]);
+
+    const totalPages = Math.ceil(totalFiltered / PAGE_SIZE);
 
     return (
         <div className="p-6">
@@ -69,7 +74,21 @@ export default async function GradesPage({
                         <p className="text-slate-500">Belum ada murid yang terverifikasi untuk dinilai.</p>
                     </div>
                 ) : (
-                    <BatchGradeTable students={students as any} />
+                    <>
+                        <BatchGradeTable students={students as any} />
+                        {totalPages > 1 && (
+                            <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <Suspense fallback={null}>
+                                    <PaginationControl
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        totalItems={totalFiltered}
+                                        itemsPerPage={PAGE_SIZE}
+                                    />
+                                </Suspense>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>

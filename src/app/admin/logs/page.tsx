@@ -1,31 +1,42 @@
 import { db } from "@/lib/db";
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
+import PaginationControl from "@/components/admin/PaginationControl";
 
-// Server action or direct DB call since this is a server component
-async function getLogs() {
+const PAGE_SIZE = 50;
+
+async function getLogs(skip: number) {
     try {
-        // Raw SQL Join
-        const logs = await db.$queryRawUnsafe(`
-            SELECT a.*, u."email", u."role"
-            FROM "AuditLog" a
-            LEFT JOIN "User" u ON a."userId" = u."id"
-            ORDER BY a."createdAt" DESC
-            LIMIT 100
-        `) as any[];
+        const [logs, countResult] = await Promise.all([
+            db.$queryRawUnsafe(`
+                SELECT a.*, u."email", u."role"
+                FROM "AuditLog" a
+                LEFT JOIN "User" u ON a."userId" = u."id"
+                ORDER BY a."createdAt" DESC
+                LIMIT ${PAGE_SIZE} OFFSET ${skip}
+            `) as Promise<any[]>,
+            db.$queryRawUnsafe(`SELECT COUNT(*) as count FROM "AuditLog"`) as Promise<{ count: bigint }[]>,
+        ]);
 
-        return logs.map(log => ({
-            ...log,
-            // Parse dates manually if needed, usually Prisma raw returns Date objects for timestamp columns
-        }));
+        const totalItems = Number(countResult[0]?.count || 0);
+        return { logs, totalItems };
     } catch (e) {
         console.error("Error fetching logs", e);
-        return [];
+        return { logs: [], totalItems: 0 };
     }
 }
 
-export default async function AuditLogsPage() {
-    const logs = await getLogs();
+export default async function AuditLogsPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ page?: string }>;
+}) {
+    const resolvedParams = await searchParams;
+    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
+
+    const { logs, totalItems } = await getLogs(skip);
+    const totalPages = Math.ceil(totalItems / PAGE_SIZE);
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
@@ -34,7 +45,7 @@ export default async function AuditLogsPage() {
                     Audit Logs (Aktivitas Sistem)
                 </h1>
                 <p className="text-slate-500 text-sm">
-                    Memantau 100 aktivitas terakhir pengguna.
+                    Memantau aktivitas pengguna. Total: <strong>{totalItems}</strong> entri.
                 </p>
             </div>
 
@@ -97,6 +108,20 @@ export default async function AuditLogsPage() {
                     </table>
                 </div>
             </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4">
+                    <Suspense fallback={null}>
+                        <PaginationControl
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={totalItems}
+                            itemsPerPage={PAGE_SIZE}
+                        />
+                    </Suspense>
+                </div>
+            )}
         </div>
     );
 }
