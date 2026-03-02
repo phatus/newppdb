@@ -1,0 +1,33 @@
+name: Deploy to Live Server (Self-Hosted)
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Push Database Changes
+        run: npx prisma db push --accept-data-loss # Be careful with data loss in production, usually use migrations
+
+      - name: Build Application
+        run: npm run build
+
+      - name: Restart Application
+        run: |
+          # If using PM2 (recommended in LIVE_UPDATE_INSTRUCTIONS.md)
+          pm2 restart newppdb || pm2 start npm --name "newppdb" -- start
+          
+          # If not using PM2 but aaPanel Node Manager, it usually detects file changes, 
+          # but a manual restart is safer if enabled.

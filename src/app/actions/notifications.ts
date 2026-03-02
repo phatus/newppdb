@@ -7,7 +7,7 @@ import { logActivity } from "@/lib/audit";
 
 export async function blastFinalStatus(quota: number) {
     try {
-        const students = await getRankingData();
+        const { students } = await getRankingData();
         const settings = await db.schoolSettings.findFirst();
 
         if (!settings?.isWaEnabled) {
@@ -23,12 +23,11 @@ export async function blastFinalStatus(quota: number) {
             const phone = student.telepon;
             const statusKelulusan = isAccepted ? "LULUS" : "TIDAK_LULUS";
 
-            // Persist status to database using Raw SQL due to stale Prisma Client
-            await db.$executeRawUnsafe(`
-                UPDATE "Student" 
-                SET "statusKelulusan" = $1
-                WHERE "id" = $2
-            `, statusKelulusan, student.id);
+            // Persist status to database
+            await db.student.update({
+                where: { id: student.id },
+                data: { statusKelulusan }
+            });
 
             if (!phone) {
                 failCount++;

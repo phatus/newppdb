@@ -21,7 +21,7 @@ export default async function SelectionRecapPage(props: {
 
     // Fetch ranked students (this includes finalScore and LULUS/TIDAK_LULUS status)
     // We only want those who are already processed (LULUS or TIDAK_LULUS)
-    const allRanked = await getRankingData({ waveId });
+    const { students: allRanked } = await getRankingData({ waveId });
     const students = allRanked.filter(s => s.statusKelulusan === "LULUS" || s.statusKelulusan === "TIDAK_LULUS");
 
     const settings: any = await db.schoolSettings.findFirst();

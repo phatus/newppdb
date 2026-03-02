@@ -7,7 +7,7 @@ import Image from "next/image";
 export const dynamic = 'force-dynamic';
 
 export default async function PublicRankingPage() {
-    const students = await getRankingData();
+    const { students } = await getRankingData();
     const settings = await db.schoolSettings.findFirst();
 
     return (
