@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DocumentList from "@/components/admin/DocumentList";
 import EditableGradeTable from "@/components/admin/EditableGradeTable";
+import { getFileUrl } from "@/lib/file-utils";
 
 interface PageProps {
     params: {
@@ -173,7 +174,7 @@ export default async function VerificationDetailPage({ params }: any) {
                                     <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mb-3 overflow-hidden">
                                         {student.documents?.pasFoto ? (
                                             /* eslint-disable-next-line @next/next/no-img-element */
-                                            <img src={student.documents.pasFoto} alt="Pas Foto" className="w-full h-full object-cover" />
+                                            <img src={getFileUrl(student.documents.pasFoto)} alt="Pas Foto" className="w-full h-full object-cover" />
                                         ) : (
                                             <span className="material-symbols-outlined text-4xl text-slate-400">person</span>
                                         )}

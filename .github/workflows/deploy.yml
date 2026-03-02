@@ -56,8 +56,8 @@ jobs:
       - name: Deploy to Production Directory
         if: steps.filter.outputs.src == 'true'
         run: |
-          rsync -avz --delete --exclude '.git' --exclude '.github' --exclude 'node_modules' . /www/wwwroot/newppdb/
-          rsync -avz --exclude '.git' node_modules /www/wwwroot/newppdb/
+          rsync -avz --delete --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude 'public/uploads' . /www/wwwroot/newppdb/
+          rsync -avz --exclude '.git' --exclude 'public/uploads' node_modules /www/wwwroot/newppdb/
 
       - name: Restart Application
         if: steps.filter.outputs.src == 'true'

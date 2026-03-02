@@ -29,6 +29,9 @@ export async function GET(
         let contentType = "application/octet-stream";
         if (ext === ".jpg" || ext === ".jpeg") contentType = "image/jpeg";
         if (ext === ".png") contentType = "image/png";
+        if (ext === ".webp") contentType = "image/webp";
+        if (ext === ".gif") contentType = "image/gif";
+        if (ext === ".svg") contentType = "image/svg+xml";
         if (ext === ".pdf") contentType = "application/pdf";
 
         return new NextResponse(fileBuffer, {

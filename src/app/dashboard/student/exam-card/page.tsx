@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import StudentSelector from "@/components/StudentSelector";
 import PrintButton from "@/components/PrintButton";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
+import { getFileUrl } from "@/lib/file-utils";
 
 interface Student {
     id: string;
@@ -242,7 +243,7 @@ export default async function ExamCardPage({
                                                             {student.documents?.pasFoto ? (
                                                                 /* eslint-disable-next-line @next/next/no-img-element */
                                                                 <img
-                                                                    src={student.documents.pasFoto}
+                                                                    src={getFileUrl(student.documents.pasFoto)}
                                                                     alt="Pas Foto"
                                                                     className="w-full h-full object-cover"
                                                                 />

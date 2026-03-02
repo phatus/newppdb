@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { getFileUrl } from "@/lib/file-utils";
 
 interface DocumentPreviewModalProps {
     isOpen: boolean;
@@ -9,7 +10,8 @@ interface DocumentPreviewModalProps {
     title: string;
 }
 
-export default function DocumentPreviewModal({ isOpen, onClose, url, title }: DocumentPreviewModalProps) {
+export default function DocumentPreviewModal({ isOpen, onClose, url: rawUrl, title }: DocumentPreviewModalProps) {
+    const url = getFileUrl(rawUrl);
     // Close on Escape key
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

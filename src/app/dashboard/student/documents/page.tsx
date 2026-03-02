@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import StudentSelector from "@/components/StudentSelector";
 import DocumentUploadButton from "@/components/DocumentUploadButton";
+import { getFileUrl } from "@/lib/file-utils";
 
 interface Student {
     id: string;
@@ -195,7 +196,7 @@ export default async function DocumentUploadPage({
                     <div
                         className="bg-slate-200 dark:bg-slate-700 rounded-lg w-24 h-24 shrink-0 shadow-inner flex items-center justify-center bg-center bg-cover border border-slate-100 dark:border-slate-600"
                         style={{
-                            backgroundImage: docs.pasFoto ? `url('${docs.pasFoto}')` : `url('https://ui-avatars.com/api/?name=${encodeURIComponent(
+                            backgroundImage: docs.pasFoto ? `url('${getFileUrl(docs.pasFoto)}')` : `url('https://ui-avatars.com/api/?name=${encodeURIComponent(
                                 selectedStudent.namaLengkap
                             )}&background=random')`,
                         }}

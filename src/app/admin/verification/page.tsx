@@ -6,6 +6,7 @@ import VerificationStatusFilter from "@/components/admin/VerificationStatusFilte
 import PaginationControl from "@/components/admin/PaginationControl";
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
+import { getFileUrl } from "@/lib/file-utils";
 
 const PAGE_SIZE = 12;
 
@@ -103,11 +104,11 @@ export default async function VerificationListPage({
                         <div className="flex justify-between items-start">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0">
-                                    {student.documents?.[0]?.pasFoto || student.documents?.pasFoto ? (
+                                    {student.documents?.pasFoto ? (
                                         /* eslint-disable-next-line @next/next/no-img-element */
                                         <img
-                                            src={student.documents?.pasFoto || student.documents?.[0]?.pasFoto}
-                                            alt={student.namaLengkap}
+                                            src={getFileUrl(student.documents?.pasFoto)}
+                                            alt="Pas Foto"
                                             className="w-full h-full object-cover"
                                         />
                                     ) : (

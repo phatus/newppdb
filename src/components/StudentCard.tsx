@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { getFileUrl } from "@/lib/file-utils";
+
 interface StudentCardProps {
     student: any; // We can improve this type later
 }
@@ -57,7 +59,7 @@ export default function StudentCard({ student }: StudentCardProps) {
             <div className={`group flex flex-col md:flex-row items-stretch gap-4 rounded-xl bg-white dark:bg-[#1c2936] p-4 shadow-sm border ${isRejected ? 'border-red-200 dark:border-red-900 hover:border-red-500' : isVerified ? 'border-emerald-200 dark:border-emerald-900 hover:border-emerald-500' : 'border-slate-200 dark:border-slate-700 hover:border-amber-400'} transition-all`}>
                 <div
                     className={`w-full md:w-32 aspect-[4/3] md:aspect-square bg-center bg-no-repeat bg-cover rounded-lg flex-shrink-0 bg-slate-200 dark:bg-slate-700 ${isRejected ? 'grayscale opacity-80' : ''}`}
-                    style={{ backgroundImage: `url('${student.documents?.pasFoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.namaLengkap)}&background=random`}')` }}
+                    style={{ backgroundImage: `url('${getFileUrl(student.documents?.pasFoto) || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.namaLengkap)}&background=random`}')` }}
                 ></div>
 
                 <div className="flex flex-1 flex-col justify-between gap-3">
