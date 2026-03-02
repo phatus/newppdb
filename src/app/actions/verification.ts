@@ -178,12 +178,11 @@ export async function updateAdmissionStatus(studentId: string, status: "LULUS" |
         return { success: false, error: "Unauthorized" };
     }
     try {
-        // Use Raw SQL due to stale Prisma Client
-        await db.$executeRawUnsafe(`
-            UPDATE "Student" 
-            SET "statusKelulusan" = $1
-            WHERE "id" = $2
-        `, status, studentId);
+        // Use Prisma Client instead of Raw SQL for better type safety and security
+        await db.student.update({
+            where: { id: studentId },
+            data: { statusKelulusan: status }
+        });
 
         revalidatePath(`/admin/verification/${studentId}`);
         revalidatePath("/admin/ranking");
