@@ -14,15 +14,28 @@ interface User {
     createdAt: Date;
 }
 
+import PaginationControl from "../PaginationControl";
+import { Suspense } from "react";
+
 interface UserManagementProps {
     initialUsers: User[];
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
 }
 
-export default function UserManagement({ initialUsers }: UserManagementProps) {
+export default function UserManagement({
+    initialUsers,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage
+}: UserManagementProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(false);
-    // Use initialUsers directly since we rely on revalidatePath for updates
+
     const users = initialUsers;
 
     const handleSaveUser = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -166,6 +179,18 @@ export default function UserManagement({ initialUsers }: UserManagementProps) {
                         )}
                     </tbody>
                 </table>
+
+                {/* Pagination Footer */}
+                <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex justify-center">
+                    <Suspense fallback={<div className="h-10 w-64 bg-slate-100 animate-pulse rounded-lg" />}>
+                        <PaginationControl
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={totalItems}
+                            itemsPerPage={itemsPerPage}
+                        />
+                    </Suspense>
+                </div>
             </div>
 
             {/* Modal */}

@@ -40,7 +40,7 @@ export default async function DashboardPage() {
     });
 
     // Fetch Active Announcements
-    const announcements = await getAnnouncements(false); // only active
+    const { announcements } = await getAnnouncements(false); // Just show active ones
 
     // Fetch School Settings
     const settings = await db.schoolSettings.findFirst();

@@ -1,10 +1,22 @@
 import { db } from "@/lib/db";
 import UserManagement from "@/components/admin/settings/UserManagement";
 
-export default async function AccountsPage() {
+const PAGE_SIZE = 20;
+
+export default async function AccountsPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ page?: string }>;
+}) {
+    const resolvedParams = await searchParams;
+    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
+
     // Fetch users for the management component
     const users = await db.user.findMany({
         orderBy: { createdAt: 'desc' },
+        skip,
+        take: PAGE_SIZE,
         select: {
             id: true,
             email: true,
@@ -16,6 +28,9 @@ export default async function AccountsPage() {
         }
     });
 
+    const totalCount = await db.user.count();
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+
     return (
         <div className="p-6 lg:p-10 max-w-[1600px] mx-auto space-y-8">
             <div className="flex justify-between items-start">
@@ -26,8 +41,14 @@ export default async function AccountsPage() {
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-                {/* Reusing existing component */}
-                <UserManagement initialUsers={users} />
+                {/* Reusing existing component with new pagination props */}
+                <UserManagement
+                    initialUsers={users}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={totalCount}
+                    itemsPerPage={PAGE_SIZE}
+                />
             </div>
         </div >
     );

@@ -18,26 +18,30 @@ export interface Announcement {
     authorId: string;
 }
 
-export async function getAnnouncements(isAdmin = false) {
+export async function getAnnouncements(isAdmin = false, skip?: number, take?: number) {
     try {
-        let query = `SELECT * FROM "Announcement" WHERE 1=1`;
+        const where = isAdmin ? {} : { isActive: true };
 
-        if (!isAdmin) {
-            query += ` AND "isActive" = true`;
-        }
+        const [data, totalCount] = await Promise.all([
+            db.announcement.findMany({
+                where,
+                orderBy: { createdAt: "desc" },
+                skip,
+                take,
+            }),
+            db.announcement.count({ where })
+        ]);
 
-        query += ` ORDER BY "createdAt" DESC`;
-
-        const data = await db.$queryRawUnsafe(query) as any[];
-
-        // Map to ensure types (dates usually come as strings or Date objects depending on driver)
-        return data.map(item => ({
-            ...item,
-            isActive: item.isActive === true || item.isActive === 1, // Postgres bool might be strict
-        })) as Announcement[];
+        return {
+            announcements: data.map(item => ({
+                ...item,
+                isActive: item.isActive === true,
+            })) as Announcement[],
+            totalCount
+        };
     } catch (error) {
         console.error("Error fetching announcements:", error);
-        return [];
+        return { announcements: [], totalCount: 0 };
     }
 }
 

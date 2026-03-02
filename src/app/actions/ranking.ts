@@ -15,7 +15,7 @@ type RankedStudent = StudentWithRelations & {
     grades: (Grades & { finalScore: number }) | null;
 };
 
-export async function getRankingData(filters?: { waveId?: string; jalur?: JalurPendaftaran }): Promise<RankedStudent[]> {
+export async function getRankingData(filters?: { waveId?: string; jalur?: JalurPendaftaran }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
     try {
         // 1. Fetch Students who are verified
         const where: any = { statusVerifikasi: "VERIFIED" };
@@ -60,8 +60,6 @@ export async function getRankingData(filters?: { waveId?: string; jalur?: JalurP
             const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
             const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
             const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
-            // Achievement is now additive, not weighted
-            // const wPrestasi = (specificWeights?.prestasi ?? defaultW.prestasi) / 100;
 
             const avgReport = grades?.rataRataNilai || 0;
             const theory = grades?.nilaiUjianTeori || 0;
@@ -88,11 +86,16 @@ export async function getRankingData(filters?: { waveId?: string; jalur?: JalurP
             return scoreB - scoreA;
         });
 
-        return rankedStudents;
+        const totalCount = rankedStudents.length;
+        const pagedStudents = (skip !== undefined && take !== undefined)
+            ? rankedStudents.slice(skip, skip + take)
+            : rankedStudents;
+
+        return { students: pagedStudents, totalCount };
 
     } catch (error) {
         console.error("Error fetching ranking:", error);
-        return [];
+        return { students: [], totalCount: 0 };
     }
 }
 
@@ -171,7 +174,7 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
         // 3. Get Verified Students with Ranking Data based on filters
         // For the full process, we need all students to handle moves
         const processingFilters = filters?.jalur ? filters : { waveId: filters?.waveId };
-        const allStudents = await getRankingData(processingFilters);
+        const { students: allStudents } = await getRankingData(processingFilters);
 
         if (allStudents.length === 0) {
             return { success: false, error: "Tidak ada data murid terverifikasi pada filter ini." };

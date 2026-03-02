@@ -1,10 +1,14 @@
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { formatInWIB, getWIBStartOfDay, getWIBStartOfHour } from "@/lib/date-utils";
+import PaginationControl from "@/components/admin/PaginationControl";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-async function getEmailStats() {
+const LOGS_PER_PAGE = 20;
+
+async function getEmailStats(skip: number = 0, take: number = 20) {
     const startOfHour = getWIBStartOfHour();
     const startOfDay = getWIBStartOfDay();
 
@@ -24,7 +28,8 @@ async function getEmailStats() {
 
     const recentLogs = await db.emailLog.findMany({
         orderBy: { createdAt: "desc" },
-        take: 20
+        skip,
+        take
     });
 
     const totalCount = await db.emailLog.count();
@@ -32,8 +37,17 @@ async function getEmailStats() {
     return { hourlyCount, dailyCount, recentLogs, totalCount };
 }
 
-export default async function EmailMonitorPage() {
-    const { hourlyCount, dailyCount, recentLogs, totalCount } = await getEmailStats();
+export default async function EmailMonitorPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ page?: string }>;
+}) {
+    const resolvedParams = await searchParams;
+    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const skip = (currentPage - 1) * LOGS_PER_PAGE;
+
+    const { hourlyCount, dailyCount, recentLogs, totalCount } = await getEmailStats(skip, LOGS_PER_PAGE);
+    const totalPages = Math.ceil(totalCount / LOGS_PER_PAGE);
 
     // Hostinger Limits (Estimation)
     const HOURLY_LIMIT = 200;
@@ -166,6 +180,17 @@ export default async function EmailMonitorPage() {
                             ))}
                         </tbody>
                     </table>
+                </div>
+                {/* Pagination Footer */}
+                <div className="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-t border-slate-200 dark:border-slate-800 flex justify-center">
+                    <Suspense fallback={<div className="h-10 w-64 bg-slate-100 animate-pulse rounded-lg" />}>
+                        <PaginationControl
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            totalItems={totalCount}
+                            itemsPerPage={LOGS_PER_PAGE}
+                        />
+                    </Suspense>
                 </div>
             </div>
         </div>

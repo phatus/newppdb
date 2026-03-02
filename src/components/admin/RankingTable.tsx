@@ -8,7 +8,30 @@ import { updateAdmissionStatus } from "@/app/actions/verification";
 import Swal from "sweetalert2";
 import RankingExportButton from "./RankingExportButton";
 
-export default function RankingTable({ initialData, waves }: { initialData: any[]; waves: any[] }) {
+import PaginationControl from "./PaginationControl";
+import { Suspense } from "react";
+
+interface RankingTableProps {
+    initialData: any[];
+    waves: any[];
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    initialWaveId?: string;
+    initialJalur?: string;
+}
+
+export default function RankingTable({
+    initialData,
+    waves,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    initialWaveId = "all",
+    initialJalur = "all"
+}: RankingTableProps) {
     const router = useRouter();
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState({
@@ -19,16 +42,9 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
     });
     const [loading, setLoading] = useState(false);
 
-    // Filters
-    const [waveFilter, setWaveFilter] = useState<string>("all");
-    const [jalurFilter, setJalurFilter] = useState<string>("all");
-
-    // Client-side filtering
-    const filteredData = initialData.filter(student => {
-        const matchesWave = waveFilter === "all" || student.waveId === waveFilter;
-        const matchesJalur = jalurFilter === "all" || student.jalur === jalurFilter;
-        return matchesWave && matchesJalur;
-    });
+    // Filters are now driven by initial props from URL
+    const waveFilter = initialWaveId;
+    const jalurFilter = initialJalur;
 
     const handleEdit = (student: any) => {
         setEditingId(student.id);
@@ -38,6 +54,17 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
             achievement: student.grades?.nilaiPrestasi || 0,
             reportAvg: student.grades?.rataRataNilai || 0
         });
+    };
+
+    const updateFilter = (type: 'wave' | 'jalur', value: string) => {
+        const params = new URLSearchParams(window.location.search);
+        if (value === "all") {
+            params.delete(type === 'wave' ? 'waveId' : 'jalur');
+        } else {
+            params.set(type === 'wave' ? 'waveId' : 'jalur', value);
+        }
+        params.set('page', '1'); // Reset to first page on filter change
+        router.push(`?${params.toString()}`);
     };
 
     const handleSave = async () => {
@@ -74,7 +101,7 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
         if (result.isConfirmed) {
             const toastId = toast.loading("Sedang memproses seleksi otomatis...");
             try {
-                // Pass filters to the action
+                // Pass current filters to the action
                 const filters: any = {};
                 if (waveFilter !== "all") filters.waveId = waveFilter;
                 if (jalurFilter !== "all") filters.jalur = jalurFilter;
@@ -105,7 +132,7 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
                         </span>
                         <div className="flex flex-wrap gap-2">
                             <button
-                                onClick={() => setWaveFilter("all")}
+                                onClick={() => updateFilter('wave', 'all')}
                                 className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all shadow-sm ${waveFilter === "all"
                                     ? "bg-primary text-white scale-105 shadow-primary/25"
                                     : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
@@ -116,7 +143,7 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
                             {waves.map((w) => (
                                 <button
                                     key={w.id}
-                                    onClick={() => setWaveFilter(w.id)}
+                                    onClick={() => updateFilter('wave', w.id)}
                                     className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all shadow-sm ${waveFilter === w.id
                                         ? "bg-primary text-white scale-105 shadow-primary/25"
                                         : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
@@ -144,7 +171,7 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
                             ].map((path) => (
                                 <button
                                     key={path.id}
-                                    onClick={() => setJalurFilter(path.id)}
+                                    onClick={() => updateFilter('jalur', path.id)}
                                     className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all shadow-sm ${jalurFilter === path.id
                                         ? "bg-indigo-600 text-white scale-105 shadow-indigo-600/25"
                                         : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-600"
@@ -160,19 +187,19 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
                 <div className="flex flex-col sm:flex-row justify-between items-center pt-4 border-t border-slate-200 dark:border-slate-700 gap-4">
                     <div className="flex items-center gap-2">
                         <div className="flex -space-x-2 overflow-hidden px-1">
-                            {filteredData.slice(0, 5).map((s, i) => (
+                            {initialData.slice(0, 5).map((s, i) => (
                                 <div key={i} className="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-800 bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                                    {s.namaLengkap.charAt(0)}
+                                    {s.namaLengkap?.charAt(0) || "?"}
                                 </div>
                             ))}
                         </div>
                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                            Menampilkan <span className="text-slate-900 dark:text-white font-bold">{filteredData.length}</span> Murid Pendaftar
+                            Menampilkan <span className="text-slate-900 dark:text-white font-bold">{totalItems}</span> Murid Pendaftar
                         </p>
                     </div>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                        <RankingExportButton data={filteredData} />
+                        <RankingExportButton data={initialData} />
                         <button
                             onClick={handleGenerate}
                             className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
@@ -201,17 +228,18 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {filteredData.length === 0 ? (
+                        {initialData.length === 0 ? (
                             <tr>
                                 <td colSpan={11} className="p-8 text-center text-slate-500">Tidak ada murid yang sesuai dengan filter.</td>
                             </tr>
                         ) : (
-                            filteredData.map((student, idx) => {
+                            initialData.map((student, idx) => {
                                 const isRegulerLike = student.jalur === "REGULER" || student.jalur === "AFIRMASI";
+                                const rankIndex = (currentPage - 1) * itemsPerPage + idx + 1;
 
                                 return (
                                     <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <td className="p-4 text-center font-bold text-slate-400">{idx + 1}</td>
+                                        <td className="p-4 text-center font-bold text-slate-400">{rankIndex}</td>
                                         <td className="p-4">
                                             <div className="font-bold text-slate-900 dark:text-white">{student.namaLengkap}</div>
                                             <div className="text-xs text-slate-500">{student.nisn}</div>
@@ -350,6 +378,18 @@ export default function RankingTable({ initialData, waves }: { initialData: any[
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Footer with Pagination */}
+            <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-center">
+                <Suspense fallback={<div className="h-10 w-64 bg-slate-100 animate-pulse rounded-lg" />}>
+                    <PaginationControl
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalItems={totalItems}
+                        itemsPerPage={itemsPerPage}
+                    />
+                </Suspense>
             </div>
         </div>
     );

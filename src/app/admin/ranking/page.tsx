@@ -5,12 +5,26 @@ import { getRankingData } from "@/app/actions/ranking";
 import RankingTable from "@/components/admin/RankingTable";
 import WABlastPanel from "@/components/admin/WABlastPanel";
 
-export default async function RankingPage() {
-    const students = await getRankingData();
+const PAGE_SIZE = 20;
+
+export default async function RankingPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ waveId?: string; jalur?: string; page?: string }>;
+}) {
+    const resolvedParams = await searchParams;
+    const waveId = resolvedParams?.waveId;
+    const jalur = resolvedParams?.jalur as any;
+    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
+
+    const { students, totalCount } = await getRankingData({ waveId, jalur }, skip, PAGE_SIZE);
     const settings = await db.schoolSettings.findFirst();
     const waves = await db.wave.findMany({
         orderBy: { startDate: 'asc' }
     });
+
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
     return (
         <div className="flex flex-col gap-6">
@@ -36,7 +50,16 @@ export default async function RankingPage() {
                     </div>
                 </div>
 
-                <RankingTable initialData={students} waves={waves} />
+                <RankingTable
+                    initialData={students}
+                    waves={waves}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={totalCount}
+                    itemsPerPage={PAGE_SIZE}
+                    initialWaveId={waveId}
+                    initialJalur={jalur}
+                />
             </div>
         </div>
     );
