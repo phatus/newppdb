@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import DocumentList from "@/components/admin/DocumentList";
 import EditableGradeTable from "@/components/admin/EditableGradeTable";
 import { getFileUrl } from "@/lib/utils";
+import ContactWAButton from "@/components/admin/ContactWAButton";
+import BioDataEditor from "@/components/admin/BioDataEditor";
 
 interface PageProps {
     params: {
@@ -160,62 +162,9 @@ export default async function VerificationDetailPage({ params }: any) {
                 />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Data Murid Card */}
+                    {/* Data Murid Card (Editable) */}
                     <div className="lg:col-span-1 flex flex-col gap-6">
-                        <div className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
-                                <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-primary">person</span>
-                                    Data Murid
-                                </h3>
-                            </div>
-                            <div className="p-6">
-                                <div className="flex flex-col items-center mb-6">
-                                    <div className="w-24 h-24 bg-slate-200 rounded-full flex items-center justify-center mb-3 overflow-hidden">
-                                        {student.documents?.pasFoto ? (
-                                            /* eslint-disable-next-line @next/next/no-img-element */
-                                            <img src={getFileUrl(student.documents.pasFoto)} alt="Pas Foto" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="material-symbols-outlined text-4xl text-slate-400">person</span>
-                                        )}
-                                    </div>
-                                    <h2 className="text-lg font-bold text-slate-900 dark:text-white text-center">{student.namaLengkap}</h2>
-                                    <p className="text-slate-500 text-sm">NISN: {student.nisn}</p>
-                                </div>
-                                <dl className="grid grid-cols-1 gap-y-4">
-                                    <div>
-                                        <dt className="text-xs font-medium text-slate-500">NISN</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.nisn}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-xs font-medium text-slate-500">Tempat, Tanggal Lahir</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
-                                            {student.tempatLahir}, {student.tanggalLahir ? new Date(student.tanggalLahir).toLocaleDateString('id-ID') : '-'}
-                                        </dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-xs font-medium text-slate-500">Asal Sekolah</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.asalSekolah || '-'}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-xs font-medium text-slate-500">Jalur Pendaftaran</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.jalur?.replace('_', ' ') || '-'}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-xs font-medium text-slate-500">Alamat</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.alamatLengkap || '-'}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-xs font-medium text-slate-500">Email Pendaftaran</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white break-all">{student.user?.email || '-'}</dd>
-                                    </div>
-                                    <div>
-                                        <dt className="text-xs font-medium text-slate-500">Nomor Telepon</dt>
-                                        <dd className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">{student.telepon || '-'}</dd>
-                                    </div>
-                                </dl>
-                            </div>
-                        </div>
+                        <BioDataEditor student={student} />
                     </div>
 
                     {/* Document Verification List */}

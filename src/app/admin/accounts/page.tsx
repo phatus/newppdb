@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import UserManagement from "@/components/admin/settings/UserManagement";
+import UserManagement, { User } from "@/components/admin/settings/UserManagement";
 
 const PAGE_SIZE = 20;
 
@@ -9,11 +9,12 @@ export default async function AccountsPage({
     searchParams: Promise<{ page?: string }>;
 }) {
     const resolvedParams = await searchParams;
-    const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
+    const pageParam = resolvedParams?.page;
+    const currentPage = Math.max(1, parseInt(Array.isArray(pageParam) ? pageParam[0] : (pageParam || "1"), 10) || 1);
     const skip = (currentPage - 1) * PAGE_SIZE;
 
     // Fetch users for the management component
-    const users = await db.user.findMany({
+    const rawUsers = await db.user.findMany({
         orderBy: { createdAt: 'desc' },
         skip,
         take: PAGE_SIZE,
@@ -27,6 +28,12 @@ export default async function AccountsPage({
             createdAt: true,
         }
     });
+
+    const users = rawUsers.map(user => ({
+        ...user,
+        createdAt: user.createdAt.toISOString(),
+        emailVerified: user.emailVerified?.toISOString() || null,
+    })) as User[];
 
     const totalCount = await db.user.count();
     const totalPages = Math.ceil(totalCount / PAGE_SIZE);

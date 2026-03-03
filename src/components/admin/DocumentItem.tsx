@@ -30,7 +30,7 @@ export default function DocumentItem({
     const [isPending, startTransition] = useTransition();
 
     const hasFile = !!fileUrl && (Array.isArray(fileUrl) ? fileUrl.length > 0 : true);
-    const actualUrl = hasFile ? (Array.isArray(fileUrl) ? fileUrl[0] : fileUrl) : null;
+    const files = Array.isArray(fileUrl) ? fileUrl : (fileUrl ? [fileUrl] : []);
 
     const handleStatusClick = (clickedStatus: "VALID" | "INVALID") => {
         if (!hasFile) return;
@@ -53,54 +53,46 @@ export default function DocumentItem({
     };
 
     return (
-        <div className="flex flex-col md:flex-row gap-4 justify-between items-start p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-            <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg transition-colors ${status === 'VALID' ? 'bg-green-100 text-green-600' :
-                    status === 'INVALID' ? 'bg-red-100 text-red-600' :
-                        'bg-blue-50 dark:bg-blue-900/20 text-blue-600'
-                    }`}>
-                    <span className="material-symbols-outlined">{icon}</span>
+        <div className="flex flex-col gap-4 p-4 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+            <div className="flex flex-col md:flex-row gap-4 justify-between items-start">
+                <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-lg transition-colors ${status === 'VALID' ? 'bg-green-100 text-green-600' :
+                        status === 'INVALID' ? 'bg-red-100 text-red-600' :
+                            'bg-blue-50 dark:bg-blue-900/20 text-blue-600'
+                        }`}>
+                        <span className="material-symbols-outlined">{icon}</span>
+                    </div>
+                    <div>
+                        <p className="font-bold text-slate-900 dark:text-white text-base">{label}</p>
+
+                        {/* Status Badge */}
+                        <div className="flex flex-wrap gap-2 mt-1">
+                            {status === 'VALID' && (
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-green-600 animate-in zoom-in">
+                                    <span className="material-symbols-outlined text-[14px]">check_circle</span> Valid
+                                </span>
+                            )}
+                            {status === 'INVALID' && (
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 animate-in zoom-in">
+                                    <span className="material-symbols-outlined text-[14px]">cancel</span> Tidak Sesuai
+                                </span>
+                            )}
+                            {status === 'PENDING' && hasFile && (
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-yellow-600">
+                                    <span className="material-symbols-outlined text-[14px]">schedule</span> Perlu Cek
+                                </span>
+                            )}
+                            {status === 'PENDING' && !hasFile && (
+                                <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-400">
+                                    <span className="material-symbols-outlined text-[14px]">remove</span> Kosong
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <p className="font-bold text-slate-900 dark:text-white text-base">{label}</p>
-                    <p className="text-xs text-slate-500 mb-1 truncate max-w-[200px]">
-                        {hasFile ? (actualUrl?.split('/').pop() || 'Dokumen tersedia') : "Belum diunggah"}
-                    </p>
 
-                    {/* Status Badge */}
-                    {status === 'VALID' && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-green-600 animate-in zoom-in">
-                            <span className="material-symbols-outlined text-[14px]">check_circle</span> Valid
-                        </span>
-                    )}
-                    {status === 'INVALID' && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-red-600 animate-in zoom-in">
-                            <span className="material-symbols-outlined text-[14px]">cancel</span> Tidak Sesuai
-                        </span>
-                    )}
-                    {status === 'PENDING' && hasFile && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-yellow-600">
-                            <span className="material-symbols-outlined text-[14px]">schedule</span> Perlu Cek
-                        </span>
-                    )}
-                    {status === 'PENDING' && !hasFile && (
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-slate-400">
-                            <span className="material-symbols-outlined text-[14px]">remove</span> Kosong
-                        </span>
-                    )}
-                </div>
-            </div>
-
-            <div className="flex gap-2 items-center">
-                {hasFile && (
-                    <>
-                        <button
-                            onClick={() => onPreview(actualUrl as string, label)}
-                            className="px-3 py-1.5 text-sm font-medium text-slate-600 hover:text-primary border border-slate-300 rounded-lg hover:bg-white hover:shadow-sm transition-all focus:ring-2 focus:ring-primary/20"
-                        >
-                            Lihat
-                        </button>
-
+                <div className="flex gap-2 items-center">
+                    {hasFile && (
                         <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-1 border border-slate-200 dark:border-slate-600">
                             <button
                                 onClick={() => handleStatusClick("VALID")}
@@ -124,9 +116,31 @@ export default function DocumentItem({
                                 <span className="material-symbols-outlined text-[20px]">close</span>
                             </button>
                         </div>
-                    </>
-                )}
+                    )}
+                </div>
             </div>
+
+            {hasFile && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                    {files.map((url, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-lg shadow-sm group">
+                            <div className="flex items-center gap-2 min-w-0">
+                                <span className="material-symbols-outlined text-slate-400 text-[18px]">attach_file</span>
+                                <span className="text-xs text-slate-600 dark:text-slate-400 truncate max-w-[150px]">
+                                    {url.split('/').pop() || `Berkas ${index + 1}`}
+                                </span>
+                            </div>
+                            <button
+                                onClick={() => onPreview(url, `${label} - ${index + 1}`)}
+                                className="px-3 py-1 text-[11px] font-bold text-primary hover:bg-primary/10 rounded-md border border-primary/20 transition-all flex items-center gap-1"
+                            >
+                                <span className="material-symbols-outlined text-[14px]">visibility</span>
+                                Lihat
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

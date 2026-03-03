@@ -157,3 +157,49 @@ export async function deleteAllStudents() {
         return { success: false, error: error.message };
     }
 }
+
+export async function updateStudentBio(studentId: string, data: any) {
+    try {
+        await checkAdmin();
+
+        const updatedStudent = await db.student.update({
+            where: { id: studentId },
+            data: {
+                namaLengkap: data.namaLengkap,
+                nisn: data.nisn,
+                nik: data.nik,
+                noKk: data.noKk,
+                gender: data.gender,
+                tempatLahir: data.tempatLahir,
+                tanggalLahir: data.tanggalLahir ? new Date(data.tanggalLahir) : null,
+                jenjang: data.jenjang,
+                asalSekolah: data.asalSekolah,
+                alamatJalan: data.alamatJalan,
+                alamatRt: data.alamatRt,
+                alamatRw: data.alamatRw,
+                alamatDesa: data.alamatDesa,
+                alamatKecamatan: data.alamatKecamatan,
+                alamatKabupaten: data.alamatKabupaten,
+                alamatProvinsi: data.alamatProvinsi,
+                kodePos: data.kodePos,
+                telepon: data.telepon,
+                jalur: data.jalur,
+            }
+        });
+
+        await logActivity(
+            "UPDATE_STUDENT_BIO",
+            "STUDENT",
+            studentId,
+            `Updated bio data for student: ${updatedStudent.namaLengkap}`
+        );
+
+        revalidatePath(`/admin/verification/${studentId}`);
+        revalidatePath("/admin/verification");
+
+        return { success: true, student: updatedStudent };
+    } catch (error: any) {
+        console.error("Error updating student bio:", error);
+        return { success: false, error: error.message };
+    }
+}

@@ -51,3 +51,28 @@ export async function blastFinalStatus(quota: number) {
         return { success: false, error: "Terjadi kesalahan saat mengirim pesan." };
     }
 }
+
+export async function sendManualWA(studentId: string, message: string) {
+    try {
+        const student = await db.student.findUnique({
+            where: { id: studentId },
+            select: { telepon: true, namaLengkap: true }
+        });
+
+        if (!student?.telepon) {
+            return { success: false, error: "Nomor telepon siswa tidak ditemukan." };
+        }
+
+        const res = await sendWhatsApp(student.telepon, message);
+
+        if (res.success) {
+            await logActivity("SEND_WA_MANUAL", "STUDENT", studentId, `Message: ${message.substring(0, 50)}...`);
+            return { success: true };
+        } else {
+            return { success: false, error: "Gagal mengirim pesan melalui gateway." };
+        }
+    } catch (error: any) {
+        console.error("Error sending manual WA:", error);
+        return { success: false, error: error.message || "Terjadi kesalahan sistem." };
+    }
+}

@@ -4,14 +4,14 @@ import { useState } from "react";
 import { createUser, deleteUser, updateUser } from "@/app/actions/users";
 import { toast } from "react-hot-toast";
 
-interface User {
+export interface User {
     id: string;
     email: string;
     name: string | null;
     role: "ADMIN" | "USER";
     password: string | null;
-    emailVerified: Date | null;
-    createdAt: Date;
+    emailVerified: string | Date | null;
+    createdAt: string | Date;
 }
 
 import PaginationControl from "../PaginationControl";
