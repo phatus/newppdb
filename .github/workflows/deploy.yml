@@ -1,4 +1,4 @@
-name: Deploy to Live Server (Self-Hosted)
+name: Deploy to Live Server (Self-Hosted Optim)
 
 on:
   push:
@@ -11,6 +11,12 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
 
       - name: Identify Changes
         uses: dorny/paths-filter@v3
@@ -27,11 +33,19 @@ jobs:
               - 'next.config.ts'
               - 'next.config.js'
               - 'package.json'
-              - 'prisma/schema.prisma'
+              - '.github/workflows/deploy.yml'
+
+      - name: Restore Next.js Cache
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('src/**') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
 
       - name: Install Dependencies
-        if: steps.filter.outputs.package == 'true'
-        run: npm install
+        if: steps.filter.outputs.package == 'true' || steps.filter.outputs.src == 'true'
+        run: npm ci
 
       - name: Copy .env from production folder
         run: |
@@ -42,12 +56,12 @@ jobs:
           fi
 
       - name: Generate Prisma Client
-        if: steps.filter.outputs.prisma == 'true' || steps.filter.outputs.package == 'true'
-        run: npx prisma@5.22.0 generate
+        if: steps.filter.outputs.prisma == 'true' || steps.filter.outputs.package == 'true' || steps.filter.outputs.src == 'true'
+        run: npx prisma generate
 
       - name: Push Database Changes
         if: steps.filter.outputs.prisma == 'true'
-        run: npx prisma@5.22.0 db push --accept-data-loss
+        run: npx prisma db push --accept-data-loss
 
       - name: Build Application
         if: steps.filter.outputs.src == 'true'
@@ -56,11 +70,19 @@ jobs:
       - name: Deploy to Production Directory
         if: steps.filter.outputs.src == 'true'
         run: |
-          rsync -avz --delete --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude 'public/uploads' . /www/wwwroot/newppdb/
-          rsync -avz --exclude '.git' --exclude 'public/uploads' node_modules /www/wwwroot/newppdb/
+          # 1. Sync Standalone Server Files (Small & Fast)
+          rsync -avz --delete --exclude 'node_modules' .next/standalone/ /www/wwwroot/newppdb/
+          
+          # 2. Sync Static Assets (Incremental)
+          mkdir -p /www/wwwroot/newppdb/.next/static
+          rsync -avz --delete .next/static/ /www/wwwroot/newppdb/.next/static/
+          
+          #  PUBLIC_UPLOADS: If students upload to public/uploads, we MUST NOT delete it
+          # 3. Sync Public Assets (Incremental, Excluding uploads)
+          rsync -avz --delete --exclude 'uploads' public/ /www/wwwroot/newppdb/public/
 
       - name: Restart Application
         if: steps.filter.outputs.src == 'true'
         run: |
           cd /www/wwwroot/newppdb
-          pm2 restart newppdb || pm2 start npm --name "newppdb" -- start
+          pm2 restart newppdb || pm2 start server.js --name "newppdb"
