@@ -70,16 +70,17 @@ jobs:
       - name: Deploy to Production Directory
         if: steps.filter.outputs.src == 'true'
         run: |
-          # 1. Sync Standalone Server Files (Small & Fast)
-          rsync -avz --delete --exclude 'node_modules' .next/standalone/ /www/wwwroot/newppdb/
+          # 1. Sync Standalone Server Files (Safer Flags, No Root Delete)
+          # We use -rtvz to avoid permission errors (don't preserve owner/group)
+          # We remove --delete from root to preserve src/ and other server-side folders
+          rsync -rtvz .next/standalone/ /www/wwwroot/newppdb/
           
-          # 2. Sync Static Assets (Incremental)
+          # 2. Sync Static Assets (Incremental & Clean)
           mkdir -p /www/wwwroot/newppdb/.next/static
-          rsync -avz --delete .next/static/ /www/wwwroot/newppdb/.next/static/
+          rsync -rtvz --delete .next/static/ /www/wwwroot/newppdb/.next/static/
           
-          #  PUBLIC_UPLOADS: If students upload to public/uploads, we MUST NOT delete it
           # 3. Sync Public Assets (Incremental, Excluding uploads)
-          rsync -avz --delete --exclude 'uploads' public/ /www/wwwroot/newppdb/public/
+          rsync -rtvz --delete --exclude 'uploads' public/ /www/wwwroot/newppdb/public/
 
       - name: Restart Application
         if: steps.filter.outputs.src == 'true'
