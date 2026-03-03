@@ -109,7 +109,7 @@ export default async function RegistrationProofPage({
                                 </p>
                             </div>
                             <div className="flex gap-2">
-                                <PrintButton label="Cetak / PDF" />
+                                <PrintButton label="Cetak / Print" />
                                 <DownloadPdfButton
                                     targetId="printable-area"
                                     fileName={`Bukti_Pendaftaran_${selectedStudent.nisn}`}
