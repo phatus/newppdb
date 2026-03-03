@@ -6,12 +6,17 @@ import ExportButton from "@/components/admin/students/ExportButton";
 import PrintButton from "@/components/admin/PrintButton";
 import WaveSelector from "@/components/admin/WaveSelector";
 import { formatInWIB } from "@/lib/date-utils";
+import PaginationControl from "@/components/admin/PaginationControl";
+
+const PAGE_SIZE = 50; // Increased for reports to show more per page
 
 export default async function RecapPage(props: {
-    searchParams: Promise<{ waveId?: string }>
+    searchParams: Promise<{ waveId?: string; page?: string }>
 }) {
     const searchParams = await props.searchParams;
     const waveId = searchParams.waveId;
+    const currentPage = Math.max(1, parseInt(searchParams.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
 
     // Fetch all waves for the filter
     const waves = await db.wave.findMany({
@@ -24,17 +29,24 @@ export default async function RecapPage(props: {
         where.waveId = waveId;
     }
 
-    // Fetch students based on filter
-    const students = await db.student.findMany({
-        where,
-        orderBy: { namaLengkap: 'asc' },
-        include: {
-            user: {
-                select: { email: true, phoneNumber: true }
+    // Fetch students based on filter with pagination
+    const [students, totalCount] = await Promise.all([
+        db.student.findMany({
+            where,
+            orderBy: { namaLengkap: 'asc' },
+            include: {
+                user: {
+                    select: { email: true, phoneNumber: true }
+                },
+                grades: true
             },
-            grades: true
-        }
-    });
+            skip,
+            take: PAGE_SIZE,
+        }),
+        db.student.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
     const settings: any = await db.schoolSettings.findFirst();
     const cityOnly = (settings?.schoolCity || "Karanganyar").split(',')[0].trim();
@@ -80,7 +92,7 @@ export default async function RecapPage(props: {
                         <h4 className="font-bold text-lg">Data Pendaftar Masuk</h4>
                         {selectedWave && <p className="text-xs text-slate-500 font-medium">Gelombang: {selectedWave.name}</p>}
                     </div>
-                    <span className="text-sm text-slate-500">Total: {students.length} Murid</span>
+                    <span className="text-sm text-slate-500">Total: {totalCount} Murid</span>
                 </div>
 
                 <div className="overflow-x-auto">
@@ -98,7 +110,9 @@ export default async function RecapPage(props: {
                         <tbody className="divide-y divide-slate-100 border-b border-data-200 print:divide-slate-300 print:border-black">
                             {students.map((student: any, index: number) => (
                                 <tr key={student.id} className="hover:bg-slate-50 print:hover:bg-transparent">
-                                    <td className="py-2 px-4 text-slate-500 print:text-black align-top">{index + 1}</td>
+                                    <td className="py-2 px-4 text-slate-500 print:text-black align-top">
+                                        {skip + index + 1}
+                                    </td>
                                     <td className="py-2 px-4 font-medium text-slate-900 print:text-black align-top">
                                         {student.namaLengkap}
                                         <div className="text-xs text-slate-400 print:hidden">{student.user?.email}</div>
@@ -136,6 +150,16 @@ export default async function RecapPage(props: {
                         )}
                         <p className="font-bold border-b border-black inline-block min-w-[150px]">{settings?.committeeName || "Ketua Panitia"}</p>
                     </div>
+                </div>
+
+                {/* Pagination - only visible on screen */}
+                <div className="mt-6 no-print border-t border-slate-100 pt-4">
+                    <PaginationControl
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalItems={totalCount}
+                        itemsPerPage={PAGE_SIZE}
+                    />
                 </div>
             </div>
 

@@ -7,12 +7,17 @@ import PrintButton from "@/components/admin/PrintButton";
 import WaveSelector from "@/components/admin/WaveSelector";
 import { formatInWIB } from "@/lib/date-utils";
 import { getRankingData } from "@/app/actions/ranking";
+import PaginationControl from "@/components/admin/PaginationControl";
+
+const PAGE_SIZE = 50;
 
 export default async function SelectionRecapPage(props: {
-    searchParams: Promise<{ waveId?: string }>
+    searchParams: Promise<{ waveId?: string; page?: string }>
 }) {
     const searchParams = await props.searchParams;
     const waveId = searchParams.waveId;
+    const currentPage = Math.max(1, parseInt(searchParams.page || "1", 10));
+    const skip = (currentPage - 1) * PAGE_SIZE;
 
     // Fetch all waves for the filter
     const waves = await db.wave.findMany({
@@ -22,14 +27,19 @@ export default async function SelectionRecapPage(props: {
     // Fetch ranked students (this includes finalScore and LULUS/TIDAK_LULUS status)
     // We only want those who are already processed (LULUS or TIDAK_LULUS)
     const { students: allRanked } = await getRankingData({ waveId });
-    const students = allRanked.filter(s => s.statusKelulusan === "LULUS" || s.statusKelulusan === "TIDAK_LULUS");
+    const allFilteredStudents = allRanked.filter(s => s.statusKelulusan === "LULUS" || s.statusKelulusan === "TIDAK_LULUS");
+
+    // Paginate the filtered list
+    const students = allFilteredStudents.slice(skip, skip + PAGE_SIZE);
+    const totalCount = allFilteredStudents.length;
+    const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
     const settings: any = await db.schoolSettings.findFirst();
     const cityOnly = (settings?.schoolCity || "Pacitan").split(',')[0].trim();
     const selectedWave = waves.find(w => w.id === waveId);
 
-    const totalAccepted = students.filter(s => s.statusKelulusan === "LULUS").length;
-    const totalRejected = students.filter(s => s.statusKelulusan === "TIDAK_LULUS").length;
+    const totalAccepted = allFilteredStudents.filter(s => s.statusKelulusan === "LULUS").length;
+    const totalRejected = allFilteredStudents.filter(s => s.statusKelulusan === "TIDAK_LULUS").length;
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
@@ -56,7 +66,7 @@ export default async function SelectionRecapPage(props: {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 no-print">
                 <div className="bg-white dark:bg-[#1e293b] p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <p className="text-sm text-slate-500 mb-1 font-medium">Total Diproses</p>
-                    <h3 className="text-2xl font-black text-slate-900 dark:text-white">{students.length}</h3>
+                    <h3 className="text-2xl font-black text-slate-900 dark:text-white">{totalCount}</h3>
                 </div>
                 <div className="bg-emerald-50 dark:bg-emerald-900/10 p-6 rounded-xl border border-emerald-100 dark:border-emerald-800 shadow-sm">
                     <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-1 font-medium">Diterima</p>
@@ -109,7 +119,9 @@ export default async function SelectionRecapPage(props: {
                             ) : (
                                 students.map((student: any, index: number) => (
                                     <tr key={student.id} className="hover:bg-slate-50 print:hover:bg-transparent">
-                                        <td className="py-2.5 px-4 text-slate-500 print:text-black border border-slate-200 print:border-black text-center">{index + 1}</td>
+                                        <td className="py-2.5 px-4 text-slate-500 print:text-black border border-slate-200 print:border-black text-center">
+                                            {skip + index + 1}
+                                        </td>
                                         <td className="py-2.5 px-4 font-medium text-slate-900 print:text-black border border-slate-200 print:border-black">
                                             {student.namaLengkap}
                                         </td>
@@ -151,6 +163,16 @@ export default async function SelectionRecapPage(props: {
                         <p className="font-bold border-b border-black inline-block min-w-[150px] uppercase">{settings?.committeeName || "Ketua Panitia"}</p>
                         {settings?.committeeNip && <p className="text-xs">NIP. {settings.committeeNip}</p>}
                     </div>
+                </div>
+
+                {/* Pagination - only visible on screen */}
+                <div className="mt-6 no-print border-t border-slate-100 pt-4">
+                    <PaginationControl
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        totalItems={totalCount}
+                        itemsPerPage={PAGE_SIZE}
+                    />
                 </div>
             </div>
 
