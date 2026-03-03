@@ -70,17 +70,17 @@ jobs:
       - name: Deploy to Production Directory
         if: steps.filter.outputs.src == 'true'
         run: |
-          # 1. Sync Standalone Server Files (Safer Flags, No Root Delete)
-          # We use -rtvz to avoid permission errors (don't preserve owner/group)
-          # We remove --delete from root to preserve src/ and other server-side folders
-          rsync -rtvz .next/standalone/ /www/wwwroot/newppdb/
+          # 1. Sync Standalone Server Files (Sudo & Correct Ownership)
+          # We use sudo to bypass AApanel permission locks and --chown to ensure web server compatibility
+          sudo rsync -rtvz --inplace --chown=www:www .next/standalone/ /www/wwwroot/newppdb/
           
           # 2. Sync Static Assets (Incremental & Clean)
-          mkdir -p /www/wwwroot/newppdb/.next/static
-          rsync -rtvz --delete .next/static/ /www/wwwroot/newppdb/.next/static/
+          sudo mkdir -p /www/wwwroot/newppdb/.next/static
+          sudo chown www:www /www/wwwroot/newppdb/.next/static
+          sudo rsync -rtvz --inplace --delete --chown=www:www .next/static/ /www/wwwroot/newppdb/.next/static/
           
           # 3. Sync Public Assets (Incremental, Excluding uploads)
-          rsync -rtvz --delete --exclude 'uploads' public/ /www/wwwroot/newppdb/public/
+          sudo rsync -rtvz --inplace --delete --exclude 'uploads' --chown=www:www public/ /www/wwwroot/newppdb/public/
 
       - name: Restart Application
         if: steps.filter.outputs.src == 'true'
