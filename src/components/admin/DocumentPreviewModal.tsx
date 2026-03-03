@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { getFileUrl } from "@/lib/file-utils";
+import { getFileUrl } from "@/lib/utils";
 
 interface DocumentPreviewModalProps {
     isOpen: boolean;

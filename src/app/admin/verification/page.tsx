@@ -6,7 +6,7 @@ import VerificationStatusFilter from "@/components/admin/VerificationStatusFilte
 import PaginationControl from "@/components/admin/PaginationControl";
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
-import { getFileUrl } from "@/lib/file-utils";
+import { getFileUrl } from "@/lib/utils";
 
 const PAGE_SIZE = 12;
 

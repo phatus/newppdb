@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 import StudentSelector from "@/components/StudentSelector";
 import PrintButton from "@/components/PrintButton";
 import DownloadPdfButton from "@/components/DownloadPdfButton";
-import { getFileUrl } from "@/lib/file-utils";
+import { getFileUrl } from "@/lib/utils";
 
 interface Student {
     id: string;

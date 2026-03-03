@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { getFileUrl } from "@/lib/file-utils";
+import { getFileUrl } from "@/lib/utils";
 
 interface StudentCardProps {
     student: any; // We can improve this type later

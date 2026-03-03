@@ -52,13 +52,3 @@ export async function deleteFiles(fileUrls: (string | null | undefined)[]) {
     return results;
 }
 
-/**
- * Normalizes a file URL by ensuring it has a leading slash if it's a relative path.
- * If the URL is already absolute (starts with http) or null, it returns it as is.
- */
-export function getFileUrl(url: string | null | undefined): string {
-    if (!url) return "";
-    if (url.startsWith("http")) return url;
-    if (url.startsWith("/")) return url;
-    return `/${url}`;
-}

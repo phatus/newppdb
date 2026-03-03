@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import StudentSelector from "@/components/StudentSelector";
 import DocumentUploadButton from "@/components/DocumentUploadButton";
-import { getFileUrl } from "@/lib/file-utils";
+import { getFileUrl } from "@/lib/utils";
 
 interface Student {
     id: string;

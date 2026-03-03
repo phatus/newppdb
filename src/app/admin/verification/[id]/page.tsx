@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import DocumentList from "@/components/admin/DocumentList";
 import EditableGradeTable from "@/components/admin/EditableGradeTable";
-import { getFileUrl } from "@/lib/file-utils";
+import { getFileUrl } from "@/lib/utils";
 
 interface PageProps {
     params: {
