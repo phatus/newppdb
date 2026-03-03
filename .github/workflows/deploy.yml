@@ -1,4 +1,4 @@
-name: Deploy to Live Server (Self-Hosted Optim)
+name: Deploy to Live Server
 
 on:
   push:
@@ -16,7 +16,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: Identify Changes
         uses: dorny/paths-filter@v3
@@ -35,28 +34,35 @@ jobs:
               - 'package.json'
               - '.github/workflows/deploy.yml'
 
-      - name: Restore Next.js Cache
+      # Cache node_modules on self-hosted runner (biggest speedup)
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        id: npm-cache
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
+
+      - name: Install Dependencies
+        if: steps.npm-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      # Cache .next/cache for faster rebuilds
+      - name: Cache Next.js Build
         uses: actions/cache@v4
         with:
           path: .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('src/**') }}
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
 
-      - name: Install Dependencies
-        if: steps.filter.outputs.package == 'true' || steps.filter.outputs.src == 'true'
-        run: npm ci
-
-      - name: Copy .env from production folder
+      - name: Copy .env from production
         run: |
           if [ -f "/www/wwwroot/newppdb/.env" ]; then
             cp /www/wwwroot/newppdb/.env .
-          elif [ -f "../../.env" ]; then
-            cp ../../.env .
           fi
 
       - name: Generate Prisma Client
-        if: steps.filter.outputs.prisma == 'true' || steps.filter.outputs.package == 'true' || steps.filter.outputs.src == 'true'
+        if: steps.npm-cache.outputs.cache-hit != 'true' || steps.filter.outputs.prisma == 'true'
         run: npx prisma generate
 
       - name: Push Database Changes
@@ -67,20 +73,18 @@ jobs:
         if: steps.filter.outputs.src == 'true'
         run: npm run build
 
-      - name: Deploy to Production Directory
+      - name: Deploy to Production
         if: steps.filter.outputs.src == 'true'
         run: |
-          # 1. Sync Standalone Server Files (Sudo & Correct Ownership)
-          # Using absolute paths to match NOPASSWD security policy exactly
-          sudo /usr/bin/rsync -rtvz --inplace --chown=www:www .next/standalone/ /www/wwwroot/newppdb/
+          # Sync standalone (quiet, fast)
+          sudo /usr/bin/rsync -rltz --inplace --chown=www:www .next/standalone/ /www/wwwroot/newppdb/
           
-          # 2. Sync Static Assets (Incremental & Clean)
+          # Sync static assets
           sudo /usr/bin/mkdir -p /www/wwwroot/newppdb/.next/static
-          sudo /usr/bin/chown www:www /www/wwwroot/newppdb/.next/static
-          sudo /usr/bin/rsync -rtvz --inplace --delete --chown=www:www .next/static/ /www/wwwroot/newppdb/.next/static/
+          sudo /usr/bin/rsync -rltz --inplace --delete --chown=www:www .next/static/ /www/wwwroot/newppdb/.next/static/
           
-          # 3. Sync Public Assets (Incremental, Excluding uploads)
-          sudo /usr/bin/rsync -rtvz --inplace --delete --exclude 'uploads' --chown=www:www public/ /www/wwwroot/newppdb/public/
+          # Sync public (exclude uploads)
+          sudo /usr/bin/rsync -rltz --inplace --delete --exclude 'uploads' --chown=www:www public/ /www/wwwroot/newppdb/public/
 
       - name: Restart Application
         if: steps.filter.outputs.src == 'true'
