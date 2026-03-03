@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
+import Heartbeat from "./Heartbeat";
 
 interface DashboardShellProps {
     children: React.ReactNode;
@@ -24,6 +25,7 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
     const navItems = [
         { name: "Dashboard", href: "/dashboard", icon: "dashboard" },
         { name: "Dokumen", href: "/dashboard/student/documents", icon: "description" },
+        { name: "Akun Saya", href: "/dashboard/profile", icon: "account_circle" },
         { name: "Pengumuman", href: "/dashboard/announcements", icon: "campaign" },
         { name: "Bantuan", href: "/dashboard/help", icon: "help" },
     ];
@@ -55,6 +57,8 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
                                         <span className="material-symbols-outlined text-3xl">person</span>
                                     </div>
                                 )}
+                                {/* Online Indicator */}
+                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-[#1e293b] rounded-full shadow-sm z-10" title="Online" />
                             </div>
                             {!isSidebarCollapsed && (
                                 <div className="flex flex-col overflow-hidden animate-in fade-in duration-300">
@@ -133,6 +137,7 @@ export default function DashboardShell({ children, user }: DashboardShellProps) 
 
                     {children}
                 </div>
+                <Heartbeat />
             </main>
         </div>
     );

@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { getDashboardAnalytics } from "@/app/actions/analytics";
 import DashboardCharts from "@/components/admin/DashboardCharts";
+import { getOnlineUserCount } from "@/app/actions/users";
 
 export default async function AdminDashboardPage() {
     // 1. Fetch Key Metrics in Parallel
@@ -11,7 +12,8 @@ export default async function AdminDashboardPage() {
         verifiedCount,
         rejectedCount,
         recentStudents,
-        analyticsData
+        analyticsData,
+        onlineCount
     ] = await Promise.all([
         db.student.count(),
         db.student.count({ where: { statusVerifikasi: "PENDING" } }),
@@ -21,7 +23,8 @@ export default async function AdminDashboardPage() {
             take: 5,
             orderBy: { createdAt: "desc" },
         }),
-        getDashboardAnalytics()
+        getDashboardAnalytics(),
+        getOnlineUserCount()
     ]);
 
     // Helper for time formatting (simple relative time)
@@ -42,9 +45,22 @@ export default async function AdminDashboardPage() {
 
     return (
         <div className="p-5 w-full max-w-[1240px] mx-auto flex flex-col gap-5">
+            {/* User Online Badge */}
+            <div className="flex justify-end">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#1e293b] rounded-full border border-emerald-200 dark:border-emerald-800/50 shadow-sm">
+                    <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{onlineCount}</span>
+                    <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">user online</span>
+                </div>
+            </div>
+
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Card */}
+
+                {/* Total Pendaftar Card */}
                 <div className="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 flex flex-col gap-3 transition-all hover:shadow-md">
                     <div className="flex justify-between items-start">
                         <div className="p-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-primary">
@@ -62,6 +78,7 @@ export default async function AdminDashboardPage() {
                         </h3>
                     </div>
                 </div>
+
                 {/* Pending Card */}
                 <div className="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 flex flex-col gap-3 relative overflow-hidden transition-all hover:shadow-md">
                     <div className="absolute top-0 right-0 w-12 h-12 bg-yellow-400/5 rounded-bl-full -mr-2 -mt-2"></div>
@@ -84,6 +101,7 @@ export default async function AdminDashboardPage() {
                         </h3>
                     </div>
                 </div>
+
                 {/* Verified Card */}
                 <div className="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 flex flex-col gap-3 transition-all hover:shadow-md">
                     <div className="flex justify-between items-start">
@@ -102,6 +120,7 @@ export default async function AdminDashboardPage() {
                         </h3>
                     </div>
                 </div>
+
                 {/* Rejected Card */}
                 <div className="bg-white dark:bg-[#1e293b] rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 flex flex-col gap-3 transition-all hover:shadow-md">
                     <div className="flex justify-between items-start">
@@ -121,15 +140,17 @@ export default async function AdminDashboardPage() {
             </div>
 
             {/* Advanced Analytics Charts */}
-            {analyticsData && (
-                <div className="bg-white dark:bg-[#1e293b] rounded-xl p-5 border border-slate-200 dark:border-slate-700/50 shadow-sm">
-                    <h2 className="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-[20px]">monitoring</span>
-                        Analitik Pendaftaran
-                    </h2>
-                    <DashboardCharts data={analyticsData} />
-                </div>
-            )}
+            {
+                analyticsData && (
+                    <div className="bg-white dark:bg-[#1e293b] rounded-xl p-5 border border-slate-200 dark:border-slate-700/50 shadow-sm">
+                        <h2 className="text-base font-bold text-slate-900 dark:text-white mb-5 flex items-center gap-2">
+                            <span className="material-symbols-outlined text-primary text-[20px]">monitoring</span>
+                            Analitik Pendaftaran
+                        </h2>
+                        <DashboardCharts data={analyticsData} />
+                    </div>
+                )
+            }
 
             {/* Recent Activity Section */}
             <div className="grid grid-cols-1 gap-5">
@@ -185,6 +206,6 @@ export default async function AdminDashboardPage() {
                     <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                 </Link>
             </div>
-        </div>
+        </div >
     );
 }

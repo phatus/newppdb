@@ -3,6 +3,8 @@
 import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { hash } from "bcryptjs";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function getUsers() {
     try {
@@ -101,3 +103,63 @@ export async function updateUser(userId: string, data: { role: "ADMIN" | "USER";
         return { success: false, error: "Gagal mengupdate user" };
     }
 }
+export async function updateHeartbeat() {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.email) return { success: false };
+
+        await db.user.update({
+            where: { email: session.user.email },
+            data: { lastSeen: new Date() }
+        });
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating heartbeat:", error);
+        return { success: false };
+    }
+}
+
+export async function getOnlineUserCount() {
+    try {
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+        const count = await db.user.count({
+            where: {
+                lastSeen: {
+                    gte: fiveMinutesAgo
+                }
+            }
+        });
+        return count;
+    } catch (error) {
+        console.error("Error fetching online count:", error);
+        return 0;
+    }
+}
+
+export async function updateProfile(data: { name?: string; password?: string }) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session?.user?.id) {
+            return { success: false, error: "Unauthorized" };
+        }
+
+        const updateData: any = {};
+        if (data.name) updateData.name = data.name;
+        if (data.password && data.password.trim() !== "") {
+            updateData.password = await hash(data.password, 12);
+        }
+
+        await db.user.update({
+            where: { id: session.user.id },
+            data: updateData,
+        });
+
+        revalidatePath("/dashboard/profile");
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating profile:", error);
+        return { success: false, error: "Gagal mengupdate profil" };
+    }
+}
+
