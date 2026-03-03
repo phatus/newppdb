@@ -71,16 +71,16 @@ jobs:
         if: steps.filter.outputs.src == 'true'
         run: |
           # 1. Sync Standalone Server Files (Sudo & Correct Ownership)
-          # We use sudo to bypass AApanel permission locks and --chown to ensure web server compatibility
-          sudo rsync -rtvz --inplace --chown=www:www .next/standalone/ /www/wwwroot/newppdb/
+          # Using absolute paths to match NOPASSWD security policy exactly
+          sudo /usr/bin/rsync -rtvz --inplace --chown=www:www .next/standalone/ /www/wwwroot/newppdb/
           
           # 2. Sync Static Assets (Incremental & Clean)
-          sudo mkdir -p /www/wwwroot/newppdb/.next/static
-          sudo chown www:www /www/wwwroot/newppdb/.next/static
-          sudo rsync -rtvz --inplace --delete --chown=www:www .next/static/ /www/wwwroot/newppdb/.next/static/
+          sudo /usr/bin/mkdir -p /www/wwwroot/newppdb/.next/static
+          sudo /usr/bin/chown www:www /www/wwwroot/newppdb/.next/static
+          sudo /usr/bin/rsync -rtvz --inplace --delete --chown=www:www .next/static/ /www/wwwroot/newppdb/.next/static/
           
           # 3. Sync Public Assets (Incremental, Excluding uploads)
-          sudo rsync -rtvz --inplace --delete --exclude 'uploads' --chown=www:www public/ /www/wwwroot/newppdb/public/
+          sudo /usr/bin/rsync -rtvz --inplace --delete --exclude 'uploads' --chown=www:www public/ /www/wwwroot/newppdb/public/
 
       - name: Restart Application
         if: steps.filter.outputs.src == 'true'
