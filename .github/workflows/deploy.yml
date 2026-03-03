@@ -43,11 +43,11 @@ jobs:
 
       - name: Generate Prisma Client
         if: steps.filter.outputs.prisma == 'true' || steps.filter.outputs.package == 'true'
-        run: npx prisma generate
+        run: npx prisma@5.22.0 generate
 
       - name: Push Database Changes
         if: steps.filter.outputs.prisma == 'true'
-        run: npx prisma db push --accept-data-loss
+        run: npx prisma@5.22.0 db push --accept-data-loss
 
       - name: Build Application
         if: steps.filter.outputs.src == 'true'
