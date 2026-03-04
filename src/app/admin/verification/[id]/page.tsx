@@ -6,6 +6,10 @@ import EditableGradeTable from "@/components/admin/EditableGradeTable";
 import { getFileUrl } from "@/lib/utils";
 import ContactWAButton from "@/components/admin/ContactWAButton";
 import BioDataEditor from "@/components/admin/BioDataEditor";
+import VerificationClaimButton from "@/components/admin/VerificationClaimButton";
+import VerificationNoteInput from "@/components/admin/VerificationNoteInput";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 interface PageProps {
     params: {
@@ -83,12 +87,32 @@ const getDocumentList = (docs: any, jalur: string | null) => {
 export default async function VerificationDetailPage({ params }: any) {
     const { id } = await params;
 
-    // 2. Use Data Fetcher
+    // Get current admin session
+    const session = await getServerSession(authOptions);
+    const currentUser = session?.user?.email
+        ? await db.user.findUnique({ where: { email: session.user.email }, select: { id: true, name: true } })
+        : null;
+
+    // Use Data Fetcher
     const data = await getVerificationData(id);
     if (!data) return notFound();
 
     const { student, subjects, semesters } = data;
     const docList = getDocumentList(student.documents, student.jalur);
+
+    // Fetch verifier name if claimed
+    let verifierName: string | null = null;
+    if ((student as any).verifierId) {
+        const verifier = await db.user.findUnique({
+            where: { id: (student as any).verifierId },
+            select: { name: true, email: true }
+        });
+        verifierName = verifier?.name || verifier?.email || "Admin";
+    }
+
+    const isClaimed = !!(student as any).verifierId;
+    const isClaimedByMe = (student as any).verifierId === currentUser?.id;
+    const isClaimedByOther = isClaimed && !isClaimedByMe;
 
     // 3. Transform Grade Data for Easy Access: map[semesterId][subjectId] = score
     const gradesMap: Record<string, Record<string, number>> = {};
@@ -122,7 +146,13 @@ export default async function VerificationDetailPage({ params }: any) {
                         Validasi kelengkapan dan keabsahan dokumen murid.
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
+                    <VerificationClaimButton
+                        studentId={student.id}
+                        isClaimed={isClaimed}
+                        isClaimedByMe={isClaimedByMe}
+                        verifierName={verifierName}
+                    />
                     <Link
                         href={`/admin/print/registration-proof/${student.id}`}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
@@ -147,6 +177,12 @@ export default async function VerificationDetailPage({ params }: any) {
                     </span>
                 </div>
             </div>
+
+            {/* Verification Note (Internal Team Communication) */}
+            <VerificationNoteInput
+                studentId={student.id}
+                initialNote={(student as any).verificationNote || ""}
+            />
 
             {/* Split View Container for Grades */}
             <div className="flex flex-col gap-6">

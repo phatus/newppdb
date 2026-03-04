@@ -108,6 +108,7 @@ interface UpdateScoreData {
     skua?: number;
     achievement?: number;
     reportAvg?: number;
+    achievementNotes?: string;
 }
 
 export async function updateStudentScore(studentId: string, data: UpdateScoreData) {
@@ -119,13 +120,15 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
                 nilaiUjianTeori: data.theory,
                 nilaiUjianSKUA: data.skua,
                 nilaiPrestasi: data.achievement,
-                rataRataNilai: data.reportAvg
+                rataRataNilai: data.reportAvg,
+                catatanPrestasi: data.achievementNotes
             },
             update: {
                 nilaiUjianTeori: data.theory,
                 nilaiUjianSKUA: data.skua,
                 nilaiPrestasi: data.achievement,
-                rataRataNilai: data.reportAvg
+                rataRataNilai: data.reportAvg,
+                catatanPrestasi: data.achievementNotes
             }
         });
 
@@ -133,6 +136,7 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
         revalidatePath("/admin/grades");
         return { success: true };
     } catch (error) {
+        console.error("Update score error:", error);
         return { success: false, error: "Gagal update nilai" };
     }
 }

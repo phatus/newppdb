@@ -4,23 +4,33 @@ import SearchInput from "@/components/admin/SearchInput";
 import WaveSelector from "@/components/admin/WaveSelector";
 import VerificationStatusFilter from "@/components/admin/VerificationStatusFilter";
 import PaginationControl from "@/components/admin/PaginationControl";
+import VerificationClaimFilter from "@/components/admin/VerificationClaimFilter";
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
 import { getFileUrl } from "@/lib/utils";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const PAGE_SIZE = 12;
 
 export default async function VerificationListPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q?: string; waveId?: string; status?: string; page?: string }>;
+    searchParams: Promise<{ q?: string; waveId?: string; status?: string; page?: string; claim?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const query = resolvedParams?.q || "";
     const waveId = resolvedParams?.waveId;
     const status = resolvedParams?.status;
+    const claimFilter = resolvedParams?.claim; // "mine" to filter by current user
     const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
     const skip = (currentPage - 1) * PAGE_SIZE;
+
+    // Get current admin user
+    const session = await getServerSession(authOptions);
+    const currentUser = session?.user?.email
+        ? await db.user.findUnique({ where: { email: session.user.email }, select: { id: true, name: true } })
+        : null;
 
     // Base where clause (untuk search & wave)
     const baseWhere: any = {};
@@ -39,6 +49,11 @@ export default async function VerificationListPage({
     if (status) {
         whereClause.statusVerifikasi = status;
     }
+    if (claimFilter === "mine" && currentUser) {
+        whereClause.verifierId = currentUser.id;
+    } else if (claimFilter === "unclaimed") {
+        whereClause.verifierId = null;
+    }
 
     const [students, totalFiltered, pendingCount, verifiedCount, rejectedCount, waves] = await Promise.all([
         db.student.findMany({
@@ -46,7 +61,7 @@ export default async function VerificationListPage({
             orderBy: { createdAt: "desc" },
             include: {
                 documents: true,
-                user: { select: { email: true } }
+                user: { select: { email: true } },
             },
             skip,
             take: PAGE_SIZE,
@@ -57,6 +72,17 @@ export default async function VerificationListPage({
         db.student.count({ where: { ...baseWhere, statusVerifikasi: "REJECTED" } }),
         db.wave.findMany({ orderBy: { startDate: 'desc' } }),
     ]);
+
+    // Fetch verifier names for claimed students
+    const verifierIds = [...new Set(students.map((s: any) => s.verifierId).filter(Boolean))];
+    const verifiers = verifierIds.length > 0
+        ? await db.user.findMany({
+            where: { id: { in: verifierIds } },
+            select: { id: true, name: true, email: true }
+        })
+        : [];
+    const verifierMap: Record<string, string> = {};
+    verifiers.forEach(v => { verifierMap[v.id] = v.name || v.email; });
 
     const totalPages = Math.ceil(totalFiltered / PAGE_SIZE);
 
@@ -87,6 +113,12 @@ export default async function VerificationListPage({
 
                     <div className="flex-1 lg:flex-none">
                         <WaveSelector waves={waves} initialWaveId={waveId} />
+                    </div>
+
+                    <div className="h-12 w-px bg-slate-100 dark:bg-slate-700 hidden lg:block mx-2" />
+
+                    <div className="flex-1 lg:flex-none">
+                        <VerificationClaimFilter initialClaim={claimFilter} />
                     </div>
                 </div>
 
@@ -129,6 +161,17 @@ export default async function VerificationListPage({
                                 {student.statusVerifikasi || 'PENDING'}
                             </span>
                         </div>
+
+                        {/* Verifier Badge */}
+                        {student.verifierId && (
+                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium ${student.verifierId === currentUser?.id
+                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800'
+                                : 'bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-700'
+                                }`}>
+                                <span className="material-symbols-outlined text-[14px]">person</span>
+                                {student.verifierId === currentUser?.id ? 'Milik Anda' : verifierMap[student.verifierId] || 'Admin'}
+                            </div>
+                        )}
                         <div className="flex flex-col gap-2 text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
                             <div className="flex justify-between">
                                 <span>Jalur:</span>

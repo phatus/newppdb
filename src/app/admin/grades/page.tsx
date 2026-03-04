@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import BatchGradeTable from "@/components/admin/BatchGradeTable";
 import WaveSelector from "@/components/admin/WaveSelector";
+import JalurSelector from "@/components/admin/JalurSelector";
 import PaginationControl from "@/components/admin/PaginationControl";
 import { Suspense } from "react";
 
@@ -10,10 +11,11 @@ const PAGE_SIZE = 20;
 export default async function GradesPage({
     searchParams,
 }: {
-    searchParams: Promise<{ waveId?: string; page?: string }>;
+    searchParams: Promise<{ waveId?: string; page?: string; jalur?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const waveId = resolvedParams?.waveId;
+    const jalur = resolvedParams?.jalur;
     const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
     const skip = (currentPage - 1) * PAGE_SIZE;
 
@@ -21,8 +23,12 @@ export default async function GradesPage({
         statusVerifikasi: "VERIFIED" // Only allow grading verified students
     };
 
-    if (waveId) {
+    if (waveId && waveId !== "all") {
         whereClause.waveId = waveId;
+    }
+
+    if (jalur && jalur !== "all") {
+        whereClause.jalur = jalur as any;
     }
 
     const [students, totalFiltered, waves] = await Promise.all([
@@ -58,7 +64,8 @@ export default async function GradesPage({
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <WaveSelector waves={waves} initialWaveId={waveId} />
-                    <Link href="/admin/grades/import" className="w-full sm:w-auto">
+                    <JalurSelector initialJalur={jalur} />
+                    <Link href="/admin/grades/import" className="ml-auto w-full sm:w-auto">
                         <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg font-bold transition-colors shadow">
                             <span className="material-symbols-outlined">upload_file</span>
                             Import Nilai CBT

@@ -166,6 +166,11 @@ model Student {
   telepon          String?
   passwordCbt      String?
 
+  // Verification Team Fields
+  verifierId       String?            // Admin who claimed/verified this student
+  verifiedAt       DateTime?          // When final verification was done
+  verificationNote String?            // Internal note for team communication
+
   // Wave Relation
   wave             Wave?              @relation(fields: [waveId], references: [id])
   waveId           String?
@@ -199,6 +204,7 @@ model Student {
   @@index([jalur])
   @@index([statusKelulusan])
   @@index([asalSekolah])
+  @@index([verifierId])
 }
 
 model Documents {
@@ -277,6 +283,7 @@ model Grades {
   nilaiUjianTeori Float?
   nilaiUjianSKUA  Float?
   nilaiPrestasi   Float? // Calculated from verified documents using AchievementWeight
+  catatanPrestasi String?
   finalScore      Float? // Total score for ranking
   
   createdAt       DateTime @default(now())

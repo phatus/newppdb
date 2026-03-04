@@ -14,6 +14,9 @@ export async function verifyStudent(studentId: string) {
         return { success: false, error: "Unauthorized" };
     }
     try {
+        const user = await db.user.findUnique({ where: { email: session.user.email! } });
+        if (!user) return { success: false, error: "User tidak ditemukan" };
+
         // Check if student already has number
         const student = await db.student.findUnique({
             where: { id: studentId },
@@ -23,6 +26,8 @@ export async function verifyStudent(studentId: string) {
         const updateData: any = {
             statusVerifikasi: "VERIFIED",
             catatanPenolakan: null,
+            verifierId: user.id,
+            verifiedAt: new Date(),
         };
 
         if (!student?.nomorUjian) {
@@ -91,11 +96,15 @@ export async function rejectStudent(studentId: string, note: string) {
         return { success: false, error: "Unauthorized" };
     }
     try {
+        const user = await db.user.findUnique({ where: { email: session.user.email! } });
+        if (!user) return { success: false, error: "User tidak ditemukan" };
+
         await db.student.update({
             where: { id: studentId },
             data: {
                 statusVerifikasi: "REJECTED",
-                catatanPenolakan: note
+                catatanPenolakan: note,
+                verifierId: user.id,
             }
         });
 
