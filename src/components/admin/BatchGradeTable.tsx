@@ -16,11 +16,11 @@ interface StudentProps {
         nilaiUjianSKUA: number | null;
         nilaiPrestasi: number | null;
         rataRataNilai: number | null;
-        catatanPrestasi: string | null;
     } | null;
     documents?: {
         filePrestasi: string[];
     } | null;
+    verificationNote: string | null;
 }
 
 export default function BatchGradeTable({ students }: { students: StudentProps[] }) {
@@ -43,7 +43,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
             "Nilai Teori": student.grades?.nilaiUjianTeori || 0,
             "Nilai SKUA": student.grades?.nilaiUjianSKUA || 0,
             "Nilai Prestasi": student.grades?.nilaiPrestasi || 0,
-            "Catatan Prestasi": student.grades?.catatanPrestasi || "",
+            "Catatan Verifikasi": student.verificationNote || "",
         }));
 
         const wb = XLSX.utils.book_new();
@@ -59,7 +59,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
             { wch: 15 }, // Teori
             { wch: 15 }, // SKUA
             { wch: 15 }, // Prestasi
-            { wch: 30 }, // Catatan
+            { wch: 30 }, // Catatan Verifikasi
         ];
         ws['!cols'] = wscols;
 
@@ -108,7 +108,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                                         <span className="material-symbols-outlined text-[18px] text-primary">info</span>
                                     </div>
                                 </th>
-                                <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-48">Catatan Prestasi</th>
+                                <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-48">Catatan Verifikasi</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32 text-center">Status</th>
                             </tr>
                         </thead>
@@ -310,7 +310,6 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
     const [teori, setTeori] = useState(student.grades?.nilaiUjianTeori?.toString() || "");
     const [skua, setSkua] = useState(student.grades?.nilaiUjianSKUA?.toString() || "");
     const [prestasi, setPrestasi] = useState(student.grades?.nilaiPrestasi?.toString() || "");
-    const [notes, setNotes] = useState(student.grades?.catatanPrestasi || "");
     const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
     const handleSave = async () => {
@@ -323,7 +322,6 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
             theory: isNaN(valTeori) ? undefined : valTeori,
             skua: isNaN(valSkua) ? undefined : valSkua,
             achievement: isPrestasi ? (isNaN(valPrestasi) ? undefined : valPrestasi) : undefined,
-            achievementNotes: notes
         });
 
         if (res.success) {
@@ -421,14 +419,9 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
                 )}
             </td>
             <td className="px-6 py-3">
-                <input
-                    type="text"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    onBlur={handleSave}
-                    className="w-full rounded-md border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:italic"
-                    placeholder="Contoh: Juara 1 Bulutangkis..."
-                />
+                <div className="w-full min-h-[38px] px-3 py-1.5 text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50 rounded-md border border-slate-200 dark:border-slate-700/50 italic">
+                    {student.verificationNote || <span className="text-slate-300 dark:text-slate-600">Tidak ada catatan verifikasi</span>}
+                </div>
             </td>
             <td className="px-6 py-3 text-center">
                 <div className="flex items-center justify-center gap-2">
