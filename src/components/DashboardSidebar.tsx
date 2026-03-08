@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+const packageInfo = require("../../package.json");
 
 interface SidebarProps {
     user: {
@@ -87,14 +88,18 @@ export default function Sidebar({ user }: SidebarProps) {
                         </nav>
                     </div>
 
-                    {/* Logout */}
-                    <button
-                        onClick={() => signOut({ callbackUrl: "https://pmbm.mtsn1pacitan.sch.id" })}
-                        className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-9 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-xs font-bold leading-normal tracking-[0.015em] transition-colors"
-                    >
-                        <span className="material-symbols-outlined text-[18px]">logout</span>
-                        <span className="truncate">Logout</span>
-                    </button>
+                    <div className="flex flex-col gap-2 w-full mt-auto">
+                        <button
+                            onClick={() => signOut({ callbackUrl: "https://pmbm.mtsn1pacitan.sch.id" })}
+                            className="flex w-full cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-lg h-9 px-4 bg-slate-100 hover:bg-slate-200 text-slate-900 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-white text-xs font-bold leading-normal tracking-[0.015em] transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">logout</span>
+                            <span className="truncate">Logout</span>
+                        </button>
+                        <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                            v{packageInfo.version}
+                        </p>
+                    </div>
                 </div>
             </aside>
 

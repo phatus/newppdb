@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import LogoutButton from "@/components/LogoutButton";
+const packageInfo = require("../../package.json");
 
 interface AdminSidebarProps {
     schoolName: string;
@@ -201,6 +202,11 @@ export default function AdminSidebar({
                         <div className={isCollapsed ? "w-8 overflow-hidden" : "w-full"}>
                             <LogoutButton />
                         </div>
+                        {!isCollapsed && (
+                            <p className="text-center text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                                v{packageInfo.version}
+                            </p>
+                        )}
                     </div>
                 </div>
             </aside>
