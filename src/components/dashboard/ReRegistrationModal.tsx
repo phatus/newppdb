@@ -126,7 +126,7 @@ export default function ReRegistrationModal({ studentId, studentName, activeWave
                 <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 p-4 rounded-xl text-sm mb-6 flex gap-3 items-start">
                     <span className="material-symbols-outlined text-xl shrink-0">info</span>
                     <p>
-                        Data dokumen sebelumnya akan tetap tersimpan. Anda hanya perlu memilih jalur pendaftaran baru.
+                        Data dokumen dan nilai sebelumnya akan tetap tersimpan. Anda hanya perlu memilih jalur pendaftaran baru.
                     </p>
                 </div>
 

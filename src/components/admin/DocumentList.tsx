@@ -19,6 +19,7 @@ export default function DocumentList({ student, docList, studentId }: DocumentLi
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [previewTitle, setPreviewTitle] = useState("");
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
 
     // Action Modal State
     const [actionModal, setActionModal] = useState<{
@@ -80,6 +81,22 @@ export default function DocumentList({ student, docList, studentId }: DocumentLi
     return (
         <>
             <div className="p-6 space-y-4">
+                <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-sm font-bold text-slate-700 dark:text-slate-300">Daftar Dokumen</h4>
+                    <button
+                        onClick={() => setIsEditing(!isEditing)}
+                        className={`text-xs font-bold px-3 py-1.5 rounded-lg border flex items-center gap-1.5 transition-colors ${isEditing
+                                ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:border-amber-800'
+                                : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700 dark:hover:bg-slate-700'
+                            }`}
+                    >
+                        <span className="material-symbols-outlined text-[14px]">
+                            {isEditing ? 'close' : 'edit'}
+                        </span>
+                        {isEditing ? 'Selesai Edit' : 'Edit Dokumen'}
+                    </button>
+                </div>
+
                 {docList.map((doc) => {
                     const fileUrl = student.documents ? student.documents[doc.key] : null;
 
@@ -104,6 +121,7 @@ export default function DocumentList({ student, docList, studentId }: DocumentLi
                             status={status}
                             onPreview={handlePreview}
                             studentId={studentId}
+                            isEditing={isEditing}
                         />
                     );
                 })}

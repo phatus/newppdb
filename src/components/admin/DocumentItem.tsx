@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { verifyDocument } from "@/app/actions/verification";
 import { toast } from "react-hot-toast";
+import DocumentUploadButton from "@/components/DocumentUploadButton";
 
 interface DocumentItemProps {
     docKey: string;
@@ -12,6 +13,7 @@ interface DocumentItemProps {
     status: string; // "PENDING" | "VERIFIED" | "REJECTED" (Mapped from enum)
     onPreview: (url: string, title: string) => void;
     studentId: string;
+    isEditing?: boolean;
 }
 
 export default function DocumentItem({
@@ -21,7 +23,8 @@ export default function DocumentItem({
     fileUrl,
     status: initialStatus = "PENDING",
     onPreview,
-    studentId
+    studentId,
+    isEditing = false
 }: DocumentItemProps) {
     // Map DB status (VERIFIED/REJECTED) to UI status (VALID/INVALID)
     const normalizedStatus = initialStatus === "VERIFIED" ? "VALID" : initialStatus === "REJECTED" ? "INVALID" : "PENDING";
@@ -92,6 +95,13 @@ export default function DocumentItem({
                 </div>
 
                 <div className="flex gap-2 items-center">
+                    {isEditing && (
+                        <DocumentUploadButton
+                            studentId={studentId}
+                            documentType={docKey as any}
+                            label={hasFile ? "Ubah" : "Unggah"}
+                        />
+                    )}
                     {hasFile && (
                         <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-1 border border-slate-200 dark:border-slate-600">
                             <button

@@ -65,14 +65,9 @@ export async function reRegisterStudent(studentId: string, data: { newJalur: str
                 where: { id: student.id },
                 data: {
                     waveId: targetWave.id,
-                    jalur: data.newJalur as any, // Cast to any to avoid strict Enum type issues if mismatched
-                    statusVerifikasi: "PENDING",
+                    jalur: data.newJalur as any,
                     statusKelulusan: "PENDING",
-                    catatanPenolakan: null, // Clear rejection notes
-                    // Reset Documents logic? 
-                    // No, keep existing documents. Admin will re-verify or ask for new ones if needed.
-                    // But we might want to reset verification status of specific docs if logic required it, 
-                    // but for now let's assume docs are reused.
+                    catatanPenolakan: null,
                 }
             });
 

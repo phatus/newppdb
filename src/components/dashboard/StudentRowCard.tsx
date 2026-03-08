@@ -22,7 +22,7 @@ export default function StudentRowCard({ student, allActiveWaves = [], showGradu
     const handleMoveToNextStage = async () => {
         const result = await Swal.fire({
             title: 'Daftar Jalur Reguler?',
-            text: "Anda akan dipindahkan ke jalur Reguler untuk mengikuti seleksi tahap berikutnya. Data nilai tes Anda mungkin akan direset sesuai kebijakan sekolah.",
+            text: "Anda akan dipindahkan ke jalur Reguler untuk mengikuti seleksi tahap berikutnya. Data dokumen dan nilai Anda akan tetap tersimpan.",
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Ya, Daftar!',

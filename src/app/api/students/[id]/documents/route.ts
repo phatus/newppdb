@@ -17,6 +17,8 @@ export async function PATCH(
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        const isAdmin = session.user.role === 'ADMIN' || session.user.role === 'SUPER_ADMIN';
+
         const body = await req.json();
         console.log("Documents PATCH Body:", body);
 
@@ -35,16 +37,22 @@ export async function PATCH(
         }
 
         // Check verification status
+        let studentQuery: any = { id: studentId };
+
+        if (!isAdmin) {
+            studentQuery.userId = session.user.id;
+        }
+
         const student = await db.student.findUnique({
-            where: { id: studentId, userId: session.user.id },
+            where: studentQuery,
             include: { documents: true }
         });
 
         if (!student) {
-            return NextResponse.json({ message: "Student not found" }, { status: 404 });
+            return NextResponse.json({ message: "Student not found or unauthorized access" }, { status: 404 });
         }
 
-        if (student.statusVerifikasi === 'VERIFIED') {
+        if (student.statusVerifikasi === 'VERIFIED' && !isAdmin) {
             return NextResponse.json({ message: "Dokumen tidak dapat diubah karena sudah diverifikasi" }, { status: 400 });
         }
 
