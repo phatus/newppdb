@@ -8,6 +8,7 @@ import VerificationClaimFilter from "@/components/admin/VerificationClaimFilter"
 import { Suspense } from "react";
 import { formatInWIB } from "@/lib/date-utils";
 import { getFileUrl } from "@/lib/utils";
+import { checkStudentCompleteness } from "@/lib/completeness-utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -55,13 +56,14 @@ export default async function VerificationListPage({
         whereClause.verifierId = null;
     }
 
-    const [students, totalFiltered, pendingCount, verifiedCount, rejectedCount, waves] = await Promise.all([
+    const [students, totalFiltered, pendingCount, verifiedCount, rejectedCount, waves, semestersCount] = await Promise.all([
         db.student.findMany({
             where: whereClause,
             orderBy: { createdAt: "desc" },
             include: {
                 documents: true,
                 user: { select: { email: true } },
+                grades: { include: { semesterGrades: true } }
             },
             skip,
             take: PAGE_SIZE,
@@ -71,7 +73,17 @@ export default async function VerificationListPage({
         db.student.count({ where: { ...baseWhere, statusVerifikasi: "VERIFIED" } }),
         db.student.count({ where: { ...baseWhere, statusVerifikasi: "REJECTED" } }),
         db.wave.findMany({ orderBy: { startDate: 'desc' } }),
+        db.semester.count({
+            where: {
+                isActive: true,
+                NOT: {
+                    name: { contains: "Kelas 6 Semester 2" }
+                }
+            }
+        }),
     ]);
+
+    const requiredSemesterCount = semestersCount || 5;
 
     // Fetch verifier names for claimed students
     const verifierIds = [...new Set(students.map((s: any) => s.verifierId).filter(Boolean))];
@@ -131,67 +143,95 @@ export default async function VerificationListPage({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {students.map((student: any) => (
-                    <div key={student.id} className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-4 hover:border-primary/50 transition-colors">
-                        <div className="flex justify-between items-start">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0">
-                                    {student.documents?.pasFoto ? (
-                                        /* eslint-disable-next-line @next/next/no-img-element */
-                                        <img
-                                            src={getFileUrl(student.documents?.pasFoto)}
-                                            alt="Pas Foto"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    ) : (
-                                        <span className="material-symbols-outlined text-slate-400">person</span>
-                                    )}
+                {students.map((student: any) => {
+                    const completeness = checkStudentCompleteness(student, requiredSemesterCount);
+                    return (
+                        <div key={student.id} className="bg-white dark:bg-[#1e293b] rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 flex flex-col gap-4 hover:border-primary/50 transition-colors">
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center overflow-hidden shrink-0">
+                                        {student.documents?.pasFoto ? (
+                                            /* eslint-disable-next-line @next/next/no-img-element */
+                                            <img
+                                                src={getFileUrl(student.documents?.pasFoto)}
+                                                alt="Pas Foto"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <span className="material-symbols-outlined text-slate-400">person</span>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{student.namaLengkap}</h3>
+                                        <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
+                                        <p className="text-xs text-slate-400 truncate max-w-[150px]" title={student.user?.email || '-'}>📧 {student.user?.email || '-'}</p>
+                                        <p className="text-xs text-slate-400 truncate max-w-[150px]" title={student.telepon || '-'}>📱 {student.telepon || '-'}</p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 className="font-bold text-slate-900 dark:text-white truncate max-w-[150px]">{student.namaLengkap}</h3>
-                                    <p className="text-xs text-slate-500">NISN: {student.nisn}</p>
-                                    <p className="text-xs text-slate-400 truncate max-w-[150px]" title={student.user?.email || '-'}>📧 {student.user?.email || '-'}</p>
-                                    <p className="text-xs text-slate-400 truncate max-w-[150px]" title={student.telepon || '-'}>📱 {student.telepon || '-'}</p>
+                                <div className="flex flex-col items-end gap-1.5 shrink-0">
+                                    <span className={`text-[10px] font-bold px-2 py-1 rounded ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
+                                        student.statusVerifikasi === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                                            'bg-yellow-100 text-yellow-800'
+                                        }`}>
+                                        {student.statusVerifikasi || 'PENDING'}
+                                    </span>
+                                    <span className="text-[10px] font-bold px-2 py-1 rounded bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 flex items-center gap-1 group relative cursor-help">
+                                        {completeness.isComplete ? (
+                                            <>
+                                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Lengkap
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span> Belum Lengkap
+                                                {/* Tooltip */}
+                                                <div className="absolute top-full right-0 mt-2 p-2 bg-slate-900 text-white text-[10px] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all w-52 z-10 whitespace-normal leading-relaxed text-left pointer-events-none border border-slate-700">
+                                                    <div className="font-bold mb-1 border-b border-slate-700 pb-1">Data Kurang ({completeness.missing.length}):</div>
+                                                    <ul className="list-disc pl-3">
+                                                        {completeness.missing.slice(0, 5).map((item, idx) => (
+                                                            <li key={idx} className="truncate">{item}</li>
+                                                        ))}
+                                                        {completeness.missing.length > 5 && (
+                                                            <li className="text-slate-400 italic">+{completeness.missing.length - 5} baris lainnya</li>
+                                                        )}
+                                                    </ul>
+                                                </div>
+                                            </>
+                                        )}
+                                    </span>
                                 </div>
                             </div>
-                            <span className={`text-[10px] font-bold px-2 py-1 rounded ${student.statusVerifikasi === 'VERIFIED' ? 'bg-emerald-100 text-emerald-800' :
-                                student.statusVerifikasi === 'REJECTED' ? 'bg-red-100 text-red-800' :
-                                    'bg-yellow-100 text-yellow-800'
-                                }`}>
-                                {student.statusVerifikasi || 'PENDING'}
-                            </span>
-                        </div>
 
-                        {/* Verifier Badge */}
-                        {student.verifierId && (
-                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium ${student.verifierId === currentUser?.id
-                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800'
-                                : 'bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-700'
-                                }`}>
-                                <span className="material-symbols-outlined text-[14px]">person</span>
-                                {student.verifierId === currentUser?.id ? 'Milik Anda' : verifierMap[student.verifierId] || 'Admin'}
+                            {/* Verifier Badge */}
+                            {student.verifierId && (
+                                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium ${student.verifierId === currentUser?.id
+                                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800'
+                                    : 'bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-700'
+                                    }`}>
+                                    <span className="material-symbols-outlined text-[14px]">person</span>
+                                    {student.verifierId === currentUser?.id ? 'Milik Anda' : verifierMap[student.verifierId] || 'Admin'}
+                                </div>
+                            )}
+                            <div className="flex flex-col gap-2 text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
+                                <div className="flex justify-between">
+                                    <span>Jalur:</span>
+                                    <span className="font-medium text-slate-900 dark:text-white truncate max-w-[120px]">{student.jalur?.replace('_', ' ') || '-'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Tgl Daftar:</span>
+                                    <span className="font-medium text-slate-900 dark:text-white">
+                                        {formatInWIB(student.createdAt, {
+                                            day: 'numeric', month: 'short', year: 'numeric'
+                                        })}
+                                    </span>
+                                </div>
                             </div>
-                        )}
-                        <div className="flex flex-col gap-2 text-sm text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-700 pt-3">
-                            <div className="flex justify-between">
-                                <span>Jalur:</span>
-                                <span className="font-medium text-slate-900 dark:text-white truncate max-w-[120px]">{student.jalur?.replace('_', ' ') || '-'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Tgl Daftar:</span>
-                                <span className="font-medium text-slate-900 dark:text-white">
-                                    {formatInWIB(student.createdAt, {
-                                        day: 'numeric', month: 'short', year: 'numeric'
-                                    })}
-                                </span>
-                            </div>
+                            <Link href={`/admin/verification/${student.id}`} className="mt-2 w-full flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary hover:text-white py-2 rounded-lg font-bold text-sm transition-all">
+                                <span className="material-symbols-outlined text-[18px]">edit_document</span>
+                                Verifikasi Sekarang
+                            </Link>
                         </div>
-                        <Link href={`/admin/verification/${student.id}`} className="mt-2 w-full flex items-center justify-center gap-2 bg-primary/10 text-primary hover:bg-primary hover:text-white py-2 rounded-lg font-bold text-sm transition-all">
-                            <span className="material-symbols-outlined text-[18px]">edit_document</span>
-                            Verifikasi Sekarang
-                        </Link>
-                    </div>
-                ))}
+                    )
+                })}
 
                 {students.length === 0 && (
                     <div className="col-span-full p-12 text-center text-slate-500">
