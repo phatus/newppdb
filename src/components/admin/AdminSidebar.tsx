@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import LogoutButton from "@/components/LogoutButton";
-const packageInfo = require("../../package.json");
+const packageInfo = require("../../../package.json");
 
 interface AdminSidebarProps {
     schoolName: string;
