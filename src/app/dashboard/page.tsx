@@ -58,10 +58,7 @@ export default async function DashboardPage() {
     // Fetch Active Semesters to determine required grades
     const activeSemesters = await db.semester.findMany({
         where: {
-            isActive: true,
-            NOT: {
-                name: { contains: "Kelas 6 Semester 2" }
-            }
+            isActive: true
         }
     });
     const requiredSemesterCount = activeSemesters.length || 5; // Fallback to 5
@@ -230,7 +227,7 @@ export default async function DashboardPage() {
                     );
                 }
 
-                // Incomplete Data Warning (Existing Logic)
+                // Incomplete Data Warning (Dynamic Grades based on Settings)
                 const missingDocs = [];
                 const docs = student.documents;
                 if (!docs?.fileKK) missingDocs.push("Kartu Keluarga");

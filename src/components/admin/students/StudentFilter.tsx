@@ -12,6 +12,7 @@ export default function StudentFilter() {
     // Initial state from URL
     const [jalur, setJalur] = useState(searchParams.get("jalur") || "");
     const [status, setStatus] = useState(searchParams.get("status") || "");
+    const [dokumen, setDokumen] = useState(searchParams.get("dokumen") || "");
 
     const handleApply = () => {
         const params = new URLSearchParams(searchParams.toString());
@@ -22,6 +23,10 @@ export default function StudentFilter() {
         if (status) params.set("status", status);
         else params.delete("status");
 
+        if (dokumen) params.set("dokumen", dokumen);
+        else params.delete("dokumen");
+
+        params.delete("page");
         router.push(`?${params.toString()}`);
         setIsOpen(false);
     };
@@ -29,9 +34,12 @@ export default function StudentFilter() {
     const handleReset = () => {
         setJalur("");
         setStatus("");
+        setDokumen("");
         const params = new URLSearchParams(searchParams.toString());
         params.delete("jalur");
         params.delete("status");
+        params.delete("dokumen");
+        params.delete("page");
         router.push(`?${params.toString()}`);
         setIsOpen(false);
     };
@@ -47,7 +55,7 @@ export default function StudentFilter() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [dropdownRef]);
 
-    const activeFiltersCount = (jalur ? 1 : 0) + (status ? 1 : 0);
+    const activeFiltersCount = (jalur ? 1 : 0) + (status ? 1 : 0) + (dokumen ? 1 : 0);
 
     return (
         <div className="relative" ref={dropdownRef}>
@@ -103,6 +111,19 @@ export default function StudentFilter() {
                                 <option value="PENDING">Pending</option>
                                 <option value="VERIFIED">Verified</option>
                                 <option value="REJECTED">rejected</option>
+                            </select>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-xs font-semibold text-slate-500">Kelengkapan Data</label>
+                            <select
+                                value={dokumen}
+                                onChange={(e) => setDokumen(e.target.value)}
+                                className="w-full p-2 text-sm border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-primary"
+                            >
+                                <option value="">Semua</option>
+                                <option value="LENGKAP">Data Lengkap</option>
+                                <option value="BELUM_LENGKAP">Belum Lengkap</option>
                             </select>
                         </div>
 

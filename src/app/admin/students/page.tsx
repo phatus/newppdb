@@ -14,13 +14,14 @@ const PAGE_SIZE = 20;
 export default async function StudentListPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q: string; jalur: string; status: string; waveId: string; page: string }>;
+    searchParams: Promise<{ q: string; jalur: string; status: string; waveId: string; page: string; dokumen: string }>;
 }) {
     const resolvedParams = await searchParams;
     const query = resolvedParams?.q || "";
     const jalur = resolvedParams?.jalur;
     const status = resolvedParams?.status;
     const waveId = resolvedParams?.waveId;
+    const dokumen = resolvedParams?.dokumen; // "LENGKAP" | "BELUM_LENGKAP"
     const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
     const skip = (currentPage - 1) * PAGE_SIZE;
 
@@ -52,7 +53,48 @@ export default async function StudentListPage({
         whereClause.waveId = waveId;
     }
 
-    const [students, filteredCount, totalCount, verifiedCount] = await Promise.all([
+    // Logika completeness mengikuti checkStudentCompleteness dari completeness-utils.ts
+    // Semua field biodata, alamat, kontak, dokumen, dan grades wajib terisi
+    const completeBiodataFields = [
+        { namaLengkap: { not: "" } },
+        { nisn: { not: "" } },
+    ];
+
+    // Filter kondisi dokumen lengkap (one-to-one relations simplified)
+    const docsLengkapFilter = [
+        { documents: { AND: [{ fileKK: { not: null } }, { fileKK: { not: "" } }] } },
+        { documents: { AND: [{ fileAkta: { not: null } }, { fileAkta: { not: "" } }] } },
+        { documents: { AND: [{ pasFoto: { not: null } }, { pasFoto: { not: "" } }] } },
+        { documents: { AND: [{ fileRaport: { not: null } }, { fileRaport: { not: "" } }] } },
+    ];
+    const gradesLengkapFilter = [
+        { grades: { semesterGrades: { some: {} } } },
+    ];
+
+    if (dokumen === "LENGKAP") {
+        whereClause.AND = [
+            ...completeBiodataFields,
+            ...docsLengkapFilter,
+            ...gradesLengkapFilter,
+        ];
+    } else if (dokumen === "BELUM_LENGKAP") {
+        whereClause.NOT = {
+            AND: [
+                ...completeBiodataFields,
+                ...docsLengkapFilter,
+                ...gradesLengkapFilter,
+            ],
+        };
+    }
+    const lengkapWhere: any = {
+        AND: [
+            ...completeBiodataFields,
+            ...docsLengkapFilter,
+            ...gradesLengkapFilter,
+        ],
+    };
+
+    const [students, filteredCount, totalCount, verifiedCount, dokumenLengkapCount] = await Promise.all([
         db.student.findMany({
             where: whereClause,
             include: {
@@ -67,6 +109,7 @@ export default async function StudentListPage({
         db.student.count({ where: whereClause }),
         db.student.count(),
         db.student.count({ where: { statusVerifikasi: "VERIFIED" } }),
+        db.student.count({ where: lengkapWhere }),
     ]);
 
     const totalPages = Math.ceil(filteredCount / PAGE_SIZE);
@@ -106,7 +149,8 @@ export default async function StudentListPage({
                 </Suspense>
                 <div className="flex gap-4 text-sm font-medium text-slate-500">
                     <span>Total: <strong className="text-slate-900 dark:text-white">{totalCount}</strong></span>
-                    <span>Verifikasi: <strong className="text-yellow-600">{verifiedCount}</strong></span>
+                    <span>Terverifikasi: <strong className="text-yellow-600">{verifiedCount}</strong></span>
+                    <span>Data Lengkap: <strong className="text-emerald-600">{dokumenLengkapCount}</strong></span>
                 </div>
             </div>
 

@@ -74,12 +74,7 @@ export default async function VerificationListPage({
         db.student.count({ where: { ...baseWhere, statusVerifikasi: "REJECTED" } }),
         db.wave.findMany({ orderBy: { startDate: 'desc' } }),
         db.semester.count({
-            where: {
-                isActive: true,
-                NOT: {
-                    name: { contains: "Kelas 6 Semester 2" }
-                }
-            }
+            where: { isActive: true }
         }),
     ]);
 
@@ -99,7 +94,7 @@ export default async function VerificationListPage({
     const totalPages = Math.ceil(totalFiltered / PAGE_SIZE);
 
     return (
-        <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
+        <div className="p-6 w-full max-w-[1240px] mx-auto flex flex-col gap-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -159,8 +154,8 @@ export default async function VerificationListPage({
 
                                     {/* Data Completeness Badge */}
                                     <span className={`text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1.5 group relative cursor-help ${completeness.isComplete
-                                            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
-                                            : 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400'
+                                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400'
+                                        : 'bg-rose-50 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400'
                                         }`}
                                     >
                                         <span className={`w-1.5 h-1.5 rounded-full ${completeness.isComplete ? 'bg-emerald-500' : 'bg-rose-500'}`}></span>
