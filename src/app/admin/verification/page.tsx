@@ -56,7 +56,8 @@ export default async function VerificationListPage({
         whereClause.verifierId = null;
     }
 
-    const [students, totalFiltered, pendingCount, verifiedCount, rejectedCount, waves, semestersCount] = await Promise.all([
+    // Fetch student status counts using groupBy to save connections
+    const [students, totalFiltered, countsByStatus, waves, semestersCount] = await Promise.all([
         db.student.findMany({
             where: whereClause,
             orderBy: { createdAt: "desc" },
@@ -69,14 +70,21 @@ export default async function VerificationListPage({
             take: PAGE_SIZE,
         }),
         db.student.count({ where: whereClause }),
-        db.student.count({ where: { ...baseWhere, statusVerifikasi: "PENDING" } }),
-        db.student.count({ where: { ...baseWhere, statusVerifikasi: "VERIFIED" } }),
-        db.student.count({ where: { ...baseWhere, statusVerifikasi: "REJECTED" } }),
+        db.student.groupBy({
+            by: ['statusVerifikasi'],
+            where: baseWhere,
+            _count: { _all: true }
+        }),
         db.wave.findMany({ orderBy: { startDate: 'desc' } }),
         db.semester.count({
             where: { isActive: true }
         }),
     ]);
+
+    // Map counts from grouped result
+    const pendingCount = countsByStatus.find(c => c.statusVerifikasi === "PENDING")?._count._all || 0;
+    const verifiedCount = countsByStatus.find(c => c.statusVerifikasi === "VERIFIED")?._count._all || 0;
+    const rejectedCount = countsByStatus.find(c => c.statusVerifikasi === "REJECTED")?._count._all || 0;
 
     const requiredSemesterCount = semestersCount || 5;
 
