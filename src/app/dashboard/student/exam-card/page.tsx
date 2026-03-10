@@ -99,7 +99,44 @@ export default async function ExamCardPage({
     }
 
     return (
-        <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white">
+        <div className="flex flex-col h-full bg-background-light dark:bg-background-dark p-6 lg:px-12 lg:py-8 print:p-0 print:bg-white text-slate-900">
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @media print {
+                    @page {
+                        size: A4;
+                        margin: 10mm;
+                    }
+                    body {
+                        background: white !important;
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    .print\\:hidden {
+                        display: none !important;
+                    }
+                    #printable-area {
+                        display: block !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        width: 100% !important;
+                    }
+                    .exam-card-container {
+                        border: 2px solid #1e293b !important;
+                        width: 100% !important;
+                        max-width: none !important;
+                        margin: 0 0 15mm 0 !important;
+                        break-inside: avoid;
+                        box-shadow: none !important;
+                    }
+                    .bg-slate-100, .bg-slate-200 {
+                        background-color: #f1f5f9 !important;
+                    }
+                    .bg-slate-900 {
+                        background-color: #0f172a !important;
+                    }
+                }
+            `}} />
             <div className="max-w-[1100px] mx-auto space-y-6 w-full print:max-w-none print:w-full">
                 {/* Back Link (Hidden in Print) */}
                 <div className="mb-6 flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 print:hidden">
@@ -185,7 +222,7 @@ export default async function ExamCardPage({
                                             {studentsToRender.map((student, studentIdx) => (
                                                 <div
                                                     key={student.id}
-                                                    className={`bg-white text-slate-900 w-full min-w-[620px] max-w-[700px] border-2 border-slate-800 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-2 ${studentIdx > 0 ? 'print:break-before-page mt-8 print:mt-0' : ''
+                                                    className={`bg-white text-slate-900 w-full min-w-[620px] max-w-[720px] border-2 border-slate-800 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-2 exam-card-container ${studentIdx > 0 ? 'print:break-before-page mt-8 print:mt-0' : ''
                                                         }`}
                                                 >
                                                     {/* Header */}
@@ -193,9 +230,9 @@ export default async function ExamCardPage({
                                                         <div className="flex items-center gap-4">
                                                             <div className="size-16 flex items-center justify-center overflow-hidden">
                                                                 {schoolLogo ? (
-                                                                    <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
+                                                                    <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
                                                                 ) : (
-                                                                    <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
+                                                                    <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
                                                                 )}
                                                             </div>
                                                             <div>
@@ -246,7 +283,6 @@ export default async function ExamCardPage({
                                                                     src={getFileUrl(student.documents.pasFoto)}
                                                                     alt="Pas Foto"
                                                                     className="w-full h-full object-cover"
-                                                                    crossOrigin="anonymous"
                                                                 />
                                                             ) : (
                                                                 <>
