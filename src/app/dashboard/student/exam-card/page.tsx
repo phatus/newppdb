@@ -193,9 +193,9 @@ export default async function ExamCardPage({
                                                         <div className="flex items-center gap-4">
                                                             <div className="size-16 flex items-center justify-center overflow-hidden">
                                                                 {schoolLogo ? (
-                                                                    <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" />
+                                                                    <img src={schoolLogo} alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
                                                                 ) : (
-                                                                    <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" />
+                                                                    <img src="/uploads/school_logo_1767362065250.png" alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
                                                                 )}
                                                             </div>
                                                             <div>
@@ -246,6 +246,7 @@ export default async function ExamCardPage({
                                                                     src={getFileUrl(student.documents.pasFoto)}
                                                                     alt="Pas Foto"
                                                                     className="w-full h-full object-cover"
+                                                                    crossOrigin="anonymous"
                                                                 />
                                                             ) : (
                                                                 <>

@@ -22,7 +22,10 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
             // Using html-to-image which supports modern CSS (oklch, fallback variables) better than html2canvas
             const dataUrl = await toPng(element, {
                 quality: 0.95,
-                backgroundColor: '#ffffff'
+                backgroundColor: '#ffffff',
+                pixelRatio: 2,
+                cacheBust: true,
+                skipFonts: true, // Sometimes fonts cause [object Event] errors
             });
 
             const pdf = new jsPDF({
@@ -40,7 +43,21 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
 
         } catch (error: any) {
             console.error("Error generating PDF:", error);
-            alert(`Gagal mengunduh PDF (v3): ${error.message || error}`);
+            let errorMessage = "Terjadi kesalahan tidak dikenal";
+
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            } else if (typeof error === 'object' && error !== null) {
+                // html-to-image often throws Event objects on failure
+                errorMessage = `Gagal memuat gambar atau font: ${JSON.stringify(error)}`;
+                if (Object.keys(error).length === 0) {
+                    errorMessage = "Gagal memuat aset (CORS atau Timeout). Pastikan koneksi internet stabil.";
+                }
+            } else {
+                errorMessage = String(error);
+            }
+
+            alert(`Gagal mengunduh PDF: ${errorMessage}`);
         } finally {
             setLoading(false);
         }

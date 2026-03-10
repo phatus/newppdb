@@ -57,7 +57,7 @@ export default async function SelectionRecapPage(props: {
                 <div className="flex items-center gap-3">
                     <WaveSelector waves={waves} initialWaveId={waveId} />
                     <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2" />
-                    <SelectionExportButton students={students} />
+                    <SelectionExportButton students={allFilteredStudents} />
                     <PrintButton />
                 </div>
             </div>

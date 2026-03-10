@@ -203,3 +203,81 @@ export async function updateStudentBio(studentId: string, data: any) {
         return { success: false, error: error.message };
     }
 }
+export async function getStudentsForExport(filters: {
+    q?: string;
+    jalur?: string;
+    status?: string;
+    waveId?: string;
+    dokumen?: string;
+}) {
+    try {
+        await checkAdmin();
+
+        const whereClause: any = {};
+
+        if (filters.q) {
+            whereClause.OR = [
+                { namaLengkap: { contains: filters.q, mode: "insensitive" } },
+                { nisn: { contains: filters.q } },
+                { asalSekolah: { contains: filters.q, mode: "insensitive" } },
+            ];
+        }
+
+        if (filters.jalur) {
+            whereClause.jalur = filters.jalur as any;
+        }
+
+        if (filters.status) {
+            whereClause.statusVerifikasi = filters.status as any;
+        }
+
+        if (filters.waveId && filters.waveId !== "all") {
+            whereClause.waveId = filters.waveId;
+        }
+
+        const completeBiodataFields = [
+            { namaLengkap: { not: "" } },
+            { nisn: { not: "" } },
+        ];
+
+        const docsLengkapFilter = [
+            { documents: { AND: [{ fileKK: { not: null } }, { fileKK: { not: "" } }] } },
+            { documents: { AND: [{ fileAkta: { not: null } }, { fileAkta: { not: "" } }] } },
+            { documents: { AND: [{ pasFoto: { not: null } }, { pasFoto: { not: "" } }] } },
+            { documents: { AND: [{ fileRaport: { not: null } }, { fileRaport: { not: "" } }] } },
+        ];
+        const gradesLengkapFilter = [
+            { grades: { semesterGrades: { some: {} } } },
+        ];
+
+        if (filters.dokumen === "LENGKAP") {
+            whereClause.AND = [
+                ...completeBiodataFields,
+                ...docsLengkapFilter,
+                ...gradesLengkapFilter,
+            ];
+        } else if (filters.dokumen === "BELUM_LENGKAP") {
+            whereClause.NOT = {
+                AND: [
+                    ...completeBiodataFields,
+                    ...docsLengkapFilter,
+                    ...gradesLengkapFilter,
+                ],
+            };
+        }
+
+        const students = await db.student.findMany({
+            where: whereClause,
+            include: {
+                user: true,
+                wave: true,
+            },
+            orderBy: { createdAt: "desc" },
+        });
+
+        return { success: true, students };
+    } catch (error: any) {
+        console.error("Error fetching students for export:", error);
+        return { success: false, error: error.message };
+    }
+}

@@ -132,7 +132,7 @@ export default async function StudentListPage({
                     <Suspense fallback={null}>
                         <StudentFilter />
                     </Suspense>
-                    <ExportButton students={students} />
+                    <ExportButton filters={{ q: query, jalur, status, waveId, dokumen }} />
                 </div>
             </div>
 
