@@ -50,3 +50,21 @@ body {
     content: none !important;
   }
 }
+
+/* PDF Export Utility */
+.is-pdf-exporting {
+  background: white !important;
+  color: #0f172a !important; /* slate-900 */
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 210mm !important; /* A4 Width */
+  min-height: 297mm !important; /* A4 Height */
+}
+
+.is-pdf-exporting * {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}

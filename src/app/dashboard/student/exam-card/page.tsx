@@ -115,11 +115,31 @@ export default async function ExamCardPage({
                     .print\\:hidden {
                         display: none !important;
                     }
+                    #printable-area.is-pdf-exporting, 
+                    #printable-area.is-pdf-exporting * {
+                         -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                    }
+                    #printable-area.is-pdf-exporting {
+                        display: block !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        width: 210mm !important;
+                        background: white !important;
+                    }
                     #printable-area {
                         display: block !important;
                         margin: 0 !important;
                         padding: 0 !important;
                         width: 100% !important;
+                    }
+                    .exam-card-container.is-pdf-exporting {
+                         border: 2px solid #1e293b !important;
+                        width: 100% !important;
+                        max-width: none !important;
+                        margin: 0 0 15mm 0 !important;
+                        box-shadow: none !important;
+                        background: white !important;
                     }
                     .exam-card-container {
                         border: 2px solid #1e293b !important;
@@ -129,8 +149,15 @@ export default async function ExamCardPage({
                         break-inside: avoid;
                         box-shadow: none !important;
                     }
+                    .is-pdf-exporting .bg-slate-100, 
+                    .is-pdf-exporting .bg-slate-200 {
+                        background-color: #f1f5f9 !important;
+                    }
                     .bg-slate-100, .bg-slate-200 {
                         background-color: #f1f5f9 !important;
+                    }
+                    .is-pdf-exporting .bg-slate-900 {
+                        background-color: #0f172a !important;
                     }
                     .bg-slate-900 {
                         background-color: #0f172a !important;

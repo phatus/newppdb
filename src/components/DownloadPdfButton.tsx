@@ -18,14 +18,17 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
         if (!element) return;
 
         setLoading(true);
+        // Add class for PDF-specific styling
+        element.classList.add('is-pdf-exporting');
+
         try {
             // Using html-to-image which supports modern CSS (oklch, fallback variables) better than html2canvas
             const dataUrl = await toPng(element, {
-                quality: 0.95,
+                quality: 1.0,
                 backgroundColor: '#ffffff',
-                pixelRatio: 2,
+                pixelRatio: 3, // Increased for better clarity
                 cacheBust: true,
-                skipFonts: true, // Sometimes fonts cause [object Event] errors
+                skipFonts: false, // Try to include fonts for better look
             });
 
             const pdf = new jsPDF({
@@ -38,7 +41,8 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-            pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
+            // Use 'FAST' or 'SLOW' to balance speed vs quality
+            pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
             pdf.save(`${fileName}.pdf`);
 
         } catch (error: any) {
@@ -59,6 +63,7 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
 
             alert(`Gagal mengunduh PDF: ${errorMessage}`);
         } finally {
+            element.classList.remove('is-pdf-exporting');
             setLoading(false);
         }
     };

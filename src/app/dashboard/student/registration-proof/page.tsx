@@ -121,9 +121,9 @@ export default async function RegistrationProofPage({
                         {/* The Document Container */}
                         <div className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl overflow-x-auto print:bg-white print:border-none print:p-0 print:overflow-visible">
                             {/* The Document Itself */}
-                            <div id="printable-area" className="bg-white text-slate-900 w-full md:w-[210mm] min-h-[297mm] border border-slate-300 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-none font-sans print:min-h-0 print:h-auto print:p-6 print:text-sm">
+                            <div id="printable-area" className="group bg-white text-slate-900 w-full md:w-[210mm] min-h-[297mm] border border-slate-300 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-none font-sans print:min-h-0 print:h-auto print:p-6 print:text-sm [&.is-pdf-exporting]:shadow-none [&.is-pdf-exporting]:border-none [&.is-pdf-exporting]:w-[210mm] [&.is-pdf-exporting]:min-h-[297mm] [&.is-pdf-exporting]:p-12 [&.is-pdf-exporting]:mx-0">
                                 {/* Header */}
-                                <div className="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-6 print:pb-2 print:mb-4">
+                                <div className="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-6 print:pb-2 print:mb-4 group-[.is-pdf-exporting]:pb-4 group-[.is-pdf-exporting]:mb-6">
                                     <div className="flex items-center gap-4 print:gap-3">
                                         <div className="size-20 flex items-center justify-center overflow-hidden shrink-0 print:size-16">
                                             {schoolLogo ? (
@@ -133,27 +133,27 @@ export default async function RegistrationProofPage({
                                             )}
                                         </div>
                                         <div className="space-y-1 print:space-y-0">
-                                            <h3 className="font-bold text-lg text-slate-700 leading-none print:text-base">Panitia PMBM</h3>
-                                            <h2 className="font-black text-3xl leading-none text-slate-900 print:text-2xl">{schoolName}</h2>
-                                            <p className="text-sm font-medium text-slate-600 tracking-wide print:text-xs">Tahun Pelajaran {academicYear}</p>
+                                            <h3 className="font-bold text-lg text-slate-700 leading-none print:text-base group-[.is-pdf-exporting]:text-lg">Panitia PMBM</h3>
+                                            <h2 className="font-black text-3xl leading-none text-slate-900 print:text-2xl group-[.is-pdf-exporting]:text-3xl">{schoolName}</h2>
+                                            <p className="text-sm font-medium text-slate-600 tracking-wide print:text-xs group-[.is-pdf-exporting]:text-sm">Tahun Pelajaran {academicYear}</p>
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
-                                        <div className="bg-slate-900 text-white text-xs font-bold px-4 py-1.5 mb-2 print:bg-black print:text-white print:px-3 print:py-1 print:mb-1 print:text-[10px]">
+                                        <div className="bg-slate-900 text-white text-xs font-bold px-4 py-1.5 mb-2 print:bg-black print:text-white print:px-3 print:py-1 print:mb-1 print:text-[10px] group-[.is-pdf-exporting]:bg-slate-900 group-[.is-pdf-exporting]:text-white">
                                             Bukti Pendaftaran
                                         </div>
-                                        <div className="text-right font-medium text-sm text-slate-600 print:text-xs">
+                                        <div className="text-right font-medium text-sm text-slate-600 print:text-xs group-[.is-pdf-exporting]:text-sm">
                                             No. Reg : <span className="font-mono font-bold text-slate-900">{selectedStudent.id.substring(0, 8).toUpperCase()}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Title */}
-                                <h2 className="text-center font-bold text-2xl mb-8 text-slate-900 print:text-xl print:mb-4">TANDA TERIMA PENDAFTARAN</h2>
-
+                                <h2 className="text-center font-bold text-2xl mb-8 text-slate-900 print:text-xl print:mb-4 group-[.is-pdf-exporting]:text-2xl group-[.is-pdf-exporting]:mb-8">TANDA TERIMA PENDAFTARAN</h2>
+ 
                                 {/* Content */}
-                                <div className="space-y-8 print:space-y-4">
-                                    <p className="text-base leading-relaxed text-slate-700 print:text-sm">
+                                <div className="space-y-8 print:space-y-4 group-[.is-pdf-exporting]:space-y-8">
+                                    <p className="text-base leading-relaxed text-slate-700 print:text-sm group-[.is-pdf-exporting]:text-base">
                                         Telah terima berkas pendaftaran Murid Baru Tahun Pelajaran {academicYear} dengan data sebagai berikut:
                                     </p>
 
@@ -207,9 +207,9 @@ export default async function RegistrationProofPage({
                                         </div>
                                     </div>
 
-                                    <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl print:bg-slate-50 print:border-slate-300 print:p-4">
-                                        <h4 className="font-bold text-sm text-slate-900 mb-4 print:mb-2 text-xs">Kelengkapan Dokumen:</h4>
-                                        <div className="grid grid-cols-2 gap-y-3 gap-x-8 print:gap-y-2 print:gap-x-4">
+                                    <div className="p-6 bg-slate-50 border border-slate-200 rounded-xl print:bg-slate-50 print:border-slate-300 print:p-4 group-[.is-pdf-exporting]:p-6 group-[.is-pdf-exporting]:bg-slate-50">
+                                        <h4 className="font-bold text-sm text-slate-900 mb-4 print:mb-2 text-xs group-[.is-pdf-exporting]:mb-4 group-[.is-pdf-exporting]:text-sm">Kelengkapan Dokumen:</h4>
+                                        <div className="grid grid-cols-2 gap-y-3 gap-x-8 print:gap-y-2 print:gap-x-4 group-[.is-pdf-exporting]:gap-y-3 group-[.is-pdf-exporting]:gap-x-8">
                                             <div className="flex items-center gap-3 print:gap-2">
                                                 <div className={`flex items-center justify-center size-5 rounded border ${selectedStudent.documents?.fileAkta ? 'bg-slate-900 border-slate-900 text-white' : 'bg-white border-slate-300'}`}>
                                                     {selectedStudent.documents?.fileAkta && <span className="material-symbols-outlined text-[16px] font-bold">check</span>}
