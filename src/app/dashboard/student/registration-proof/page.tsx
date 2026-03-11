@@ -121,7 +121,7 @@ export default async function RegistrationProofPage({
                         {/* The Document Container */}
                         <div className="bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl overflow-x-auto print:bg-white print:border-none print:p-0 print:overflow-visible">
                             {/* The Document Itself */}
-                            <div id="printable-area" className="group bg-white text-slate-900 w-full md:w-[210mm] min-h-[297mm] border border-slate-300 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-none font-sans print:min-h-0 print:h-auto print:p-6 print:text-sm [&.is-pdf-exporting]:shadow-none [&.is-pdf-exporting]:border-none [&.is-pdf-exporting]:w-[210mm] [&.is-pdf-exporting]:min-h-[297mm] [&.is-pdf-exporting]:p-12 [&.is-pdf-exporting]:mx-0">
+                            <div id="printable-area" className="group bg-white text-slate-900 w-full md:w-[210mm] min-h-[297mm] border border-slate-300 p-8 mx-auto shadow-md relative print:shadow-none print:mx-0 print:w-full print:max-w-none print:border-none font-sans print:min-h-0 print:h-auto print:p-6 print:text-sm [&.is-pdf-exporting]:shadow-none [&.is-pdf-exporting]:border-none [&.is-pdf-exporting]:w-[794px] [&.is-pdf-exporting]:min-h-[1123px] [&.is-pdf-exporting]:p-12 [&.is-pdf-exporting]:mx-0">
                                 {/* Header */}
                                 <div className="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-6 print:pb-2 print:mb-4 group-[.is-pdf-exporting]:pb-4 group-[.is-pdf-exporting]:mb-6">
                                     <div className="flex items-center gap-4 print:gap-3">

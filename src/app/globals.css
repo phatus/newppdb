@@ -60,8 +60,10 @@ body {
   border-radius: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
-  width: 210mm !important; /* A4 Width */
-  min-height: 297mm !important; /* A4 Height */
+  width: 794px !important; /* Exactly 210mm at 96dpi */
+  min-height: 1123px !important; /* Exactly 297mm at 96dpi */
+  overflow: visible !important;
+  display: block !important;
 }
 
 .is-pdf-exporting * {

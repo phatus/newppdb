@@ -22,13 +22,25 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
         element.classList.add('is-pdf-exporting');
 
         try {
+            // A4 is ~794px wide at 96dpi
+            const targetWidth = 794; 
+            
             // Using html-to-image which supports modern CSS (oklch, fallback variables) better than html2canvas
             const dataUrl = await toPng(element, {
                 quality: 1.0,
                 backgroundColor: '#ffffff',
-                pixelRatio: 3, // Increased for better clarity
+                pixelRatio: 3, 
+                width: targetWidth,
+                height: element.scrollHeight,
+                style: {
+                    margin: '0',
+                    padding: '0',
+                    left: '0',
+                    top: '0',
+                    width: `${targetWidth}px`,
+                },
                 cacheBust: true,
-                skipFonts: false, // Try to include fonts for better look
+                skipFonts: false,
             });
 
             const pdf = new jsPDF({
@@ -42,7 +54,7 @@ export default function DownloadPdfButton({ targetId, fileName, label = "Downloa
             const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
             // Use 'FAST' or 'SLOW' to balance speed vs quality
-            pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+            pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight, undefined, 'SLOW');
             pdf.save(`${fileName}.pdf`);
 
         } catch (error: any) {

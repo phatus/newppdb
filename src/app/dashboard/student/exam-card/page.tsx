@@ -124,8 +124,9 @@ export default async function ExamCardPage({
                         display: block !important;
                         margin: 0 !important;
                         padding: 0 !important;
-                        width: 210mm !important;
+                        width: 794px !important;
                         background: white !important;
+                        border: none !important;
                     }
                     #printable-area {
                         display: block !important;
@@ -135,11 +136,13 @@ export default async function ExamCardPage({
                     }
                     .exam-card-container.is-pdf-exporting {
                          border: 2px solid #1e293b !important;
-                        width: 100% !important;
+                        width: 794px !important;
                         max-width: none !important;
-                        margin: 0 0 15mm 0 !important;
+                        margin: 0 !important;
                         box-shadow: none !important;
                         background: white !important;
+                        padding: 15mm !important;
+                        box-sizing: border-box !important;
                     }
                     .exam-card-container {
                         border: 2px solid #1e293b !important;
