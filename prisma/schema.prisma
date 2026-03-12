@@ -380,6 +380,8 @@ model SchoolSettings {
 
   // Juknis PDF
   juknisFile        String?  // URL to uploaded juknis PDF
+
+  isResultsPublished Boolean @default(false)
 }
 
 model ExamSchedule {

@@ -40,7 +40,10 @@ export default async function PublicRankingPage() {
 
                 {/* Ranking Card */}
                 <div className="max-w-5xl mx-auto">
-                    <LiveRankingTable initialData={students} />
+                    <LiveRankingTable
+                        initialData={students}
+                        isResultsPublished={(settings as any)?.isResultsPublished ?? false}
+                    />
                 </div>
             </main>
         </div>

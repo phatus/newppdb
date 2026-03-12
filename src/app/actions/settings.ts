@@ -37,6 +37,7 @@ export async function updateSettings(data: {
     heroTitle?: string;
     heroDescription?: string;
     pathWeights?: any;
+    isResultsPublished?: boolean;
 }) {
     try {
         const {
@@ -57,6 +58,7 @@ export async function updateSettings(data: {
                 schoolAddress: data.schoolAddress,
                 academicYear: data.academicYear,
                 isRegistrationOpen: data.isRegistrationOpen,
+                isResultsPublished: data.isResultsPublished,
             };
 
             await db.schoolSettings.update({
@@ -142,6 +144,11 @@ export async function updateSettings(data: {
             if (data.showQuota !== undefined) {
                 updates.push(`"showQuota" = $${i++}`);
                 values.push(data.showQuota);
+            }
+
+            if (data.isResultsPublished !== undefined) {
+                updates.push(`"isResultsPublished" = $${i++}`);
+                values.push(data.isResultsPublished);
             }
 
             if (updates.length > 0) {

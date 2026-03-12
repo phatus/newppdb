@@ -14,6 +14,9 @@ export async function GET(req: Request) {
         if (jalur) where.jalur = jalur;
         if (waveId) where.waveId = waveId;
 
+        const settings = await db.schoolSettings.findFirst();
+        const isResultsPublished = (settings as any)?.isResultsPublished ?? false;
+
         const rankings = await db.student.findMany({
             where,
             select: {
@@ -35,7 +38,13 @@ export async function GET(req: Request) {
             take: 100 // Limit for public ranking
         });
 
-        return NextResponse.json({ rankings });
+        // Obfuscate results if not published
+        const safeRankings = rankings.map(r => ({
+            ...r,
+            statusKelulusan: isResultsPublished ? r.statusKelulusan : "PENDING"
+        }));
+
+        return NextResponse.json({ rankings: safeRankings });
 
     } catch (error) {
         console.error("API Ranking Error:", error);

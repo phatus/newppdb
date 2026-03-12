@@ -11,6 +11,7 @@ interface AcademicSettingsProps {
 export default function AcademicSettings({ initialData }: AcademicSettingsProps) {
     const [loading, setLoading] = useState(false);
     const [isOpen, setIsOpen] = useState(initialData?.isRegistrationOpen ?? true);
+    const [isPublished, setIsPublished] = useState(initialData?.isResultsPublished ?? false);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -22,7 +23,8 @@ export default function AcademicSettings({ initialData }: AcademicSettingsProps)
         // Use the state for the switch, not formData directly as checkboxes are quirky
         const res = await updateSettings({
             academicYear,
-            isRegistrationOpen: isOpen
+            isRegistrationOpen: isOpen,
+            isResultsPublished: isPublished
         });
 
         if (res.success) {
@@ -69,6 +71,28 @@ export default function AcademicSettings({ initialData }: AcademicSettingsProps)
                 >
                     <span
                         className={`${isOpen ? "translate-x-6" : "translate-x-1"
+                            } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                    />
+                </button>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <div>
+                    <h4 className="font-medium text-slate-900 dark:text-white">Pengumuman Hasil (Diterima/Tidak)</h4>
+                    <p className="text-xs text-slate-500">
+                        Publikasikan hasil seleksi ke dashboard siswa dan live ranking.
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isPublished}
+                    onClick={() => setIsPublished(!isPublished)}
+                    className={`${isPublished ? "bg-primary" : "bg-slate-300 dark:bg-slate-600"
+                        } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2`}
+                >
+                    <span
+                        className={`${isPublished ? "translate-x-6" : "translate-x-1"
                             } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                     />
                 </button>

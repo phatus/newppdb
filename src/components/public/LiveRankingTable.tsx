@@ -19,7 +19,7 @@ interface RankingData {
     } | null;
 }
 
-export default function LiveRankingTable({ initialData }: { initialData: RankingData[] }) {
+export default function LiveRankingTable({ initialData, isResultsPublished = false }: { initialData: RankingData[], isResultsPublished?: boolean }) {
     const router = useRouter();
     const [lastUpdate, setLastUpdate] = useState(new Date());
     const [isRefreshing, setIsRefreshing] = useState(false);
@@ -144,13 +144,15 @@ export default function LiveRankingTable({ initialData }: { initialData: Ranking
                                         <td className="px-6 py-4 text-center">
                                             <span className={`
                                             px-2 py-1 rounded text-[10px] font-bold
-                                            ${student.statusKelulusan === 'LULUS' ? 'bg-emerald-100 text-emerald-700' :
-                                                    student.statusKelulusan === 'TIDAK_LULUS' ? 'bg-red-100 text-red-700' :
-                                                        'bg-slate-100 text-slate-600'}
+                                            ${!isResultsPublished ? 'bg-slate-100 text-slate-400' :
+                                                    (student.statusKelulusan === 'LULUS' ? 'bg-emerald-100 text-emerald-700' :
+                                                        student.statusKelulusan === 'TIDAK_LULUS' ? 'bg-red-100 text-red-700' :
+                                                            'bg-slate-100 text-slate-600')}
                                         `}>
-                                                {student.statusKelulusan === 'LULUS' ? 'DITERIMA' :
-                                                    student.statusKelulusan === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' :
-                                                        'PENDING'}
+                                                {!isResultsPublished ? 'BELUM DIUMUMKAN' :
+                                                    (student.statusKelulusan === 'LULUS' ? 'DITERIMA' :
+                                                        student.statusKelulusan === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' :
+                                                            'PENDING')}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-center">

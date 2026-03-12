@@ -101,7 +101,7 @@ export default async function DashboardPage() {
             {/* Incomplete Data Warning Banner */}
             {studentList.map(student => {
                 // Graduation Announcement (Global only for single student)
-                if (student.statusKelulusan === "LULUS") {
+                if (student.statusKelulusan === "LULUS" && (settings as any)?.isResultsPublished) {
                     if (totalStudents > 1) return null;
 
                     return (
@@ -122,7 +122,7 @@ export default async function DashboardPage() {
                             </div>
                         </div>
                     );
-                } else if (student.statusKelulusan === "TIDAK_LULUS") {
+                } else if (student.statusKelulusan === "TIDAK_LULUS" && (settings as any)?.isResultsPublished) {
                     if (totalStudents > 1) return null;
 
                     return (
@@ -219,7 +219,7 @@ export default async function DashboardPage() {
                                     </p>
                                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 dark:bg-amber-800/50 text-amber-700 dark:text-amber-300 text-xs font-bold rounded-full">
                                         <span className="material-symbols-outlined text-sm">priority_high</span>
-                                        Status: {student.statusKelulusan === 'LULUS' ? 'DITERIMA' : (student.statusKelulusan === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' : 'Dalam Proses Ranking')}
+                                        Status: {(settings as any)?.isResultsPublished ? (student.statusKelulusan === 'LULUS' ? 'DITERIMA' : (student.statusKelulusan === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' : 'Dalam Proses Ranking')) : 'Dalam Proses Ranking'}
                                     </div>
                                 </div>
                             </div>
@@ -328,7 +328,7 @@ export default async function DashboardPage() {
             {/* Student List */}
             <StudentListManager
                 allActiveWaves={allActiveWaves}
-                showGraduationStatus={totalStudents > 1}
+                showGraduationStatus={(totalStudents > 1) && ((settings as any)?.isResultsPublished ?? false)}
             />
 
             {/* Help Section */}
