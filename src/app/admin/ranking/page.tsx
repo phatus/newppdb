@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getRankingData } from "@/app/actions/ranking";
 import RankingTable from "@/components/admin/RankingTable";
 import WABlastPanel from "@/components/admin/WABlastPanel";
+import RankingControlPanel from "@/components/admin/ranking/RankingControlPanel";
 
 const PAGE_SIZE = 20;
 
@@ -39,6 +40,11 @@ export default async function RankingPage({
                     <WABlastPanel />
                 </div>
             </div>
+
+            <RankingControlPanel 
+                isRankingLive={(settings as any)?.isRankingLive ?? true}
+                showRankingScores={(settings as any)?.showRankingScores ?? true}
+            />
 
             <div className="bg-white dark:bg-[#1c2936] border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
                 <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
