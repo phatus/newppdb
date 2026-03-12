@@ -46,32 +46,42 @@ export async function getRankingData(filters?: { waveId?: string; jalur?: JalurP
         };
 
         // 3. Process Scores
+        const isLive = (settings as any)?.isRankingLive ?? true;
+
         const rankedStudents: RankedStudent[] = students.map((student) => {
             const grades = student.grades;
 
-            // Determine Weights (Path-Specific or Smart Defaults)
-            const pathWeights = ((settings as any)?.pathWeights as Record<string, any>) || {};
-            const specificWeights = pathWeights[student.jalur];
+            let finalScore = 0;
 
-            const defaultW = pathDefaults[student.jalur] || {
-                rapor: (settings as any)?.weightRapor ?? 40,
-                ujian: (settings as any)?.weightUjian ?? 30,
-                skua: (settings as any)?.weightSKUA ?? 30,
-                prestasi: 0
-            };
+            if (isLive) {
+                // Determine Weights (Path-Specific or Smart Defaults)
+                const pathWeights = ((settings as any)?.pathWeights as Record<string, any>) || {};
+                const specificWeights = pathWeights[student.jalur];
 
-            // Normalize weights to 0-1 range
-            const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
-            const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
-            const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
+                const defaultW = pathDefaults[student.jalur] || {
+                    rapor: (settings as any)?.weightRapor ?? 40,
+                    ujian: (settings as any)?.weightUjian ?? 30,
+                    skua: (settings as any)?.weightSKUA ?? 30,
+                    prestasi: 0
+                };
 
-            const avgReport = grades?.rataRataNilai || 0;
-            const theory = grades?.nilaiUjianTeori || 0;
-            const skua = grades?.nilaiUjianSKUA || 0;
-            const achievement = grades?.nilaiPrestasi || 0;
+                // Normalize weights to 0-1 range
+                const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
+                const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
+                const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
 
-            // Calculate Final Score: (Weights * Values) + Achievement Bonus
-            let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+                const avgReport = grades?.rataRataNilai || 0;
+                const theory = grades?.nilaiUjianTeori || 0;
+                const skua = grades?.nilaiUjianSKUA || 0;
+                const achievement = grades?.nilaiPrestasi || 0;
+
+                // Calculate Final Score: (Weights * Values) + Achievement Bonus
+                finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+            } else {
+                // Use frozen score if not live
+                finalScore = (grades as any)?.frozenScore || 0;
+            }
+
             finalScore = parseFloat(finalScore.toFixed(2));
 
             return {
@@ -138,6 +148,74 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
     } catch (error) {
         console.error("Update score error:", error);
         return { success: false, error: "Gagal update nilai" };
+    }
+}
+
+/**
+ * Updates the frozenScore for all students based on currently calculated live scores.
+ */
+export async function updateRankingSnapshot() {
+    try {
+        // 1. Get all ranked data (temporarily force live to get latest values)
+        // We can't easily "force live" without changing settings, so we calculate here
+        const { students } = await getRankingData(); 
+        
+        // Wait, getRankingData above will respect settings.
+        // Let's do a raw calculation to be safe or ensure settings are ignored.
+        // Actually, we can just fetch all students and calculate.
+        
+        const settings = await db.schoolSettings.findFirst();
+        
+        // Use the same logic as getRankingData but always calculate
+        for (const student of students) {
+            // We need to re-calculate because getRankingData might have returned frozenScore
+            // Let's reuse the calculation logic briefly
+            
+             // Smart Defaults
+            const pathDefaults: Record<string, any> = {
+                "REGULER": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
+                "AFIRMASI": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
+                "PRESTASI_AKADEMIK": { rapor: 30, ujian: 30, skua: 30, prestasi: 10 },
+                "PRESTASI_NON_AKADEMIK": { rapor: 0, ujian: 30, skua: 30, prestasi: 40 },
+            };
+
+            const grades = student.grades;
+            const pathWeights = ((settings as any)?.pathWeights as Record<string, any>) || {};
+            const specificWeights = pathWeights[student.jalur];
+            const defaultW = pathDefaults[student.jalur] || {
+                rapor: (settings as any)?.weightRapor ?? 40,
+                ujian: (settings as any)?.weightUjian ?? 30,
+                skua: (settings as any)?.weightSKUA ?? 30,
+                prestasi: 0
+            };
+
+            const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
+            const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
+            const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
+
+            const avgReport = (grades as any)?.rataRataNilai || 0;
+            const theory = (grades as any)?.nilaiUjianTeori || 0;
+            const skua = (grades as any)?.nilaiUjianSKUA || 0;
+            const achievement = (grades as any)?.nilaiPrestasi || 0;
+
+            let liveScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+            liveScore = parseFloat(liveScore.toFixed(2));
+
+            if (student.grades) {
+                await db.$executeRawUnsafe(
+                    `UPDATE "Grades" SET "frozenScore" = $1 WHERE "studentId" = $2`,
+                    liveScore,
+                    student.id
+                );
+            }
+        }
+
+        revalidatePath("/ranking");
+        revalidatePath("/admin/reports/ranking");
+        return { success: true };
+    } catch (error) {
+        console.error("Snapshot error:", error);
+        return { success: false, error: "Gagal update snapshot ranking" };
     }
 }
 

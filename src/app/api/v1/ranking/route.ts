@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getRankingData } from "@/app/actions/ranking";
 
 export async function GET(req: Request) {
     try {
@@ -11,37 +12,25 @@ export async function GET(req: Request) {
             statusVerifikasi: "VERIFIED"
         };
 
-        if (jalur) where.jalur = jalur;
-        if (waveId) where.waveId = waveId;
+        const { students: rankings } = await getRankingData({
+            jalur: jalur as any,
+            waveId: waveId as string
+        });
 
         const settings = await db.schoolSettings.findFirst();
         const isResultsPublished = (settings as any)?.isResultsPublished ?? false;
 
-        const rankings = await db.student.findMany({
-            where,
-            select: {
-                id: true,
-                namaLengkap: true,
-                nisn: true,
-                jalur: true,
-                statusKelulusan: true,
-                grades: {
-                    select: {
-                        finalScore: true,
-                        rataRataNilai: true,
-                    }
-                },
-            },
-            orderBy: {
-                grades: { finalScore: 'desc' },
-            },
-            take: 100 // Limit for public ranking
-        });
-
         // Obfuscate results if not published
-        const safeRankings = rankings.map(r => ({
-            ...r,
-            statusKelulusan: isResultsPublished ? r.statusKelulusan : "PENDING"
+        const safeRankings = rankings.map((r: any) => ({
+            id: r.id,
+            namaLengkap: r.namaLengkap,
+            nisn: r.nisn,
+            jalur: r.jalur,
+            statusKelulusan: isResultsPublished ? r.statusKelulusan : "PENDING",
+            grades: {
+                finalScore: r.grades?.finalScore || 0,
+                rataRataNilai: (r.grades as any)?.rataRataNilai || 0
+            }
         }));
 
         return NextResponse.json({ rankings: safeRankings });

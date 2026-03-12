@@ -8,10 +8,15 @@ import toast from "react-hot-toast";
 export default function EmisExportPage() {
     const [students, setStudents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     useEffect(() => {
         loadData();
     }, []);
+
+    const totalPages = Math.ceil(students.length / itemsPerPage);
+    const pagedStudents = students.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const loadData = async () => {
         try {
@@ -107,30 +112,33 @@ export default function EmisExportPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                            {students.length > 0 ? (
-                                students.map((student, index) => (
-                                    <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                        <td className="px-6 py-4 text-center text-slate-500">{index + 1}</td>
-                                        <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
-                                            {student.namaLengkap}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono">
-                                            {student.nisn}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono">
-                                            {student.nik || "-"}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                                            {student.asalSekolah || "-"}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                                            {student.namaAyah || "-"}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                                            {student.namaIbu || "-"}
-                                        </td>
-                                    </tr>
-                                ))
+                            {pagedStudents.length > 0 ? (
+                                pagedStudents.map((student, index) => {
+                                    const studentIndex = ((currentPage - 1) * itemsPerPage) + index + 1;
+                                    return (
+                                        <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                            <td className="px-6 py-4 text-center text-slate-500">{studentIndex}</td>
+                                            <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
+                                                {student.namaLengkap}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono">
+                                                {student.nisn}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400 font-mono">
+                                                {student.nik || "-"}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                                                {student.asalSekolah || "-"}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                                                {student.namaAyah || "-"}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                                                {student.namaIbu || "-"}
+                                            </td>
+                                        </tr>
+                                    );
+                                })
                             ) : (
                                 <tr>
                                     <td colSpan={7} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
@@ -144,8 +152,32 @@ export default function EmisExportPage() {
                         </tbody>
                     </table>
                 </div>
-                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 flex justify-between items-center">
+
+                {/* Pagination & Summary Footer */}
+                <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 text-sm text-slate-500 dark:text-slate-400 flex flex-col md:flex-row justify-between items-center gap-4">
                     <span>Total: <b>{students.length}</b> murid</span>
+
+                    {totalPages > 1 && (
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="p-1.5 border border-slate-300 dark:border-slate-600 rounded hover:bg-white dark:hover:bg-slate-800 disabled:opacity-30 transition-all"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                            </button>
+                            <span className="font-medium text-slate-700 dark:text-slate-300">
+                                Halaman {currentPage} dari {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-1.5 border border-slate-300 dark:border-slate-600 rounded hover:bg-white dark:hover:bg-slate-800 disabled:opacity-30 transition-all"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

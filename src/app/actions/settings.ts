@@ -38,6 +38,8 @@ export async function updateSettings(data: {
     heroDescription?: string;
     pathWeights?: any;
     isResultsPublished?: boolean;
+    isRankingLive?: boolean;
+    showRankingScores?: boolean;
 }) {
     try {
         const {
@@ -59,7 +61,9 @@ export async function updateSettings(data: {
                 academicYear: data.academicYear,
                 isRegistrationOpen: data.isRegistrationOpen,
                 isResultsPublished: data.isResultsPublished,
-            };
+                isRankingLive: data.isRankingLive,
+                showRankingScores: data.showRankingScores,
+            } as any;
 
             await db.schoolSettings.update({
                 where: { id: first.id },
@@ -149,6 +153,16 @@ export async function updateSettings(data: {
             if (data.isResultsPublished !== undefined) {
                 updates.push(`"isResultsPublished" = $${i++}`);
                 values.push(data.isResultsPublished);
+            }
+
+            if (data.isRankingLive !== undefined) {
+                updates.push(`"isRankingLive" = $${i++}`);
+                values.push(data.isRankingLive);
+            }
+
+            if (data.showRankingScores !== undefined) {
+                updates.push(`"showRankingScores" = $${i++}`);
+                values.push(data.showRankingScores);
             }
 
             if (updates.length > 0) {

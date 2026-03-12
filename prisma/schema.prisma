@@ -284,6 +284,7 @@ model Grades {
   nilaiUjianSKUA  Float?
   nilaiPrestasi   Float? // Calculated from verified documents using AchievementWeight
   catatanPrestasi String?
+  frozenScore     Float? // Snapshot score for "Frozen" mode
   finalScore      Float? // Total score for ranking
   
   createdAt       DateTime @default(now())
@@ -382,6 +383,8 @@ model SchoolSettings {
   juknisFile        String?  // URL to uploaded juknis PDF
 
   isResultsPublished Boolean @default(false)
+  isRankingLive      Boolean @default(true)
+  showRankingScores  Boolean @default(true)
 }
 
 model ExamSchedule {

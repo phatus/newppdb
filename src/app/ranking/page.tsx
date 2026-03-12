@@ -43,6 +43,8 @@ export default async function PublicRankingPage() {
                     <LiveRankingTable
                         initialData={students}
                         isResultsPublished={(settings as any)?.isResultsPublished ?? false}
+                        showRankingScores={(settings as any)?.showRankingScores ?? true}
+                        isRankingLive={(settings as any)?.isRankingLive ?? true}
                     />
                 </div>
             </main>

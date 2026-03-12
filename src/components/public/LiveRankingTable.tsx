@@ -19,11 +19,25 @@ interface RankingData {
     } | null;
 }
 
-export default function LiveRankingTable({ initialData, isResultsPublished = false }: { initialData: RankingData[], isResultsPublished?: boolean }) {
+export default function LiveRankingTable({
+    initialData,
+    isResultsPublished = false,
+    showRankingScores = true,
+    isRankingLive = true
+}: {
+    initialData: RankingData[],
+    isResultsPublished?: boolean,
+    showRankingScores?: boolean,
+    isRankingLive?: boolean
+}) {
     const router = useRouter();
     const [lastUpdate, setLastUpdate] = useState(new Date());
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 20;
 
     // Auto-refresh every 30 seconds
     useEffect(() => {
@@ -57,17 +71,25 @@ export default function LiveRankingTable({ initialData, isResultsPublished = fal
         );
     });
 
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    const pagedData = filteredData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    // Reset pagination when searching
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     return (
         <div className="w-full">
             <div className="bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
                 {/* Control Bar Inside Card for better contrast */}
                 <div className="p-4 md:p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row justify-between items-center gap-4">
                     <div className="flex items-center gap-2 text-sm text-slate-600 font-medium">
-                        <span className="relative flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                        <span className={`relative flex h-3 w-3`}>
+                            {isRankingLive && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
+                            <span className={`relative inline-flex rounded-full h-3 w-3 ${isRankingLive ? 'bg-green-500' : 'bg-slate-400'}`}></span>
                         </span>
-                        <span>Live Update</span>
+                        <span>{isRankingLive ? "Live Update" : "Frozen Mode"}</span>
                         <span className="text-slate-300">|</span>
                         <span>Terakhir: {formatInWIB(lastUpdate, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span>
                     </div>
@@ -103,11 +125,11 @@ export default function LiveRankingTable({ initialData, isResultsPublished = fal
                                 <th className="px-6 py-4 font-bold">Asal Sekolah</th>
                                 <th className="px-6 py-4 font-bold w-32 text-center">Jalur</th>
                                 <th className="px-6 py-4 font-bold w-32 text-center text-emerald-400">Hasil</th>
-                                <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>
+                                {showRankingScores && <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {filteredData.map((student, index) => {
+                            {pagedData.map((student, index) => {
                                 // Find the original rank from initialData
                                 const rank = initialData.findIndex(s => s.id === student.id) + 1;
                                 return (
@@ -155,17 +177,19 @@ export default function LiveRankingTable({ initialData, isResultsPublished = fal
                                                             'PENDING')}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className="text-lg font-black text-primary">
-                                                {student.grades?.finalScore?.toFixed(2) || "0.00"}
-                                            </span>
-                                        </td>
+                                        {showRankingScores && (
+                                            <td className="px-6 py-4 text-center">
+                                                <span className="text-lg font-black text-primary">
+                                                    {student.grades?.finalScore?.toFixed(2) || "0.00"}
+                                                </span>
+                                            </td>
+                                        )}
                                     </tr>
                                 );
                             })}
-                            {initialData.length === 0 && (
+                            {pagedData.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                                    <td colSpan={showRankingScores ? 6 : 5} className="px-6 py-12 text-center text-slate-400">
                                         {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data perangkingan."}
                                     </td>
                                 </tr>
@@ -173,6 +197,34 @@ export default function LiveRankingTable({ initialData, isResultsPublished = fal
                         </tbody>
                     </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                    <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/30 flex items-center justify-between">
+                        <p className="text-xs text-slate-500">
+                            Menampilkan {((currentPage - 1) * itemsPerPage) + 1} - {Math.min(currentPage * itemsPerPage, filteredData.length)} dari {filteredData.length} pendaftar
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 border border-slate-300 rounded-lg hover:bg-white disabled:opacity-30 transition-all active:scale-90"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                            </button>
+                            <span className="text-sm font-bold text-slate-700 px-2">
+                                Halaman {currentPage} dari {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="p-2 border border-slate-300 rounded-lg hover:bg-white disabled:opacity-30 transition-all active:scale-90"
+                            >
+                                <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="mt-4 text-center text-xs text-slate-400">
