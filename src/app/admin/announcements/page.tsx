@@ -1,6 +1,8 @@
 import { getAnnouncements } from "@/app/actions/announcements";
 import AnnouncementManager from "@/components/admin/AnnouncementManager";
 import PaginationControl from "@/components/admin/PaginationControl";
+import ResultAnnouncementControl from "@/components/admin/announcements/ResultAnnouncementControl";
+import { db } from "@/lib/db";
 import { Suspense } from "react";
 
 const PAGE_SIZE = 10;
@@ -15,6 +17,7 @@ export default async function AnnouncementsPage({
     const skip = (currentPage - 1) * PAGE_SIZE;
 
     const { announcements, totalCount } = await getAnnouncements(true, skip, PAGE_SIZE);
+    const settings = await db.schoolSettings.findFirst();
     const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
     return (
@@ -27,6 +30,10 @@ export default async function AnnouncementsPage({
                     Kelola informasi dan berita untuk pendaftar.
                 </p>
             </div>
+
+            <ResultAnnouncementControl 
+                initialStatus={(settings as any)?.isResultsPublished ?? false} 
+            />
 
             <Suspense fallback={<div className="h-64 bg-slate-100 rounded-xl animate-pulse" />}>
                 <AnnouncementManager announcements={announcements} />

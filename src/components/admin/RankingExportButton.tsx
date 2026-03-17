@@ -4,14 +4,25 @@ import { useState } from "react";
 import * as XLSX from "xlsx";
 import toast from "react-hot-toast";
 
-export default function RankingExportButton({ data }: { data: any[] }) {
+import { getRankingData } from "@/app/actions/ranking";
+
+export default function RankingExportButton({ filters }: { filters: { waveId?: string; jalur?: any } }) {
     const [loading, setLoading] = useState(false);
 
-    const handleExport = () => {
+    const handleExport = async () => {
         setLoading(true);
         try {
+            // Fetch ALL data without pagination
+            const { students } = await getRankingData(filters);
+
+            if (!students || students.length === 0) {
+                toast.error("Tidak ada data untuk diekspor");
+                setLoading(false);
+                return;
+            }
+
             // Prepare data for export
-            const exportData = data.map((student, index) => ({
+            const exportData = students.map((student, index) => ({
                 "Ranking": index + 1,
                 "Nama Lengkap": student.namaLengkap,
                 "NISN": student.nisn,

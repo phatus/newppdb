@@ -73,7 +73,8 @@ export async function getRankingData(filters?: { waveId?: string; jalur?: JalurP
                 const avgReport = grades?.rataRataNilai || 0;
                 const theory = grades?.nilaiUjianTeori || 0;
                 const skua = grades?.nilaiUjianSKUA || 0;
-                const achievement = grades?.nilaiPrestasi || 0;
+                const isPrestasiPath = student.jalur === "PRESTASI_AKADEMIK" || student.jalur === "PRESTASI_NON_AKADEMIK";
+                const achievement = isPrestasiPath ? (grades?.nilaiPrestasi || 0) : 0;
 
                 // Calculate Final Score: (Weights * Values) + Achievement Bonus
                 finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
@@ -196,7 +197,8 @@ export async function updateRankingSnapshot() {
             const avgReport = (grades as any)?.rataRataNilai || 0;
             const theory = (grades as any)?.nilaiUjianTeori || 0;
             const skua = (grades as any)?.nilaiUjianSKUA || 0;
-            const achievement = (grades as any)?.nilaiPrestasi || 0;
+            const isPrestasiPath = student.jalur === "PRESTASI_AKADEMIK" || student.jalur === "PRESTASI_NON_AKADEMIK";
+            const achievement = isPrestasiPath ? ((grades as any)?.nilaiPrestasi || 0) : 0;
 
             let liveScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
             liveScore = parseFloat(liveScore.toFixed(2));
@@ -287,7 +289,8 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             const avgReport = grades?.rataRataNilai || 0;
             const theory = grades?.nilaiUjianTeori || 0;
             const skua = grades?.nilaiUjianSKUA || 0;
-            const achievement = grades?.nilaiPrestasi || 0;
+            const isPrestasiPath = targetJalur === "PRESTASI_AKADEMIK" || targetJalur === "PRESTASI_NON_AKADEMIK";
+            const achievement = isPrestasiPath ? (grades?.nilaiPrestasi || 0) : 0;
 
             let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
             finalScore = parseFloat(finalScore.toFixed(2));

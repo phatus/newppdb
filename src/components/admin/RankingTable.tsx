@@ -199,7 +199,10 @@ export default function RankingTable({
                     </div>
 
                     <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-                        <RankingExportButton data={initialData} />
+                        <RankingExportButton filters={{ 
+                            waveId: waveFilter === "all" ? undefined : waveFilter, 
+                            jalur: jalurFilter === "all" ? undefined : jalurFilter as any 
+                        }} />
                         <button
                             onClick={handleGenerate}
                             className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
@@ -292,14 +295,12 @@ export default function RankingTable({
                                                     />
                                                 </td>
                                                 <td className="p-2 text-center">
-                                                    {isRegulerLike ? "-" : (
-                                                        <input
-                                                            type="number"
-                                                            className="w-16 p-1 border rounded text-center text-sm"
-                                                            value={editForm.achievement}
-                                                            onChange={e => setEditForm({ ...editForm, achievement: parseFloat(e.target.value) || 0 })}
-                                                        />
-                                                    )}
+                                                    <input
+                                                        type="number"
+                                                        className="w-16 p-1 border rounded text-center text-sm"
+                                                        value={editForm.achievement}
+                                                        onChange={e => setEditForm({ ...editForm, achievement: parseFloat(e.target.value) || 0 })}
+                                                    />
                                                 </td>
                                             </>
                                         ) : (
@@ -307,7 +308,7 @@ export default function RankingTable({
                                                 <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianTeori || 0}</td>
                                                 <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianSKUA || 0}</td>
                                                 <td className="p-4 text-center text-slate-600 dark:text-slate-400">
-                                                    {isRegulerLike ? "-" : `+${student.grades?.nilaiPrestasi || 0}`}
+                                                    {`+${student.grades?.nilaiPrestasi || 0}`}
                                                 </td>
                                             </>
                                         )}

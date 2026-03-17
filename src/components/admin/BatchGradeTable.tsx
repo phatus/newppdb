@@ -304,8 +304,8 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
     // SKUA: All
     const enableSkua = true;
 
-    // Prestasi: Prestasi Akademik, Prestasi Non-Akademik
-    const enablePrestasi = isPrestasi;
+    // Prestasi: Allow for all paths so manual bonus can be given
+    const enablePrestasi = true;
 
     const [teori, setTeori] = useState(student.grades?.nilaiUjianTeori?.toString() || "");
     const [skua, setSkua] = useState(student.grades?.nilaiUjianSKUA?.toString() || "");
@@ -321,7 +321,7 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
         const res = await updateStudentScore(student.id, {
             theory: isNaN(valTeori) ? undefined : valTeori,
             skua: isNaN(valSkua) ? undefined : valSkua,
-            achievement: isPrestasi ? (isNaN(valPrestasi) ? undefined : valPrestasi) : undefined,
+            achievement: isNaN(valPrestasi) ? undefined : valPrestasi,
         });
 
         if (res.success) {
