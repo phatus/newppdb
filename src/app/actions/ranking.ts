@@ -78,11 +78,7 @@ export async function getRankingData(filters?: { waveId?: string; jalur?: JalurP
                 const achievement = (isPrestasiAkademik || isPrestasiNonAkademik) ? (grades?.nilaiPrestasi || 0) : 0;
 
                 // Calculate Final Score
-                if (isPrestasiNonAkademik) {
-                    finalScore = achievement;
-                } else {
-                    finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
-                }
+                finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
             } else {
                 // Use frozen score if not live
                 finalScore = (grades as any)?.frozenScore || 0;
@@ -206,12 +202,7 @@ export async function updateRankingSnapshot() {
             const isPrestasiNonAkademik = student.jalur === "PRESTASI_NON_AKADEMIK";
             const achievement = (isPrestasiAkademik || isPrestasiNonAkademik) ? ((grades as any)?.nilaiPrestasi || 0) : 0;
 
-            let liveScore = 0;
-            if (isPrestasiNonAkademik) {
-                liveScore = achievement;
-            } else {
-                liveScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
-            }
+            let liveScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
             liveScore = parseFloat(liveScore.toFixed(2));
 
             if (student.grades) {
@@ -304,12 +295,7 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             const isPrestasiNonAkademik = targetJalur === "PRESTASI_NON_AKADEMIK";
             const achievement = (isPrestasiAkademik || isPrestasiNonAkademik) ? (grades?.nilaiPrestasi || 0) : 0;
 
-            let finalScore = 0;
-            if (isPrestasiNonAkademik) {
-                finalScore = achievement;
-            } else {
-                finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
-            }
+            let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
             finalScore = parseFloat(finalScore.toFixed(2));
 
             return {

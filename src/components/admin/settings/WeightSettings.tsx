@@ -72,14 +72,8 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
     };
 
     const handleSave = async () => {
-        // Validate totals
-        for (const path of PATHS) {
-            const total = calculateTotal(path.key);
-            if (total !== 100) {
-                toast.error(`Total bobot untuk ${path.label} harus 100% (Saat ini: ${total}%)`);
-                return;
-            }
-        }
+        // Validasi tidak lagi mengharuskan 100% total bobot
+        // untuk mendukung fleksibilitas pada Jalur Prestasi dan lainnya.
 
         setLoading(true);
         try {
@@ -104,24 +98,22 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
             <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 p-4 rounded-xl text-sm flex gap-3">
                 <span className="material-symbols-outlined shrink-0">info</span>
                 <p>
-                    Atur pembobotan nilai untuk setiap jalur pendaftaran. Total bobot (Rapor + Ujian + SKUA) untuk setiap jalur harus <strong>100%</strong>.
-                    Poin Prestasi akan ditambahkan langsung sebagai bonus ke skor akhir.
+                    Atur persentase pembobotan nilai untuk setiap jalur pendaftaran. Total bobot (Rapor + Ujian + SKUA) <strong>tidak harus 100%</strong>.
+                    Poin Prestasi akan ditambahkan langsung sebagai nilai plus (bonus) ke skor akhir.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
                 {PATHS.map((path) => {
                     const total = calculateTotal(path.key);
-                    const isInvalid = total !== 100;
 
                     return (
                         <div key={path.key} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-5 shadow-sm">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="font-bold text-slate-800 dark:text-white">{path.label}</h3>
-                                <div className={`flex items-center gap-2 text-sm font-bold px-3 py-1 rounded-full ${isInvalid ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"
+                                <div className={`flex items-center gap-2 text-sm font-bold px-3 py-1 rounded-full ${total === 100 ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"
                                     }`}>
                                     <span>Total: {total}%</span>
-                                    {isInvalid && <span className="material-symbols-outlined text-[16px]">warning</span>}
                                 </div>
                             </div>
 

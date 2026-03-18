@@ -19,43 +19,43 @@ enum VerificationStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String?
-  image     String?
+  id          String  @id @default(cuid())
+  name        String?
+  email       String  @unique
+  password    String?
+  image       String?
   phoneNumber String?
-  role      Role     @default(USER)
-  
-  emailVerified           DateTime?
-  verificationToken       String?
-  verificationTokenExpiry DateTime?
-  resetPasswordToken      String?
+  role        Role    @default(USER)
+
+  emailVerified            DateTime?
+  verificationToken        String?
+  verificationTokenExpiry  DateTime?
+  resetPasswordToken       String?
   resetPasswordTokenExpiry DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  lastSeen  DateTime?
-  
-  accounts  Account[]
-  sessions  Session[]
-  students  Student[]
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+  lastSeen                 DateTime?
+
+  accounts      Account[]
+  sessions      Session[]
+  students      Student[]
   announcements Announcement[]
   auditLogs     AuditLog[]
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -78,18 +78,17 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
 model AuditLog {
-  id        String   @id @default(cuid())
-  action    String   // CREATE, UPDATE, DELETE, LOGIN, VERIFY, REJECT
-  entity    String   // STUDENT, USER, SETTINGS, ANNOUNCEMENT, GRADE
+  id        String  @id @default(cuid())
+  action    String // CREATE, UPDATE, DELETE, LOGIN, VERIFY, REJECT
+  entity    String // STUDENT, USER, SETTINGS, ANNOUNCEMENT, GRADE
   entityId  String?
-  details   String?  @db.Text // JSON string or description
+  details   String? @db.Text // JSON string or description
   ipAddress String?
   userAgent String?
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
   createdAt DateTime @default(now())
 
@@ -99,17 +98,17 @@ model AuditLog {
 }
 
 model Announcement {
-  id        String   @id @default(cuid())
-  title     String
-  content   String   @db.Text
-  type      String   @default("INFO") // INFO, WARNING, IMPORTANT
-  target    String   @default("ALL")  // ALL, USER, VERIFIED
-  isActive  Boolean  @default(true)
-  
-  image     String?   @db.Text
-  
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  String
+  id       String  @id @default(cuid())
+  title    String
+  content  String  @db.Text
+  type     String  @default("INFO") // INFO, WARNING, IMPORTANT
+  target   String  @default("ALL") // ALL, USER, VERIFIED
+  isActive Boolean @default(true)
+
+  image String? @db.Text
+
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -127,29 +126,29 @@ enum JalurPendaftaran {
 
 model Wave {
   id          String   @id @default(cuid())
-  name        String   // e.g. "Gelombang 1"
+  name        String // e.g. "Gelombang 1"
   description String?
   startDate   DateTime
   endDate     DateTime
   isActive    Boolean  @default(true)
-  
-  // Array of allowed jalurs for this wave stored as JSON
-  jalurAllowed Json    // ["PRESTASI_AKADEMIK", "AFIRMASI"]
-  
-  quota       Int      @default(0)
-  pathQuotas  Json?    // { "REGULER": 5, "PRESTASI_AKADEMIK": 3 }
 
-  students    Student[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  // Array of allowed jalurs for this wave stored as JSON
+  jalurAllowed Json // ["PRESTASI_AKADEMIK", "AFIRMASI"]
+
+  quota      Int   @default(0)
+  pathQuotas Json? // { "REGULER": 5, "PRESTASI_AKADEMIK": 3 }
+
+  students Student[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Student {
-  id               String             @id @default(cuid())
-  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId           String
-  
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
   namaLengkap      String
   nisn             String             @unique
   gender           String?
@@ -167,37 +166,37 @@ model Student {
   passwordCbt      String?
 
   // Verification Team Fields
-  verifierId       String?            // Admin who claimed/verified this student
-  verifiedAt       DateTime?          // When final verification was done
-  verificationNote String?            // Internal note for team communication
+  verifierId       String? // Admin who claimed/verified this student
+  verifiedAt       DateTime? // When final verification was done
+  verificationNote String? // Internal note for team communication
 
   // Wave Relation
-  wave             Wave?              @relation(fields: [waveId], references: [id])
-  waveId           String?
+  wave   Wave?   @relation(fields: [waveId], references: [id])
+  waveId String?
 
   // EMIS Data Fields
-  nik              String?            @unique
-  noKk             String?
-  namaAyah         String?
-  pekerjaanAyah    String?
-  namaIbu          String?
-  pekerjaanIbu     String?
-  penghasilanOrtu  String?
-  alamatJalan      String?
-  alamatRt         String?
-  alamatRw         String?
-  alamatDesa       String?
-  alamatKecamatan  String?
-  alamatKabupaten  String?
-  alamatProvinsi   String?
-  kodePos          String?
-  
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  
-  documents        Documents?
-  grades           Grades?
-  history          RegistrationHistory[]
+  nik             String? @unique
+  noKk            String?
+  namaAyah        String?
+  pekerjaanAyah   String?
+  namaIbu         String?
+  pekerjaanIbu    String?
+  penghasilanOrtu String?
+  alamatJalan     String?
+  alamatRt        String?
+  alamatRw        String?
+  alamatDesa      String?
+  alamatKecamatan String?
+  alamatKabupaten String?
+  alamatProvinsi  String?
+  kodePos         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents Documents?
+  grades    Grades?
+  history   RegistrationHistory[]
 
   @@index([statusVerifikasi])
   @@index([createdAt])
@@ -208,77 +207,77 @@ model Student {
 }
 
 model Documents {
-  id              String   @id @default(cuid())
-  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  studentId       String   @unique
-  
-  fileAkta        String?
-  statusAkta      VerificationStatus @default(PENDING)
-  
-  fileKK          String?
-  statusKK        VerificationStatus @default(PENDING)
+  id        String  @id @default(cuid())
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String  @unique
 
-  fileSKL         String?
-  statusSKL       VerificationStatus @default(PENDING)
+  fileAkta   String?
+  statusAkta VerificationStatus @default(PENDING)
 
-  fileRaport      String?
-  statusRaport    VerificationStatus @default(PENDING)
+  fileKK   String?
+  statusKK VerificationStatus @default(PENDING)
 
-  filePrestasi    String[] // Array for multiple files
-  statusPrestasi  VerificationStatus @default(PENDING)
-  
-  fileSKTM        String?    // Added for Afirmasi
-  statusSKTM      VerificationStatus @default(PENDING)
+  fileSKL   String?
+  statusSKL VerificationStatus @default(PENDING)
 
-  pasFoto         String?
-  statusPasFoto   VerificationStatus @default(PENDING)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  fileRaport   String?
+  statusRaport VerificationStatus @default(PENDING)
+
+  filePrestasi   String[] // Array for multiple files
+  statusPrestasi VerificationStatus @default(PENDING)
+
+  fileSKTM   String? // Added for Afirmasi
+  statusSKTM VerificationStatus @default(PENDING)
+
+  pasFoto       String?
+  statusPasFoto VerificationStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Master Data for Dynamic Curriculum
 model Subject {
-  id          String   @id @default(cuid())
-  name        String
-  category    String   // "UMUM", "AGAMA", "MULOK"
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  
+  id       String  @id @default(cuid())
+  name     String
+  category String // "UMUM", "AGAMA", "MULOK"
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
   gradeEntries GradeEntry[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Semester {
-  id          String   @id @default(cuid())
-  name        String   // e.g., "Kelas 5 Semester 1"
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  
+  id       String  @id @default(cuid())
+  name     String // e.g., "Kelas 5 Semester 1"
+  order    Int     @default(0)
+  isActive Boolean @default(true)
+
   semesterGrades SemesterGrade[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AchievementWeight {
-  id          String   @id @default(cuid())
-  category    String   // "Akademik", "Non-Akademik"
-  level       String   // "Nasional", "Provinsi", "Kabupaten", "Kecamatan"
-  rank        Int      // 1, 2, 3
-  points      Float    
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id       String @id @default(cuid())
+  category String // "Akademik", "Non-Akademik"
+  level    String // "Nasional", "Provinsi", "Kabupaten", "Kecamatan"
+  rank     Int // 1, 2, 3
+  points   Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Grades {
-  id              String   @id @default(cuid())
-  student         Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  studentId       String   @unique
-  
+  id        String  @id @default(cuid())
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String  @unique
+
   rataRataNilai   Float? // Average of all semesters
   nilaiUjianTeori Float?
   nilaiUjianSKUA  Float?
@@ -286,28 +285,28 @@ model Grades {
   catatanPrestasi String?
   frozenScore     Float? // Snapshot score for "Frozen" mode
   finalScore      Float? // Total score for ranking
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
 
-  semesterGrades  SemesterGrade[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  semesterGrades SemesterGrade[]
 }
 
 model SemesterGrade {
-  id              String       @id @default(cuid())
-  grade           Grades       @relation(fields: [gradeId], references: [id], onDelete: Cascade)
-  gradeId         String
-  
-  semester        Semester     @relation(fields: [semesterId], references: [id])
-  semesterId      String
-  
-  rataRataSemester Float       @default(0)
-  
-  entries         GradeEntry[]
-  
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  
+  id      String @id @default(cuid())
+  grade   Grades @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  gradeId String
+
+  semester   Semester @relation(fields: [semesterId], references: [id])
+  semesterId String
+
+  rataRataSemester Float @default(0)
+
+  entries GradeEntry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([gradeId, semesterId])
   @@index([gradeId])
   @@index([semesterId])
@@ -317,70 +316,70 @@ model GradeEntry {
   id              String        @id @default(cuid())
   semesterGrade   SemesterGrade @relation(fields: [semesterGradeId], references: [id], onDelete: Cascade)
   semesterGradeId String
-  
-  subject         Subject       @relation(fields: [subjectId], references: [id])
-  subjectId       String
-  
-  score           Float
-  
+
+  subject   Subject @relation(fields: [subjectId], references: [id])
+  subjectId String
+
+  score Float
+
   @@unique([semesterGradeId, subjectId])
   @@index([semesterGradeId])
 }
 
 model SchoolSettings {
-  id                String   @id @default(cuid())
-  schoolName        String   @default("Nama Sekolah")
-  schoolAddress     String?
-  schoolLogo        String?  // URL to logo
-  academicYear      String   @default("2025/2026")
+  id                 String  @id @default(cuid())
+  schoolName         String  @default("Nama Sekolah")
+  schoolAddress      String?
+  schoolLogo         String? // URL to logo
+  academicYear       String  @default("2025/2026")
   isRegistrationOpen Boolean @default(true)
-  showQuota         Boolean  @default(true)
-  ppdbSchedule      Json?    // Array of { id, title, date, description, icon, color }
-  
+  showQuota          Boolean @default(true)
+  ppdbSchedule       Json? // Array of { id, title, date, description, icon, color }
+
   // Ranking Weights
-  weightRapor       Int      @default(40)
-  weightUjian       Int      @default(30)
-  weightSKUA        Int      @default(30)
-  
+  weightRapor Int @default(40)
+  weightUjian Int @default(30)
+  weightSKUA  Int @default(30)
+
   // Path Specific Weights (Stored as JSON: { "REGULER": { RAPOR: 0, UJIAN: 50, SKUA: 50, PRESTASI: 0 }, ... })
-  pathWeights       Json?
+  pathWeights Json?
 
   // Quotas (Target Adoption)
-  studentQuota      Int      @default(100)
-  quotaReguler      Int      @default(50)
-  quotaPrestasiAkademik Int  @default(15)
+  studentQuota             Int @default(100)
+  quotaReguler             Int @default(50)
+  quotaPrestasiAkademik    Int @default(15)
   quotaPrestasiNonAkademik Int @default(15)
-  quotaAfirmasi     Int      @default(20)
+  quotaAfirmasi            Int @default(20)
 
   // Class & Wave Quota Setup
-  studentsPerClass  Int      @default(32)
+  studentsPerClass Int @default(32)
 
   // Committee Info
-  committeeName     String?  @default("Ketua Panitia")
-  committeeNip      String?  
+  committeeName      String? @default("Ketua Panitia")
+  committeeNip       String?
   committeeSignature String? // URL to signature image
 
   // Principal Info
-  principalName     String?  @default("Nama Kepala Sekolah")
-  principalNip      String?
+  principalName String? @default("Nama Kepala Sekolah")
+  principalNip  String?
 
   // Location for Signature Date
-  schoolCity        String?  @default("Kota")
+  schoolCity String? @default("Kota")
 
   // WhatsApp Gateway Settings
-  waGatewayToken     String?
-  waGatewayUrl       String?   @default("https://api.fonnte.com/send")
-  isWaEnabled        Boolean   @default(false)
+  waGatewayToken String?
+  waGatewayUrl   String? @default("https://api.fonnte.com/send")
+  isWaEnabled    Boolean @default(false)
 
-  updatedAt         DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 
   // Hero Section
-  heroTitle         String   @default("Masa Depan Cerah Dimulai Di Sini")
-  heroDescription   String   @default("Selamat datang di portal Penerimaan Peserta Didik Baru. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.")
-  heroImage         String?
+  heroTitle       String  @default("Masa Depan Cerah Dimulai Di Sini")
+  heroDescription String  @default("Selamat datang di portal Penerimaan Peserta Didik Baru. Sistem seleksi yang transparan, objektif, dan akuntabel untuk generasi penerus bangsa.")
+  heroImage       String?
 
   // Juknis PDF
-  juknisFile        String?  // URL to uploaded juknis PDF
+  juknisFile String? // URL to uploaded juknis PDF
 
   isResultsPublished Boolean @default(false)
   isRankingLive      Boolean @default(true)
@@ -388,35 +387,35 @@ model SchoolSettings {
 }
 
 model ExamSchedule {
-  id        String   @id @default(cuid())
-  dayDate   String   // e.g., "Senin, 20 Juni 2025"
-  time      String   // e.g., "08:00 - 10:00"
-  subject   String   // e.g., "Matematika"
-  order     Int      @default(0)
-  
+  id      String @id @default(cuid())
+  dayDate String // e.g., "Senin, 20 Juni 2025"
+  time    String // e.g., "08:00 - 10:00"
+  subject String // e.g., "Matematika"
+  order   Int    @default(0)
+
   updatedAt DateTime @updatedAt
 }
 
 model RegistrationHistory {
-  id              String           @id @default(cuid())
-  student         Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  studentId       String
-  
-  waveId          String?
-  jalur           JalurPendaftaran
-  status          String           // LULUS / TIDAK_LULUS
-  
-  notes           String?
-  
-  createdAt       DateTime         @default(now())
+  id        String  @id @default(cuid())
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+
+  waveId String?
+  jalur  JalurPendaftaran
+  status String // LULUS / TIDAK_LULUS
+
+  notes String?
+
+  createdAt DateTime @default(now())
 }
 
 model EmailLog {
   id        String   @id @default(cuid())
   to        String
   subject   String
-  type      String   // VERIFICATION, RESET_PASSWORD
-  status    String   // SUCCESS, FAILED
+  type      String // VERIFICATION, RESET_PASSWORD
+  status    String // SUCCESS, FAILED
   error     String?  @db.Text
   createdAt DateTime @default(now())
 
