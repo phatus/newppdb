@@ -222,7 +222,11 @@ export default function LiveRankingTable({
                                                 <td className="px-4 py-4 text-center font-mono text-slate-700">{student.grades?.rataRataNilai?.toFixed(2) ?? "-"}</td>
                                                 <td className="px-4 py-4 text-center text-slate-600 font-bold">{student.grades?.nilaiUjianTeori ?? 0}</td>
                                                 <td className="px-4 py-4 text-center text-slate-600 font-bold">{student.grades?.nilaiUjianSKUA ?? 0}</td>
-                                                <td className="px-4 py-4 text-center text-slate-600 font-bold">+{student.grades?.nilaiPrestasi ?? 0}</td>
+                                                <td className="px-4 py-4 text-center text-slate-600 font-bold">
+                                                    {(student.jalur === 'PRESTASI_AKADEMIK' || student.jalur === 'PRESTASI_NON_AKADEMIK')
+                                                        ? `+${student.grades?.nilaiPrestasi ?? 0}`
+                                                        : "-"}
+                                                </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span className="text-lg font-black text-primary">
                                                         {student.grades?.finalScore?.toFixed(2) || "0.00"}

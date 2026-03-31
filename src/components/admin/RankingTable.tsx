@@ -308,7 +308,9 @@ export default function RankingTable({
                                                 <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianTeori || 0}</td>
                                                 <td className="p-4 text-center text-slate-600 dark:text-slate-400">{student.grades?.nilaiUjianSKUA || 0}</td>
                                                 <td className="p-4 text-center text-slate-600 dark:text-slate-400">
-                                                    {`+${student.grades?.nilaiPrestasi || 0}`}
+                                                    {(student.jalur === 'PRESTASI_AKADEMIK' || student.jalur === 'PRESTASI_NON_AKADEMIK')
+                                                        ? `+${student.grades?.nilaiPrestasi || 0}`
+                                                        : "-"}
                                                 </td>
                                             </>
                                         )}
