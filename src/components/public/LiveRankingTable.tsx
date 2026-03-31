@@ -15,9 +15,13 @@ interface RankingData {
     statusKelulusan: string;
     grades: {
         finalScore: number;
-        nilaiPrestasi: number | null;
+        rataRataNilai?: number | null;
+        nilaiUjianTeori?: number | null;
+        nilaiUjianSKUA?: number | null;
+        nilaiPrestasi?: number | null;
     } | null;
 }
+
 
 export default function LiveRankingTable({
     initialData,
@@ -34,6 +38,7 @@ export default function LiveRankingTable({
     const [lastUpdate, setLastUpdate] = useState(new Date());
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [selectedPath, setSelectedPath] = useState("ALL");
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -63,7 +68,11 @@ export default function LiveRankingTable({
         return "******" + nisn.slice(-4);
     };
 
-    const filteredData = initialData.filter((student) => {
+    const sortedPathData = selectedPath === "ALL" 
+        ? initialData 
+        : initialData.filter(student => student.jalur === selectedPath);
+
+    const filteredData = sortedPathData.filter((student) => {
         const searchLower = searchTerm.toLowerCase();
         return (
             student.namaLengkap.toLowerCase().includes(searchLower) ||
@@ -116,6 +125,29 @@ export default function LiveRankingTable({
                     </div>
                 </div>
 
+                {/* Path Filters */}
+                <div className="px-4 md:px-6 py-3 border-b border-slate-100 bg-white flex overflow-x-auto no-scrollbar gap-2">
+                    {[
+                        { id: "ALL", label: "Global Ranking" },
+                        { id: "REGULER", label: "Reguler" },
+                        { id: "PRESTASI_AKADEMIK", label: "Prestasi Akademik" },
+                        { id: "PRESTASI_NON_AKADEMIK", label: "Prestasi Non Akademik" },
+                        { id: "AFIRMASI", label: "Afirmasi" }
+                    ].map((path) => (
+                        <button
+                            key={path.id}
+                            onClick={() => { setSelectedPath(path.id); setCurrentPage(1); }}
+                            className={`whitespace-nowrap px-4 py-2 text-sm font-bold rounded-xl transition-all ${
+                                selectedPath === path.id
+                                    ? "bg-primary text-white shadow-md shadow-primary/20 scale-105"
+                                    : "bg-slate-50 text-slate-500 hover:bg-slate-100 hover:text-slate-700 border border-slate-200"
+                            }`}
+                        >
+                            {path.label}
+                        </button>
+                    ))}
+                </div>
+
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
                         <thead className="bg-[#0f172a] text-white">
@@ -124,14 +156,22 @@ export default function LiveRankingTable({
                                 <th className="px-6 py-4 font-bold">Nama Murid</th>
                                 <th className="px-6 py-4 font-bold">Asal Sekolah</th>
                                 <th className="px-6 py-4 font-bold w-32 text-center">Jalur</th>
+                                {showRankingScores && (
+                                    <>
+                                        <th className="px-4 py-4 font-bold text-center">Rapor</th>
+                                        <th className="px-4 py-4 font-bold text-center">Ujian</th>
+                                        <th className="px-4 py-4 font-bold text-center">SKUA</th>
+                                        <th className="px-4 py-4 font-bold text-center">Prestasi</th>
+                                    </>
+                                )}
                                 <th className="px-6 py-4 font-bold w-32 text-center text-emerald-400">Hasil</th>
                                 {showRankingScores && <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             {pagedData.map((student, index) => {
-                                // Find the original rank from initialData
-                                const rank = initialData.findIndex(s => s.id === student.id) + 1;
+                                // Find the original rank from sortedPathData context
+                                const rank = sortedPathData.findIndex(s => s.id === student.id) + 1;
                                 return (
                                     <tr
                                         key={student.id}
@@ -178,18 +218,24 @@ export default function LiveRankingTable({
                                             </span>
                                         </td>
                                         {showRankingScores && (
-                                            <td className="px-6 py-4 text-center">
-                                                <span className="text-lg font-black text-primary">
-                                                    {student.grades?.finalScore?.toFixed(2) || "0.00"}
-                                                </span>
-                                            </td>
+                                            <>
+                                                <td className="px-4 py-4 text-center font-mono text-slate-700">{student.grades?.rataRataNilai?.toFixed(2) ?? "-"}</td>
+                                                <td className="px-4 py-4 text-center text-slate-600 font-bold">{student.grades?.nilaiUjianTeori ?? 0}</td>
+                                                <td className="px-4 py-4 text-center text-slate-600 font-bold">{student.grades?.nilaiUjianSKUA ?? 0}</td>
+                                                <td className="px-4 py-4 text-center text-slate-600 font-bold">+{student.grades?.nilaiPrestasi ?? 0}</td>
+                                                <td className="px-6 py-4 text-center">
+                                                    <span className="text-lg font-black text-primary">
+                                                        {student.grades?.finalScore?.toFixed(2) || "0.00"}
+                                                    </span>
+                                                </td>
+                                            </>
                                         )}
                                     </tr>
                                 );
                             })}
                             {pagedData.length === 0 && (
                                 <tr>
-                                    <td colSpan={showRankingScores ? 6 : 5} className="px-6 py-12 text-center text-slate-400">
+                                    <td colSpan={showRankingScores ? 10 : 5} className="px-6 py-12 text-center text-slate-400">
                                         {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data perangkingan."}
                                     </td>
                                 </tr>
