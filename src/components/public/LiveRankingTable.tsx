@@ -156,7 +156,7 @@ export default function LiveRankingTable({
                                 <th className="px-6 py-4 font-bold">Nama Murid</th>
                                 <th className="px-6 py-4 font-bold">Asal Sekolah</th>
                                 <th className="px-6 py-4 font-bold w-32 text-center">Jalur</th>
-                                {showRankingScores && (
+                                {showRankingScores && isResultsPublished && (
                                     <>
                                         <th className="px-4 py-4 font-bold text-center">Rapor</th>
                                         <th className="px-4 py-4 font-bold text-center">Ujian</th>
@@ -165,7 +165,7 @@ export default function LiveRankingTable({
                                     </>
                                 )}
                                 <th className="px-6 py-4 font-bold w-32 text-center text-emerald-400">Hasil</th>
-                                {showRankingScores && <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>}
+                                {showRankingScores && isResultsPublished && <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -217,7 +217,7 @@ export default function LiveRankingTable({
                                                             'PENDING')}
                                             </span>
                                         </td>
-                                        {showRankingScores && (
+                                        {showRankingScores && isResultsPublished && (
                                             <>
                                                 <td className="px-4 py-4 text-center font-mono text-slate-700">{student.grades?.rataRataNilai?.toFixed(2) ?? "-"}</td>
                                                 <td className="px-4 py-4 text-center text-slate-600 font-bold">{student.grades?.nilaiUjianTeori ?? 0}</td>
@@ -235,7 +235,7 @@ export default function LiveRankingTable({
                             })}
                             {pagedData.length === 0 && (
                                 <tr>
-                                    <td colSpan={showRankingScores ? 10 : 5} className="px-6 py-12 text-center text-slate-400">
+                                    <td colSpan={(showRankingScores && isResultsPublished) ? 10 : 5} className="px-6 py-12 text-center text-slate-400">
                                         {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data perangkingan."}
                                     </td>
                                 </tr>
