@@ -5,6 +5,7 @@ import Link from "next/link";
 import { getRankingData } from "@/app/actions/ranking";
 import PrintButton from "@/components/admin/PrintButton";
 import AutoSelectionButton from "@/components/admin/AutoSelectionButton";
+import UndoSelectionButton from "@/components/admin/UndoSelectionButton";
 import WaveSelector from "@/components/admin/WaveSelector";
 
 export default async function RankingReportPage(props: {
@@ -33,7 +34,7 @@ export default async function RankingReportPage(props: {
 
     return (
         <div className="p-6 w-full max-w-[1200px] mx-auto flex flex-col gap-6">
-            <div className="flex items-center justify-between no-print">
+            <div className="flex flex-col md:flex-row md:items-center justify-between no-print gap-4">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
                         <Link href="/admin/reports" className="hover:text-primary">Laporan</Link>
@@ -45,9 +46,10 @@ export default async function RankingReportPage(props: {
                     </h1>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center flex-wrap gap-3">
                     <WaveSelector waves={waves} initialWaveId={waveId} />
-                    <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 mx-2" />
+                    <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
+                    <UndoSelectionButton waveId={waveId} />
                     <AutoSelectionButton quota={settings?.studentQuota || 100} waveId={waveId} />
                     <PrintButton />
                 </div>

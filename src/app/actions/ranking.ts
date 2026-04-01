@@ -233,10 +233,10 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
 
         // Default Global Quotas
         const globalQuotas: Record<string, number> = {
-            "REGULER": settings.quotaReguler || 50,
-            "PRESTASI_AKADEMIK": settings.quotaPrestasiAkademik || 15,
-            "PRESTASI_NON_AKADEMIK": settings.quotaPrestasiNonAkademik || 15,
-            "AFIRMASI": settings.quotaAfirmasi || 20
+            "REGULER": settings.quotaReguler ?? 50,
+            "PRESTASI_AKADEMIK": settings.quotaPrestasiAkademik ?? 15,
+            "PRESTASI_NON_AKADEMIK": settings.quotaPrestasiNonAkademik ?? 15,
+            "AFIRMASI": settings.quotaAfirmasi ?? 20
         };
 
         let activeQuotas = { ...globalQuotas };
@@ -251,11 +251,19 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             if (wave) {
                 if (wave.quota > 0) totalWaveLimit = wave.quota;
 
-                if (wave.pathQuotas && typeof wave.pathQuotas === 'object') {
-                    const wavePaths = wave.pathQuotas as Record<string, number>;
-                    // Path quotas in wave override global ones for paths that are defined
+                let wavePathsObj = wave.pathQuotas;
+                if (typeof wave.pathQuotas === 'string') {
+                    try { wavePathsObj = JSON.parse(wave.pathQuotas); } catch (e) {}
+                }
+
+                if (wavePathsObj && typeof wavePathsObj === 'object') {
+                    const wavePaths = wavePathsObj as Record<string, any>;
+                    // Path quotas in wave override global ones for paths that are defined and > 0
                     Object.keys(wavePaths).forEach(path => {
-                        activeQuotas[path] = wavePaths[path];
+                        const pathQuota = Number(wavePaths[path]);
+                        if (!isNaN(pathQuota) && pathQuota > 0) {
+                            activeQuotas[path] = pathQuota;
+                        }
                     });
                 }
             }
@@ -449,5 +457,65 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
     } catch (error) {
         console.error("Auto selection error:", error);
         return { success: false, error: "Terjadi kesalahan saat seleksi otomatis." };
+    }
+}
+
+export async function undoMovedStudents(waveId?: string) {
+    try {
+        const filters = waveId && waveId !== "all" ? { waveId } : {};
+
+        // Find students who have been moved
+        const students = await db.student.findMany({
+            where: {
+                ...filters,
+                catatanPenolakan: {
+                    startsWith: "Dipindahkan dari jalur"
+                }
+            }
+        });
+
+        let restoredCount = 0;
+
+        for (const student of students) {
+            // Match pattern: Dipindahkan dari jalur PRESTASI_AKADEMIK ke REGULER
+            const match = student.catatanPenolakan?.match(/Dipindahkan dari jalur (PRESTASI_AKADEMIK|PRESTASI_NON_AKADEMIK|AFIRMASI) ke REGULER/);
+
+            if (match && match[1]) {
+                const originalJalur = match[1] as JalurPendaftaran;
+
+                await db.student.update({
+                    where: { id: student.id },
+                    data: {
+                        jalur: originalJalur,
+                        catatanPenolakan: null,
+                    }
+                });
+                restoredCount++;
+            }
+        }
+
+        // Reset statusKelulusan for ALL verified students in the wave to PENDING
+        // This gives a clean slate for re-running auto selection
+        await db.student.updateMany({
+            where: {
+                ...filters,
+                statusVerifikasi: "VERIFIED"
+            },
+            data: {
+                statusKelulusan: "PENDING"
+            }
+        });
+
+        revalidatePath("/admin/reports/ranking");
+        revalidatePath("/admin/ranking");
+        revalidatePath("/dashboard");
+
+        return { 
+            success: true, 
+            message: `Berhasil mengembalikan ${restoredCount} murid ke jalur asal dan mereset status kelulusan menjadi PENDING untuk Seleksi Ulang.` 
+        };
+    } catch (error) {
+        console.error("Undo move error:", error);
+        return { success: false, error: "Gagal mengembalikan jalur pendaftar." };
     }
 }
