@@ -26,7 +26,7 @@ export default async function SelectionRecapPage(props: {
 
     // Fetch ranked students (this includes finalScore and LULUS/TIDAK_LULUS status)
     // We only want those who are already processed (LULUS or TIDAK_LULUS)
-    const { students: allRanked } = await getRankingData({ waveId });
+    const { students: allRanked } = await getRankingData({ waveId, forceLive: true });
     const allFilteredStudents = allRanked.filter(s => s.statusKelulusan === "LULUS" || s.statusKelulusan === "TIDAK_LULUS");
 
     // Paginate the filtered list

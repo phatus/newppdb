@@ -19,7 +19,7 @@ export default async function RankingReportPage(props: {
     });
 
     // Reuse existing ranking logic with filter
-    const { students: rankedStudents } = await getRankingData({ waveId });
+    const { students: rankedStudents } = await getRankingData({ waveId, forceLive: true });
 
     // Use Raw Query to fetch settings
     const settingsRaw = await db.$queryRaw<import("@prisma/client").SchoolSettings[]>`SELECT * FROM "SchoolSettings" LIMIT 1`;

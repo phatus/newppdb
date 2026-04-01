@@ -13,7 +13,7 @@ export default function RankingExportButton({ filters }: { filters: { waveId?: s
         setLoading(true);
         try {
             // Fetch ALL data without pagination
-            const { students } = await getRankingData(filters);
+            const { students } = await getRankingData({ ...filters, forceLive: true });
 
             if (!students || students.length === 0) {
                 toast.error("Tidak ada data untuk diekspor");

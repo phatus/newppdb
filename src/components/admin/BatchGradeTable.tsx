@@ -26,15 +26,9 @@ interface StudentProps {
 export default function BatchGradeTable({ students }: { students: StudentProps[] }) {
     const [showGuide, setShowGuide] = useState(false);
     const [viewingDocs, setViewingDocs] = useState<{ name: string; files: string[] } | null>(null);
-    const [search, setSearch] = useState("");
-
-    const filteredStudents = students.filter(student =>
-        student.namaLengkap.toLowerCase().includes(search.toLowerCase()) ||
-        student.nisn.includes(search)
-    );
 
     const handleExport = () => {
-        const dataToExport = filteredStudents.map((student, index) => ({
+        const dataToExport = students.map((student, index) => ({
             "No": index + 1,
             "Nama Lengkap": student.namaLengkap,
             "NISN": student.nisn,
@@ -70,25 +64,14 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
 
     return (
         <>
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+            <div className="flex justify-end mb-6">
                 <button
                     onClick={handleExport}
                     className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-colors shadow-sm text-sm"
                 >
                     <span className="material-symbols-outlined text-[20px]">file_download</span>
-                    Export Excel
+                    Export Excel Terpilih
                 </button>
-
-                <div className="relative w-full max-w-xs">
-                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                    <input
-                        type="text"
-                        placeholder="Cari Nama atau NISN..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
-                    />
-                </div>
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
@@ -113,8 +96,8 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                            {filteredStudents.length > 0 ? (
-                                filteredStudents.map((student, index) => (
+                            {students.length > 0 ? (
+                                students.map((student, index) => (
                                     <GradeRow
                                         key={student.id}
                                         student={student}

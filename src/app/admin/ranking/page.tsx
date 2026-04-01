@@ -19,7 +19,7 @@ export default async function RankingPage({
     const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
     const skip = (currentPage - 1) * PAGE_SIZE;
 
-    const { students, totalCount } = await getRankingData({ waveId, jalur }, skip, PAGE_SIZE);
+    const { students, totalCount } = await getRankingData({ waveId, jalur, forceLive: true }, skip, PAGE_SIZE);
     const settings = await db.schoolSettings.findFirst();
     const waves = await db.wave.findMany({
         orderBy: { startDate: 'asc' }
