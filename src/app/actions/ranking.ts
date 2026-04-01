@@ -234,8 +234,7 @@ import { sendWhatsApp } from "@/lib/whatsapp";
 export async function autoSelectStudents(filters?: { waveId?: string; jalur?: JalurPendaftaran }) {
     try {
         // 1. Get Quota and Settings
-        const settingsRaw = await db.$queryRaw<SchoolSettings[]>`SELECT * FROM "SchoolSettings" LIMIT 1`;
-        const settings = settingsRaw[0] || {};
+        const settings = await db.schoolSettings.findFirst() || {} as any;
 
         // Default Global Quotas
         const globalQuotas: Record<string, number> = {
