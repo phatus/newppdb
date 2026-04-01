@@ -5,21 +5,24 @@ import { getRankingData } from "@/app/actions/ranking";
 import RankingTable from "@/components/admin/RankingTable";
 import WABlastPanel from "@/components/admin/WABlastPanel";
 import RankingControlPanel from "@/components/admin/ranking/RankingControlPanel";
+import SearchInput from "@/components/admin/SearchInput";
+import { Suspense } from "react";
 
 const PAGE_SIZE = 20;
 
 export default async function RankingPage({
     searchParams,
 }: {
-    searchParams: Promise<{ waveId?: string; jalur?: string; page?: string }>;
+    searchParams: Promise<{ waveId?: string; jalur?: string; page?: string; q?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const waveId = resolvedParams?.waveId;
     const jalur = resolvedParams?.jalur as any;
+    const q = resolvedParams?.q || "";
     const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
     const skip = (currentPage - 1) * PAGE_SIZE;
 
-    const { students, totalCount } = await getRankingData({ waveId, jalur, forceLive: true }, skip, PAGE_SIZE);
+    const { students, totalCount } = await getRankingData({ waveId, jalur, forceLive: true, q }, skip, PAGE_SIZE);
     const settings = await db.schoolSettings.findFirst();
     const waves = await db.wave.findMany({
         orderBy: { startDate: 'asc' }
@@ -36,7 +39,10 @@ export default async function RankingPage({
                         Daftar peringkat berdasarkan kalkulasi nilai Rapor, Ujian Teori, SKUA, dan Prestasi.
                     </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto">
+                    <Suspense fallback={<div className="h-10 w-full md:w-[250px] bg-slate-100 dark:bg-slate-800 rounded-lg animate-pulse" />}>
+                        <SearchInput />
+                    </Suspense>
                     <WABlastPanel />
                 </div>
             </div>

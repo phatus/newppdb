@@ -19,12 +19,18 @@ type RankedStudent = StudentWithRelations & {
  * Fetches and ranks student data with optional pagination and filters.
  * Returns an object containing the ranked students and total count.
  */
-export async function getRankingData(filters?: { waveId?: string; jalur?: JalurPendaftaran; forceLive?: boolean }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
+export async function getRankingData(filters?: { waveId?: string; jalur?: JalurPendaftaran; forceLive?: boolean; q?: string }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
     try {
         // 1. Fetch Students who are verified
         const where: any = { statusVerifikasi: "VERIFIED" };
         if (filters?.waveId) where.waveId = filters.waveId;
         if (filters?.jalur) where.jalur = filters.jalur;
+        if (filters?.q) {
+            where.OR = [
+                { namaLengkap: { contains: filters.q, mode: 'insensitive' } },
+                { nisn: { contains: filters.q, mode: 'insensitive' } }
+            ];
+        }
 
         const students = await db.student.findMany({
             where,
