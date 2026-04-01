@@ -17,6 +17,9 @@ export default function SearchInput() {
         } else {
             params.delete("q");
         }
+        
+        // Reset page to 1 when searching
+        params.delete("page");
 
         startTransition(() => {
             router.replace(`${pathname}?${params.toString()}`);
