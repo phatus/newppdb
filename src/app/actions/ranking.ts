@@ -371,12 +371,16 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
 
         // Stage 3: Process Reguler (Original Reguler + Moved from Achievement)
         const originalReguler = allStudents.filter(s => s.jalur === "REGULER");
-        const combinedReguler = [...originalReguler, ...movedStudents.map(m => m.student)];
+        
+        // Ensure ALL regular students (original + moved) use the EXACT same fresh mathematical formula
+        const recalculatedOriginalReguler = originalReguler.map(s => recalculateScore(s, "REGULER"));
+        
+        const combinedReguler = [...recalculatedOriginalReguler, ...movedStudents.map(m => m.student)];
 
-        // Re-sort combined reguler
+        // Re-sort combined reguler explicitly
         combinedReguler.sort((a, b) => {
-            const scoreA = a.grades?.finalScore || 0;
-            const scoreB = b.grades?.finalScore || 0;
+            const scoreA = a.grades?.finalScore ?? 0;
+            const scoreB = b.grades?.finalScore ?? 0;
             return scoreB - scoreA;
         });
 
@@ -415,11 +419,12 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             const s = moved.student;
             const isPassed = passedIds.includes(s.id);
 
-            // Update Jalur to REGULER and add note
+            // Update Jalur to REGULER, and explicitly forcefully apply the passed/failed logic
             await db.student.update({
                 where: { id: s.id },
                 data: {
                     jalur: "REGULER",
+                    statusKelulusan: isPassed ? "LULUS" : "TIDAK_LULUS",
                     catatanPenolakan: `Dipindahkan dari jalur ${moved.originalJalur} ke REGULER. ` +
                         (isPassed ? "Lolos di jalur REGULER." : "Tidak lolos di jalur REGULER.")
                 }
