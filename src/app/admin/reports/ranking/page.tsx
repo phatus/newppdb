@@ -7,6 +7,7 @@ import PrintButton from "@/components/admin/PrintButton";
 import AutoSelectionButton from "@/components/admin/AutoSelectionButton";
 import UndoSelectionButton from "@/components/admin/UndoSelectionButton";
 import WaveSelector from "@/components/admin/WaveSelector";
+import ExportDocButton from "@/components/admin/ExportDocButton";
 
 export default async function RankingReportPage(props: {
     searchParams: Promise<{ waveId?: string }>
@@ -51,23 +52,33 @@ export default async function RankingReportPage(props: {
                     <div className="h-8 w-px bg-slate-200 dark:bg-slate-800 hidden md:block" />
                     <UndoSelectionButton waveId={waveId} />
                     <AutoSelectionButton quota={settings?.studentQuota || 100} waveId={waveId} />
+                    <ExportDocButton targetId="berita-acara-doc" fileName="Berita_Acara_Ranking" />
                     <PrintButton />
                 </div>
             </div>
 
             {/* Printable Document */}
-            <div className="bg-white p-12 rounded-xl border border-slate-200 shadow-sm print:shadow-none print:border-none print:p-0 min-h-[1000px] print:min-h-0 relative">
+            <div id="berita-acara-doc" className="bg-white p-12 rounded-xl border border-slate-200 shadow-sm print:shadow-none print:border-none print:p-0 min-h-[1000px] print:min-h-0 relative">
                 {/* Kop Surat */}
-                <div className="border-b-4 border-double border-black pb-4 mb-8 text-center flex items-center justify-center gap-6">
-                    {settings?.schoolLogo && (
-                        <img src={settings.schoolLogo} alt="Logo" className="h-24 w-24 object-contain" />
-                    )}
-                    <div className="flex flex-col items-center gap-1 flex-1">
-                        <h2 className="text-xl font-bold">Panitia Penerimaan Murid Baru</h2>
-                        <h1 className="text-2xl font-black">{settings?.schoolName || "MTsN 1 Pacitan"}</h1>
-                        <p className="text-sm font-serif italic">{settings?.schoolAddress || "Jl. Alamat Madrasah"}</p>
-                    </div>
-                </div>
+                <table className="w-full border-b-4 border-double border-black pb-4 mb-8">
+                    <tbody>
+                        <tr>
+                            <td className="w-24 align-middle text-center border-0 border-b-0 pb-4">
+                                {settings?.schoolLogo && (
+                                    <img src={settings.schoolLogo} alt="Logo" className="h-24 w-24 object-contain mx-auto" />
+                                )}
+                            </td>
+                            <td className="text-center align-middle border-0 border-b-0 pb-4">
+                                <h2 className="text-xl font-bold m-0 p-0">Panitia Penerimaan Murid Baru</h2>
+                                <h1 className="text-2xl font-black m-0 p-0 leading-tight">{settings?.schoolName || "MTsN 1 Pacitan"}</h1>
+                                <p className="text-sm font-serif italic m-0 p-0">{settings?.schoolAddress || "Jl. Alamat Madrasah"}</p>
+                            </td>
+                            <td className="w-24 border-0 border-b-0 pb-4">
+                                {/* Empty right col to balance the left logo */}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
                 {/* Judul Berita Acara */}
                 <div className="text-center mb-8">
@@ -135,25 +146,29 @@ export default async function RankingReportPage(props: {
                 </div>
 
                 {/* Footer / TTD */}
-                <div className="flex justify-between mt-16 px-12 break-inside-avoid">
-                    <div className="text-center">
-                        <p className="mb-20">Mengetahui,<br />Kepala Madrasah</p>
-                        <p className="font-bold underline">{settings?.principalName || "Nama Kepala Sekolah"}</p>
-                        <p>NIP. {settings?.principalNip || "-"}</p>
-                    </div>
-                    <div className="text-center">
-                        <p className="mb-4">Ditetapkan di: {cityOnly}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />Ketua Panitia PMBM</p>
-                        {settings?.committeeSignature ? (
-                            <div className="h-20 flex items-center justify-center mb-2">
-                                <img src={settings.committeeSignature} alt="Signature" className="h-full object-contain" />
-                            </div>
-                        ) : (
-                            <div className="h-20" />
-                        )}
-                        <p className="font-bold underline">{settings?.committeeName || "Nama Ketua Panitia"}</p>
-                        <p>NIP. {settings?.committeeNip || "-"}</p>
-                    </div>
-                </div>
+                <table className="w-full mt-16 break-inside-avoid border-0">
+                    <tbody>
+                        <tr>
+                            <td className="w-1/2 text-center align-top border-0">
+                                <p className="mb-20 mt-4">Mengetahui,<br />Kepala Madrasah</p>
+                                <p className="font-bold underline">{settings?.principalName || "Nama Kepala Sekolah"}</p>
+                                <p>NIP. {settings?.principalNip || "-"}</p>
+                            </td>
+                            <td className="w-1/2 text-center align-top border-0">
+                                <p className="mb-4">Ditetapkan di: {cityOnly}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br />Ketua Panitia PMBM</p>
+                                {settings?.committeeSignature ? (
+                                    <div className="h-20 flex items-center justify-center mb-2">
+                                        <img src={settings.committeeSignature} alt="Signature" className="h-20 object-contain mx-auto" />
+                                    </div>
+                                ) : (
+                                    <div className="h-20" />
+                                )}
+                                <p className="font-bold underline">{settings?.committeeName || "Nama Ketua Panitia"}</p>
+                                <p>NIP. {settings?.committeeNip || "-"}</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
             </div>
 
@@ -162,10 +177,26 @@ export default async function RankingReportPage(props: {
                 __html: `
                 @media print {
                     .no-print { display: none !important; }
-                    body { background: white; }
-                    .print\\:shadow-none { box-shadow: none; }
-                    .print\\:border-none { border: none; }
-                    .print\\:min-h-0 { min-height: 0; }
+                    body { background: white; margin: 0; padding: 0; }
+                    @page { size: A4 portrait; margin: 15mm; }
+                    .print\\:shadow-none { box-shadow: none !important; }
+                    .print\\:border-none { border: none !important; }
+                    .print\\:min-h-0 { min-height: 0 !important; }
+                    
+                    /* TTD Borders fix for print based on table layout */
+                    .border-0 { border: none !important; }
+                    .border-b-0 { border-bottom: none !important; }
+
+                    /* Fix page breaks */
+                    table { page-break-inside: auto; break-inside: auto; border-collapse: collapse; }
+                    tr { page-break-inside: avoid; page-break-after: auto; break-inside: avoid; }
+                    thead { display: table-header-group; }
+                    tfoot { display: table-footer-group; }
+                    
+                    /* Make sure borders are printed for main table */
+                    table.text-sm th, table.text-sm td { border: 1px solid black !important; }
+                    
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                 }
             `}} />
         </div>

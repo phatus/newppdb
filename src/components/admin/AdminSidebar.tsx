@@ -56,7 +56,7 @@ export default function AdminSidebar({
             title: "Laporan & Sistem",
             items: [
                 { href: "/admin/reports/emis", icon: "cloud_download", label: "Export EMIS" },
-                { href: "/admin/reports", icon: "print", label: "Laporan" },
+                { href: "/admin/reports", icon: "print", label: "Laporan & Cetak" },
                 { href: "/admin/email-monitor", icon: "mail", label: "Email Monitor" },
                 { href: "/admin/logs", icon: "history", label: "Audit Log" },
                 { href: "/admin/accounts", icon: "manage_accounts", label: "Manajemen Akun" },
