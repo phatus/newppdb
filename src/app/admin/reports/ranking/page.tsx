@@ -38,7 +38,7 @@ export default async function RankingReportPage(props: {
             <div className="flex flex-col md:flex-row md:items-center justify-between no-print gap-4">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-                        <Link href="/admin/reports" className="hover:text-primary">Laporan</Link>
+                        <Link href="/admin/reports" className="hover:text-primary">Laporan & Cetak</Link>
                         <span>/</span>
                         <span>Berita Acara</span>
                     </div>
