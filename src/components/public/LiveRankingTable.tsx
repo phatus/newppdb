@@ -162,10 +162,10 @@ export default function LiveRankingTable({
                                         <th className="px-4 py-4 font-bold text-center">Ujian</th>
                                         <th className="px-4 py-4 font-bold text-center">SKUA</th>
                                         <th className="px-4 py-4 font-bold text-center">Prestasi</th>
+                                        <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>
                                     </>
                                 )}
                                 <th className="px-6 py-4 font-bold w-32 text-center text-emerald-400">Hasil</th>
-                                {showRankingScores && isResultsPublished && <th className="px-6 py-4 font-bold w-32 text-center text-yellow-400">Total Skor</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -203,20 +203,6 @@ export default function LiveRankingTable({
                                                 {student.jalur.replace("_", " ")}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-center">
-                                            <span className={`
-                                            px-2 py-1 rounded text-[10px] font-bold
-                                            ${!isResultsPublished ? 'bg-slate-100 text-slate-400' :
-                                                    (student.statusKelulusan === 'LULUS' ? 'bg-emerald-100 text-emerald-700' :
-                                                        student.statusKelulusan === 'TIDAK_LULUS' ? 'bg-red-100 text-red-700' :
-                                                            'bg-slate-100 text-slate-600')}
-                                        `}>
-                                                {!isResultsPublished ? 'BELUM DIUMUMKAN' :
-                                                    (student.statusKelulusan === 'LULUS' ? 'DITERIMA' :
-                                                        student.statusKelulusan === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' :
-                                                            'PENDING')}
-                                            </span>
-                                        </td>
                                         {showRankingScores && isResultsPublished && (
                                             <>
                                                 <td className="px-4 py-4 text-center font-mono text-slate-700">{student.grades?.rataRataNilai?.toFixed(2) ?? "-"}</td>
@@ -234,7 +220,22 @@ export default function LiveRankingTable({
                                                 </td>
                                             </>
                                         )}
+                                        <td className="px-6 py-4 text-center">
+                                            <span className={`
+                                            px-2 py-1 rounded text-[10px] font-bold
+                                            ${!isResultsPublished ? 'bg-slate-100 text-slate-400' :
+                                                    (student.statusKelulusan === 'LULUS' ? 'bg-emerald-100 text-emerald-700' :
+                                                        student.statusKelulusan === 'TIDAK_LULUS' ? 'bg-red-100 text-red-700' :
+                                                            'bg-slate-100 text-slate-600')}
+                                        `}>
+                                                {!isResultsPublished ? 'BELUM DIUMUMKAN' :
+                                                    (student.statusKelulusan === 'LULUS' ? 'DITERIMA' :
+                                                        student.statusKelulusan === 'TIDAK_LULUS' ? 'TIDAK DITERIMA' :
+                                                            'PENDING')}
+                                            </span>
+                                        </td>
                                     </tr>
+
                                 );
                             })}
                             {pagedData.length === 0 && (
