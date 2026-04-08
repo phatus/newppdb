@@ -77,9 +77,10 @@ export default function DocumentUploadButton({
             if (onUploadSuccess) onUploadSuccess();
 
         } catch (error) {
-            console.error(error);
+            console.error("Upload error:", error);
             toast.dismiss(loadingToast);
-            toast.error("Terjadi kesalahan saat mengunggah dokumen");
+            const errorMsg = error instanceof Error ? error.message : "Terjadi kesalahan saat mengunggah dokumen";
+            toast.error(errorMsg);
         } finally {
             setIsUploading(false);
             // Reset input

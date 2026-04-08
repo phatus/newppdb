@@ -159,6 +159,7 @@ export async function verifyDocument(
             case "fileSKL": statusField = "statusSKL"; break;
             case "fileRaport": statusField = "statusRaport"; break;
             case "filePrestasi": statusField = "statusPrestasi"; break;
+            case "fileSKTM": statusField = "statusSKTM"; break;
             case "pasFoto": statusField = "statusPasFoto"; break;
             default: return { success: false, error: "Tipe dokumen tidak valid" };
         }

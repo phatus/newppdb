@@ -37,16 +37,16 @@ export async function PATCH(
         }
 
         // Check verification status
-        let studentQuery: any = { id: studentId };
-
-        if (!isAdmin) {
-            studentQuery.userId = session.user.id;
-        }
-
-        const student = await db.student.findUnique({
-            where: studentQuery,
-            include: { documents: true }
-        });
+        // Use findFirst instead of findUnique because userId is not a unique field
+        const student = isAdmin
+            ? await db.student.findUnique({
+                where: { id: studentId },
+                include: { documents: true }
+            })
+            : await db.student.findFirst({
+                where: { id: studentId, userId: session.user.id },
+                include: { documents: true }
+            });
 
         if (!student) {
             return NextResponse.json({ message: "Student not found or unauthorized access" }, { status: 404 });

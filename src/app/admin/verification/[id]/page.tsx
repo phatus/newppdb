@@ -81,6 +81,9 @@ const getDocumentList = (docs: any, jalur: string | null) => {
     if (jalur === 'PRESTASI_AKADEMIK' || jalur === 'PRESTASI_NON_AKADEMIK' || (docs && docs.filePrestasi)) {
         list.push({ key: 'filePrestasi', label: 'Dokumen Prestasi', icon: 'emoji_events' });
     }
+    if (jalur === 'AFIRMASI' || (docs && docs.fileSKTM)) {
+        list.push({ key: 'fileSKTM', label: 'KIP / PKH / KPS / SKTM', icon: 'volunteer_activism' });
+    }
     return list;
 };
 
