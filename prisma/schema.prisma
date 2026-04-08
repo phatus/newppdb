@@ -282,6 +282,7 @@ model Grades {
   nilaiUjianTeori Float?
   nilaiUjianSKUA  Float?
   nilaiPrestasi   Float? // Calculated from verified documents using AchievementWeight
+  nilaiAfirmasi   Float? // Score bonus for Afirmasi path
   catatanPrestasi String?
   frozenScore     Float? // Snapshot score for "Frozen" mode
   finalScore      Float? // Total score for ranking

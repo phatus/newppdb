@@ -15,17 +15,19 @@ interface StudentProps {
         nilaiUjianTeori: number | null;
         nilaiUjianSKUA: number | null;
         nilaiPrestasi: number | null;
+        nilaiAfirmasi: number | null;
         rataRataNilai: number | null;
     } | null;
     documents?: {
         filePrestasi: string[];
+        fileSKTM: string | null;
     } | null;
     verificationNote: string | null;
 }
 
 export default function BatchGradeTable({ students }: { students: StudentProps[] }) {
     const [showGuide, setShowGuide] = useState(false);
-    const [viewingDocs, setViewingDocs] = useState<{ name: string; files: string[] } | null>(null);
+    const [viewingDocs, setViewingDocs] = useState<{ name: string; files: string[]; title: string } | null>(null);
 
     const handleExport = () => {
         const dataToExport = students.map((student, index) => ({
@@ -85,9 +87,9 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">Rata Raport</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">Teori (0-100)</th>
                                 <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">SKUA (0-100)</th>
-                                <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-32">
+                                <th className="px-6 py-4 font-bold text-slate-700 dark:text-slate-300 w-48">
                                     <div className="flex items-center gap-1 group relative cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setShowGuide(true)}>
-                                        <span>Prestasi</span>
+                                        <span>Poin Prestasi / Afirmasi</span>
                                         <span className="material-symbols-outlined text-[18px] text-primary">info</span>
                                     </div>
                                 </th>
@@ -102,7 +104,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                                         key={student.id}
                                         student={student}
                                         index={index}
-                                        onViewDocs={(files) => setViewingDocs({ name: student.namaLengkap, files })}
+                                        onViewDocs={(files, title) => setViewingDocs({ name: student.namaLengkap, files, title: title || "Dokumen Prestasi" })}
                                     />
                                 ))
                             ) : (
@@ -124,14 +126,14 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                         <div className="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-700">
                             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                 <span className="material-symbols-outlined text-primary">description</span>
-                                Dokumen Prestasi
+                                {viewingDocs.title}
                             </h3>
                             <button onClick={() => setViewingDocs(null)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors">
                                 <span className="material-symbols-outlined text-slate-500">close</span>
                             </button>
                         </div>
                         <div className="p-4">
-                            <p className="text-sm text-slate-500 mb-4">Dokumen prestasi milik <b>{viewingDocs.name}</b>:</p>
+                            <p className="text-sm text-slate-500 mb-4">Dokumen milik <b>{viewingDocs.name}</b>:</p>
                             {viewingDocs.files.length > 0 ? (
                                 <div className="space-y-2">
                                     {viewingDocs.files.map((file, idx) => (
@@ -147,7 +149,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <p className="text-sm font-medium text-slate-700 dark:text-slate-200 truncate group-hover:text-primary transition-colors">
-                                                    Dokumen Prestasi {idx + 1}
+                                                    Dokumen {idx + 1}
                                                 </p>
                                                 <p className="text-xs text-slate-400">Klik untuk melihat</p>
                                             </div>
@@ -271,7 +273,7 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
     );
 }
 
-function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index: number; onViewDocs: (files: string[]) => void }) {
+function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index: number; onViewDocs: (files: string[], title?: string) => void }) {
     const isPrestasi = student.jalur === "PRESTASI_AKADEMIK" || student.jalur === "PRESTASI_NON_AKADEMIK";
     const isPrestasiAkademik = student.jalur === "PRESTASI_AKADEMIK";
     const isPrestasiNonAkademik = student.jalur === "PRESTASI_NON_AKADEMIK";
@@ -293,18 +295,21 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
     const [teori, setTeori] = useState(student.grades?.nilaiUjianTeori?.toString() || "");
     const [skua, setSkua] = useState(student.grades?.nilaiUjianSKUA?.toString() || "");
     const [prestasi, setPrestasi] = useState(student.grades?.nilaiPrestasi?.toString() || "");
+    const [afirmasi, setAfirmasi] = useState(student.grades?.nilaiAfirmasi?.toString() || "");
     const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
     const handleSave = async () => {
         const valTeori = parseFloat(teori);
         const valSkua = parseFloat(skua);
         const valPrestasi = parseFloat(prestasi);
+        const valAfirmasi = parseFloat(afirmasi);
 
         setStatus("saving");
         const res = await updateStudentScore(student.id, {
             theory: isNaN(valTeori) ? undefined : valTeori,
             skua: isNaN(valSkua) ? undefined : valSkua,
             achievement: isNaN(valPrestasi) ? undefined : valPrestasi,
+            afirmasi: isNaN(valAfirmasi) ? undefined : valAfirmasi,
         });
 
         if (res.success) {
@@ -371,7 +376,30 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
                 />
             </td>
             <td className="px-6 py-3">
-                {enablePrestasi ? (
+                {isAfirmasi ? (
+                    <div className="flex items-center gap-2">
+                        <input
+                            type="number"
+                            value={afirmasi}
+                            onChange={(e) => setAfirmasi(e.target.value)}
+                            onBlur={handleSave}
+                            className="w-20 rounded-md border border-slate-300 dark:border-slate-600 px-3 py-1.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                            placeholder="0"
+                            min="0"
+                        />
+                        {student.documents?.fileSKTM ? (
+                            <button
+                                onClick={() => onViewDocs([student.documents!.fileSKTM!], "Dokumen Afirmasi")}
+                                className="p-1.5 bg-purple-50 text-purple-600 rounded-md hover:bg-purple-100 transition-colors border border-purple-200"
+                                title="Lihat Dokumen Afirmasi"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">visibility</span>
+                            </button>
+                        ) : (
+                            <span className="material-symbols-outlined text-[18px] text-slate-300 cursor-not-allowed" title="Tidak ada dokumen">visibility_off</span>
+                        )}
+                    </div>
+                ) : enablePrestasi ? (
                     <div className="flex items-center gap-2">
                         <input
                             type="number"
@@ -382,16 +410,15 @@ function GradeRow({ student, index, onViewDocs }: { student: StudentProps; index
                             placeholder="0"
                             min="0"
                         />
-                        {hasDocuments && (
+                        {hasDocuments ? (
                             <button
-                                onClick={() => onViewDocs(student.documents!.filePrestasi)}
+                                onClick={() => onViewDocs(student.documents!.filePrestasi, "Dokumen Prestasi")}
                                 className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors border border-blue-200"
                                 title="Lihat Dokumen Prestasi"
                             >
                                 <span className="material-symbols-outlined text-[18px]">visibility</span>
                             </button>
-                        )}
-                        {!hasDocuments && (
+                        ) : (
                             <span className="material-symbols-outlined text-[18px] text-slate-300 cursor-not-allowed" title="Tidak ada dokumen">visibility_off</span>
                         )}
                     </div>

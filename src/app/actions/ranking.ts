@@ -12,7 +12,7 @@ type StudentWithRelations = Student & {
 
 // Define the shape of student with calculated final score
 type RankedStudent = StudentWithRelations & {
-    grades: (Grades & { finalScore: number }) | null;
+    grades: (Grades & { finalScore: number; nilaiAfirmasi: number | null }) | null;
 };
 
 /**
@@ -81,10 +81,12 @@ export async function getRankingData(filters?: { waveId?: string; jalur?: JalurP
                 const skua = grades?.nilaiUjianSKUA || 0;
                 const isPrestasiAkademik = student.jalur === "PRESTASI_AKADEMIK";
                 const isPrestasiNonAkademik = student.jalur === "PRESTASI_NON_AKADEMIK";
+                const isAfirmasi = student.jalur === "AFIRMASI";
                 const achievement = (isPrestasiAkademik || isPrestasiNonAkademik) ? (grades?.nilaiPrestasi || 0) : 0;
+                const afirmasiPoint = isAfirmasi ? (grades?.nilaiAfirmasi || 0) : 0;
 
                 // Calculate Final Score
-                finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+                finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement + afirmasiPoint;
             } else {
                 // Use frozen score if not live
                 finalScore = (grades as any)?.frozenScore || 0;
@@ -125,6 +127,7 @@ interface UpdateScoreData {
     theory?: number;
     skua?: number;
     achievement?: number;
+    afirmasi?: number;
     reportAvg?: number;
     achievementNotes?: string;
 }
@@ -138,6 +141,7 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
                 nilaiUjianTeori: data.theory,
                 nilaiUjianSKUA: data.skua,
                 nilaiPrestasi: data.achievement,
+                nilaiAfirmasi: data.afirmasi,
                 rataRataNilai: data.reportAvg,
                 catatanPrestasi: data.achievementNotes
             },
@@ -145,6 +149,7 @@ export async function updateStudentScore(studentId: string, data: UpdateScoreDat
                 nilaiUjianTeori: data.theory,
                 nilaiUjianSKUA: data.skua,
                 nilaiPrestasi: data.achievement,
+                nilaiAfirmasi: data.afirmasi,
                 rataRataNilai: data.reportAvg,
                 catatanPrestasi: data.achievementNotes
             }
@@ -206,9 +211,11 @@ export async function updateRankingSnapshot() {
             const skua = (grades as any)?.nilaiUjianSKUA || 0;
             const isPrestasiAkademik = student.jalur === "PRESTASI_AKADEMIK";
             const isPrestasiNonAkademik = student.jalur === "PRESTASI_NON_AKADEMIK";
+            const isAfirmasi = student.jalur === "AFIRMASI";
             const achievement = (isPrestasiAkademik || isPrestasiNonAkademik) ? ((grades as any)?.nilaiPrestasi || 0) : 0;
+            const afirmasiPoint = isAfirmasi ? ((grades as any)?.nilaiAfirmasi || 0) : 0;
 
-            let liveScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+            let liveScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement + afirmasiPoint;
             liveScore = parseFloat(liveScore.toFixed(2));
 
             if (student.grades) {
