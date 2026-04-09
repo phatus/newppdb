@@ -62,21 +62,30 @@ export async function deleteStudents(studentIds: string[]) {
 
         // Use transaction to ensure everything is deleted correctly
         await db.$transaction(async (tx) => {
-            // Delete students (cascades to Grades, RegistrationHistory, and Documents)
+            // 1. Delete the specific students first
             await tx.student.deleteMany({
                 where: {
                     id: { in: studentIds },
                 },
             });
 
-            // Delete associated users if they are not ADMINs (safety check)
-            // This is to prevent leaving orphaned user accounts
-            await tx.user.deleteMany({
-                where: {
-                    id: { in: userIds },
-                    role: { not: "ADMIN" }
+            // 2. Safely clean up user accounts only if they have no other students left
+            // Using a loop within transaction to check counts for each affected user
+            const distinctUserIds = [...new Set(userIds)];
+            for (const userId of distinctUserIds) {
+                const remainingCount = await tx.student.count({
+                    where: { userId: userId }
+                });
+
+                if (remainingCount === 0) {
+                    await tx.user.deleteMany({
+                        where: {
+                            id: userId,
+                            role: { not: "ADMIN" }
+                        }
+                    });
                 }
-            });
+            }
         });
 
         await logActivity(
@@ -131,13 +140,12 @@ export async function deleteAllStudents() {
         }
 
         await db.$transaction(async (tx) => {
-            // Delete all students
+            // 1. Delete all students
             await tx.student.deleteMany({});
 
-            // Delete all users who are not ADMIN
+            // 2. Delete all users who are not ADMIN (they are definitely orphans now)
             await tx.user.deleteMany({
                 where: {
-                    id: { in: userIds },
                     role: { not: "ADMIN" }
                 }
             });
