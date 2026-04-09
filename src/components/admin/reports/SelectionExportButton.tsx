@@ -19,6 +19,7 @@ export default function SelectionExportButton({ students, filename }: SelectionE
         const dataToExport = students.map((student, index) => ({
             "No": index + 1,
             "Nama Lengkap": student.namaLengkap,
+            "Jenis Kelamin": student.gender || "-",
             "NISN": student.nisn,
             "Jalur": student.jalur?.replace(/_/g, " ") || "-",
             "Asal Sekolah": student.asalSekolah || "-",
@@ -36,6 +37,7 @@ export default function SelectionExportButton({ students, filename }: SelectionE
         const wscols = [
             { wch: 5 },  // No
             { wch: 35 }, // Nama
+            { wch: 15 }, // Jenis Kelamin
             { wch: 15 }, // NISN
             { wch: 20 }, // Jalur
             { wch: 25 }, // Asal Sekolah

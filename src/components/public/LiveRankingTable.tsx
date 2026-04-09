@@ -13,6 +13,7 @@ interface RankingData {
     asalSekolah: string | null;
     jalur: string;
     statusKelulusan: string;
+    gender: string | null;
     grades: {
         finalScore: number;
         rataRataNilai?: number | null;
@@ -154,6 +155,7 @@ export default function LiveRankingTable({
                             <tr>
                                 <th className="px-6 py-4 font-bold w-16 text-center">Rank</th>
                                 <th className="px-6 py-4 font-bold">Nama Murid</th>
+                                <th className="px-4 py-4 font-bold text-center">JK</th>
                                 <th className="px-6 py-4 font-bold">Asal Sekolah</th>
                                 <th className="px-6 py-4 font-bold w-32 text-center">Jalur</th>
                                 {showRankingScores && isResultsPublished && (
@@ -191,6 +193,9 @@ export default function LiveRankingTable({
                                                 <span className="font-bold text-slate-900 text-base">{student.namaLengkap}</span>
                                                 <span className="text-xs text-slate-400 font-mono">NISN: {maskNISN(student.nisn)}</span>
                                             </div>
+                                        </td>
+                                        <td className="px-4 py-4 text-center text-slate-600 font-medium">
+                                            {student.gender === 'Laki-laki' ? 'L' : (student.gender === 'Perempuan' ? 'P' : '-')}
                                         </td>
                                         <td className="px-6 py-4 text-slate-600">
                                             {student.asalSekolah || "-"}
@@ -240,7 +245,7 @@ export default function LiveRankingTable({
                             })}
                             {pagedData.length === 0 && (
                                 <tr>
-                                    <td colSpan={(showRankingScores && isResultsPublished) ? 10 : 5} className="px-6 py-12 text-center text-slate-400">
+                                    <td colSpan={(showRankingScores && isResultsPublished) ? 11 : 6} className="px-6 py-12 text-center text-slate-400">
                                         {searchTerm ? "Tidak ada hasil ditemukan." : "Belum ada data perangkingan."}
                                     </td>
                                 </tr>

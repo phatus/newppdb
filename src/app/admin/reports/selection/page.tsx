@@ -105,6 +105,7 @@ export default async function SelectionRecapPage(props: {
                             <tr className="bg-slate-50 print:bg-slate-100 text-slate-900 border-y border-slate-200 print:border-black">
                                 <th className="py-3 px-4 text-left font-bold w-12 border border-slate-200 print:border-black">No</th>
                                 <th className="py-3 px-4 text-left font-bold border border-slate-200 print:border-black">Nama Lengkap</th>
+                                <th className="py-3 px-4 text-left font-bold border border-slate-200 print:border-black text-center w-12">JK</th>
                                 <th className="py-3 px-4 text-left font-bold border border-slate-200 print:border-black">NISN</th>
                                 <th className="py-3 px-4 text-left font-bold border border-slate-200 print:border-black">Jalur</th>
                                 <th className="py-3 px-4 text-left font-bold border border-slate-200 print:border-black w-24 text-center">Skor</th>
@@ -114,7 +115,7 @@ export default async function SelectionRecapPage(props: {
                         <tbody className="divide-y divide-slate-100 border-b border-slate-200 print:divide-black print:border-black">
                             {students.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="py-8 text-center text-slate-500 italic">Belum ada data seleksi untuk ditampilkan.</td>
+                                    <td colSpan={7} className="py-8 text-center text-slate-500 italic">Belum ada data seleksi untuk ditampilkan.</td>
                                 </tr>
                             ) : (
                                 students.map((student: any, index: number) => (
@@ -124,6 +125,9 @@ export default async function SelectionRecapPage(props: {
                                         </td>
                                         <td className="py-2.5 px-4 font-medium text-slate-900 print:text-black border border-slate-200 print:border-black">
                                             {student.namaLengkap}
+                                        </td>
+                                        <td className="py-2.5 px-4 text-slate-600 print:text-black border border-slate-200 print:border-black text-center">
+                                            {student.gender === 'Laki-laki' ? 'L' : (student.gender === 'Perempuan' ? 'P' : '-')}
                                         </td>
                                         <td className="py-2.5 px-4 text-slate-600 print:text-black border border-slate-200 print:border-black">{student.nisn}</td>
                                         <td className="py-2.5 px-4 text-slate-600 print:text-black border border-slate-200 print:border-black">

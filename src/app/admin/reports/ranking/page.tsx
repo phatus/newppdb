@@ -104,6 +104,7 @@ export default async function RankingReportPage(props: {
                             <tr className="bg-slate-100 text-black">
                                 <th className="border border-black py-2 px-2 w-12">Rank</th>
                                 <th className="border border-black py-2 px-3 text-left">Nama Lengkap</th>
+                                <th className="border border-black py-2 px-2 text-center w-8">JK</th>
                                 <th className="border border-black py-2 px-3 text-left">NISN</th>
                                 <th className="border border-black py-2 px-3 text-left">Asal Sekolah</th>
                                 <th className="border border-black py-2 px-3 text-left">Jalur</th>
@@ -114,7 +115,7 @@ export default async function RankingReportPage(props: {
                         <tbody>
                             {rankedStudents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={6} className="border border-black py-8 text-center italic">Tidak ada data murid untuk ditampilkan.</td>
+                                    <td colSpan={8} className="border border-black py-8 text-center italic">Tidak ada data murid untuk ditampilkan.</td>
                                 </tr>
                             ) : (
                                 rankedStudents.map((s, idx) => (
@@ -122,6 +123,9 @@ export default async function RankingReportPage(props: {
                                         <td className="border border-black py-2 px-2 text-center font-bold">{idx + 1}</td>
                                         <td className="border border-black py-2 px-3">
                                             {s.namaLengkap}
+                                        </td>
+                                        <td className="border border-black py-2 px-2 text-center uppercase">
+                                            {s.gender === 'Laki-laki' ? 'L' : (s.gender === 'Perempuan' ? 'P' : '-')}
                                         </td>
                                         <td className="border border-black py-2 px-3">{s.nisn}</td>
                                         <td className="border border-black py-2 px-3">{s.asalSekolah}</td>
