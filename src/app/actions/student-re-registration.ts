@@ -67,6 +67,7 @@ export async function reRegisterStudent(studentId: string, data: { newJalur: str
                     waveId: targetWave.id,
                     jalur: data.newJalur as any,
                     statusKelulusan: "PENDING",
+                    statusVerifikasi: student.jalur !== data.newJalur ? "PENDING" : student.statusVerifikasi,
                     catatanPenolakan: null,
                 }
             });

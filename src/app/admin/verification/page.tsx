@@ -17,12 +17,13 @@ const PAGE_SIZE = 12;
 export default async function VerificationListPage({
     searchParams,
 }: {
-    searchParams: Promise<{ q?: string; waveId?: string; status?: string; page?: string; claim?: string }>;
+    searchParams: Promise<{ q?: string; waveId?: string; status?: string; page?: string; claim?: string; completeness?: string }>;
 }) {
     const resolvedParams = await searchParams;
     const query = resolvedParams?.q || "";
     const waveId = resolvedParams?.waveId;
     const status = resolvedParams?.status;
+    const completeness = resolvedParams?.completeness;
     const claimFilter = resolvedParams?.claim; // "mine" to filter by current user
     const currentPage = Math.max(1, parseInt(resolvedParams?.page || "1", 10));
     const skip = (currentPage - 1) * PAGE_SIZE;
@@ -56,8 +57,36 @@ export default async function VerificationListPage({
         whereClause.verifierId = null;
     }
 
+    // Completeness Filter Logic (Simplified for SQL performance)
+    const completeConditions = {
+        documents: {
+            fileKK: { not: null },
+            fileAkta: { not: null },
+            pasFoto: { not: null },
+            fileRaport: { not: null },
+        },
+        grades: { isNot: null }
+    };
+
+    const incompleteConditions = {
+        OR: [
+            { documents: { is: null } },
+            { documents: { fileKK: null } },
+            { documents: { fileAkta: null } },
+            { documents: { pasFoto: null } },
+            { documents: { fileRaport: null } },
+            { grades: { is: null } },
+        ]
+    };
+
+    if (completeness === 'complete') {
+        Object.assign(whereClause, completeConditions);
+    } else if (completeness === 'incomplete') {
+        Object.assign(whereClause, incompleteConditions);
+    }
+
     // Fetch student status counts using groupBy to save connections
-    const [students, totalFiltered, countsByStatus, waves, semestersCount] = await Promise.all([
+    const [students, totalFiltered, countsByStatus, completeCount, incompleteCount, waves, semestersCount] = await Promise.all([
         db.student.findMany({
             where: whereClause,
             orderBy: { createdAt: "desc" },
@@ -75,6 +104,8 @@ export default async function VerificationListPage({
             where: baseWhere,
             _count: { _all: true }
         }),
+        db.student.count({ where: { ...baseWhere, ...completeConditions } }),
+        db.student.count({ where: { ...baseWhere, ...incompleteConditions } }),
         db.wave.findMany({ orderBy: { startDate: 'desc' } }),
         db.semester.count({
             where: { isActive: true }
@@ -121,7 +152,10 @@ export default async function VerificationListPage({
                         pendingCount={pendingCount}
                         verifiedCount={verifiedCount}
                         rejectedCount={rejectedCount}
+                        completeCount={completeCount}
+                        incompleteCount={incompleteCount}
                         initialStatus={status}
+                        initialCompleteness={completeness}
                     />
 
                     <div className="h-12 w-px bg-slate-100 dark:bg-slate-700 hidden lg:block mx-2" />
