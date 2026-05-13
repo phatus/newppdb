@@ -26,7 +26,7 @@ export default async function PublicRankingPage({
             <div className="absolute top-0 left-0 w-full h-[300px] bg-gradient-to-br from-blue-600 to-indigo-800 z-0"></div>
             <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] z-0"></div>
 
-            <main className="relative z-10 container mx-auto px-4 py-8">
+            <main className="relative z-10 max-w-[1600px] mx-auto px-4 py-8">
                 {/* Header Section */}
                 <div className="flex flex-col items-center text-center mb-10 text-white">
                     {settings?.schoolLogo && (
@@ -49,7 +49,7 @@ export default async function PublicRankingPage({
                 </div>
 
                 {/* Ranking Card */}
-                <div className="max-w-5xl mx-auto">
+                <div className="w-full mx-auto">
                     <LiveRankingTable
                         initialData={students}
                         waves={waves}
