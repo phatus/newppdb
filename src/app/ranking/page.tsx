@@ -14,11 +14,22 @@ export default async function PublicRankingPage({
     const resolvedParams = await searchParams;
     const waveId = resolvedParams?.waveId;
 
-    const { students } = await getRankingData({ waveId });
+    const { students } = await getRankingData({ waveId, isPublic: true });
     const settings = await db.schoolSettings.findFirst();
     const waves = await db.wave.findMany({
         orderBy: { startDate: 'asc' }
     });
+
+    const selectedWave = waveId ? waves.find(w => w.id === waveId) : null;
+    
+    // Determine visibility based on wave or global settings
+    const isResultsPublished = selectedWave 
+        ? (selectedWave as any).isResultsPublished 
+        : (settings as any)?.isResultsPublished ?? false;
+        
+    const showRankingScores = selectedWave 
+        ? (selectedWave as any).showRanking 
+        : (settings as any)?.showRankingScores ?? true;
 
     return (
         <div className="min-h-screen bg-slate-50 relative overflow-hidden">
@@ -54,8 +65,8 @@ export default async function PublicRankingPage({
                         initialData={students}
                         waves={waves}
                         initialWaveId={waveId}
-                        isResultsPublished={(settings as any)?.isResultsPublished ?? false}
-                        showRankingScores={(settings as any)?.showRankingScores ?? true}
+                        isResultsPublished={isResultsPublished}
+                        showRankingScores={showRankingScores}
                         isRankingLive={(settings as any)?.isRankingLive ?? true}
                     />
                 </div>

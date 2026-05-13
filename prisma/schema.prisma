@@ -131,6 +131,8 @@ model Wave {
   startDate   DateTime
   endDate     DateTime
   isActive    Boolean  @default(true)
+  isResultsPublished Boolean @default(false)
+  showRanking        Boolean @default(true)
 
   // Array of allowed jalurs for this wave stored as JSON
   jalurAllowed Json // ["PRESTASI_AKADEMIK", "AFIRMASI"]

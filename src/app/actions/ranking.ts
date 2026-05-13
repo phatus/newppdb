@@ -19,7 +19,7 @@ type RankedStudent = StudentWithRelations & {
  * Fetches and ranks student data with optional pagination and filters.
  * Returns an object containing the ranked students and total count.
  */
-export async function getRankingData(filters?: { waveId?: string | null; jalur?: JalurPendaftaran; forceLive?: boolean; q?: string }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
+export async function getRankingData(filters?: { waveId?: string | null; jalur?: JalurPendaftaran; forceLive?: boolean; q?: string; isPublic?: boolean }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
     try {
         // 1. Fetch Students who are verified
         const where: any = { statusVerifikasi: "VERIFIED" };
@@ -42,6 +42,7 @@ export async function getRankingData(filters?: { waveId?: string | null; jalur?:
 
         // 2. Fetch Settings for Weights
         const settings = await db.schoolSettings.findFirst();
+        const waves = filters?.isPublic ? await db.wave.findMany() : [];
 
         // Smart Defaults for each Path (sum to 100%)
         const pathDefaults: Record<string, any> = {
@@ -94,13 +95,37 @@ export async function getRankingData(filters?: { waveId?: string | null; jalur?:
 
             finalScore = parseFloat(finalScore.toFixed(2));
 
-            return {
+            let studentToReturn = {
                 ...student,
                 grades: grades ? {
                     ...grades,
                     finalScore
                 } : null
             } as RankedStudent;
+
+            // Apply per-wave visibility overrides if this is a public request
+            if (filters?.isPublic) {
+                const wave = waves.find(w => w.id === student.waveId);
+                if (wave) {
+                    // Hide results if not published for this wave
+                    if (!(wave as any).isResultsPublished) {
+                        studentToReturn.statusKelulusan = "PENDING";
+                    }
+                    // Hide scores if ranking is not shown for this wave
+                    if (!(wave as any).showRanking) {
+                        if (studentToReturn.grades) {
+                            studentToReturn.grades.finalScore = 0;
+                            studentToReturn.grades.rataRataNilai = 0;
+                            studentToReturn.grades.nilaiUjianTeori = 0;
+                            studentToReturn.grades.nilaiUjianSKUA = 0;
+                            studentToReturn.grades.nilaiPrestasi = 0;
+                            studentToReturn.grades.nilaiAfirmasi = 0;
+                        }
+                    }
+                }
+            }
+
+            return studentToReturn;
         });
 
         // 4. Sort by Final Score DESC
@@ -449,9 +474,13 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             }
         }
 
+        // Also update the ranking snapshot so frozen mode shows latest scores
+        await updateRankingSnapshot();
+
         revalidatePath("/admin/reports/ranking");
         revalidatePath("/admin/ranking");
         revalidatePath("/dashboard");
+        revalidatePath("/ranking");
 
         return {
             success: true,

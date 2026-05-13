@@ -31,6 +31,8 @@ export async function createWave(data: {
     quota?: number;
     pathQuotas?: any;
     isActive?: boolean;
+    isResultsPublished?: boolean;
+    showRanking?: boolean;
 }) {
     try {
         // Validation: End date must be after start date
@@ -48,6 +50,8 @@ export async function createWave(data: {
                 quota: data.quota ?? 0,
                 pathQuotas: data.pathQuotas as Prisma.InputJsonValue,
                 isActive: data.isActive ?? true,
+                isResultsPublished: data.isResultsPublished ?? false,
+                showRanking: data.showRanking ?? true,
             }
         });
 
@@ -70,6 +74,8 @@ export async function updateWave(id: string, data: {
     quota?: number;
     pathQuotas?: any;
     isActive?: boolean;
+    isResultsPublished?: boolean;
+    showRanking?: boolean;
 }) {
     try {
         if (data.startDate && data.endDate && new Date(data.endDate) <= new Date(data.startDate)) {

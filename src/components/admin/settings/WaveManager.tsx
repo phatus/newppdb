@@ -14,6 +14,8 @@ interface Wave {
     startDate: string | Date; // Serialized date from server or Date object
     endDate: string | Date;
     isActive: boolean;
+    isResultsPublished?: boolean;
+    showRanking?: boolean;
     jalurAllowed: any;
     quota: number;
     pathQuotas: any;
@@ -40,7 +42,9 @@ export default function WaveManager({ initialWaves, settings }: { initialWaves: 
         jalurAllowed: [] as string[],
         quota: 0,
         pathQuotas: {} as Record<string, number>,
-        isActive: true
+        isActive: true,
+        isResultsPublished: false,
+        showRanking: true
     });
 
     const handleUpdateGlobalSettings = async (val: boolean) => {
@@ -64,7 +68,9 @@ export default function WaveManager({ initialWaves, settings }: { initialWaves: 
             jalurAllowed: [],
             quota: 0,
             pathQuotas: {},
-            isActive: true
+            isActive: true,
+            isResultsPublished: false,
+            showRanking: true
         });
         setIsEditing(null);
     };
@@ -79,7 +85,9 @@ export default function WaveManager({ initialWaves, settings }: { initialWaves: 
             jalurAllowed: Array.isArray(wave.jalurAllowed) ? wave.jalurAllowed : [],
             quota: wave.quota || 0,
             pathQuotas: (wave.pathQuotas as Record<string, number>) || {},
-            isActive: wave.isActive
+            isActive: wave.isActive,
+            isResultsPublished: wave.isResultsPublished || false,
+            showRanking: wave.showRanking !== undefined ? wave.showRanking : true
         });
     };
 
@@ -119,7 +127,7 @@ export default function WaveManager({ initialWaves, settings }: { initialWaves: 
             const result = await updateWave(isEditing, payload);
             if (result.success) {
                 toast.success("Gelombang diperbarui");
-                setWaves(prev => prev.map(w => w.id === isEditing ? { ...w, ...result.data, _count: w._count } as Wave : w));
+                setWaves(prev => prev.map(w => w.id === isEditing ? { ...w, ...(result.data as any), _count: w._count } as unknown as Wave : w));
                 resetForm();
             } else {
                 toast.error(result.error || "Gagal update");
@@ -128,7 +136,7 @@ export default function WaveManager({ initialWaves, settings }: { initialWaves: 
             const result = await createWave(payload);
             if (result.success) {
                 toast.success("Gelombang dibuat");
-                setWaves(prev => [...prev, result.data as Wave]);
+                setWaves(prev => [...prev, result.data as unknown as Wave]);
                 resetForm();
             } else {
                 toast.error(result.error || "Gagal membuat");
@@ -354,15 +362,48 @@ export default function WaveManager({ initialWaves, settings }: { initialWaves: 
                         <p className="text-xs text-slate-500">Aktifkan jalur yang dibuka dan tentukan kuota masing-masing. Jika kuota diisi 0, maka akan menggunakan kuota global.</p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="checkbox"
-                            className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
-                            checked={formData.isActive}
-                            onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                            id="isActive"
-                        />
-                        <label htmlFor="isActive" className="text-sm font-medium text-slate-700 dark:text-slate-300">Status Aktif</label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary"
+                                checked={formData.isActive}
+                                onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                                id="isActive"
+                            />
+                            <div className="flex flex-col">
+                                <label htmlFor="isActive" className="text-sm font-bold text-slate-700 dark:text-slate-300">Gelombang Aktif</label>
+                                <p className="text-[10px] text-slate-500">Menerima pendaftaran baru</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                                checked={formData.showRanking}
+                                onChange={(e) => setFormData({ ...formData, showRanking: e.target.checked })}
+                                id="showRanking"
+                            />
+                            <div className="flex flex-col">
+                                <label htmlFor="showRanking" className="text-sm font-bold text-indigo-700 dark:text-indigo-400">Tampilkan Ranking</label>
+                                <p className="text-[10px] text-slate-500">Nilai & ranking terlihat di publik</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                                checked={formData.isResultsPublished}
+                                onChange={(e) => setFormData({ ...formData, isResultsPublished: e.target.checked })}
+                                id="isResultsPublished"
+                            />
+                            <div className="flex flex-col">
+                                <label htmlFor="isResultsPublished" className="text-sm font-bold text-emerald-700 dark:text-emerald-400">Umumkan Hasil</label>
+                                <p className="text-[10px] text-slate-500">Tampilkan DITERIMA/TIDAK DITERIMA</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700">
@@ -424,6 +465,14 @@ export default function WaveManager({ initialWaves, settings }: { initialWaves: 
                                             );
                                         })}
                                     </div>
+                                </div>
+                                <div className="flex flex-wrap gap-2 pt-2">
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${wave.showRanking ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-400'}`}>
+                                        Ranking: {wave.showRanking ? 'ON' : 'OFF'}
+                                    </span>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${wave.isResultsPublished ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400'}`}>
+                                        Hasil: {wave.isResultsPublished ? 'PUBLISHED' : 'HIDDEN'}
+                                    </span>
                                 </div>
                             </div>
 
