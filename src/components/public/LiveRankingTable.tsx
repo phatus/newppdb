@@ -26,11 +26,15 @@ interface RankingData {
 
 export default function LiveRankingTable({
     initialData,
+    waves = [],
+    initialWaveId = "all",
     isResultsPublished = false,
     showRankingScores = true,
     isRankingLive = true
 }: {
     initialData: RankingData[],
+    waves?: any[],
+    initialWaveId?: string,
     isResultsPublished?: boolean,
     showRankingScores?: boolean,
     isRankingLive?: boolean
@@ -40,6 +44,7 @@ export default function LiveRankingTable({
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedPath, setSelectedPath] = useState("ALL");
+    const waveFilter = initialWaveId || "all";
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -61,6 +66,16 @@ export default function LiveRankingTable({
             setLastUpdate(new Date());
             setIsRefreshing(false);
         }, 1000); // Artificial delay to show animation
+    };
+
+    const handleWaveChange = (waveId: string) => {
+        const params = new URLSearchParams(window.location.search);
+        if (waveId === "all") {
+            params.delete("waveId");
+        } else {
+            params.set("waveId", waveId);
+        }
+        router.push(`?${params.toString()}`, { scroll: false });
     };
 
     // Mask NISN for privacy (show last 4 digits)
@@ -125,6 +140,41 @@ export default function LiveRankingTable({
                         </button>
                     </div>
                 </div>
+
+                {/* Wave Filters */}
+                {waves.length > 0 && (
+                    <div className="px-4 md:px-6 py-4 border-b border-slate-100 bg-slate-50/30 flex flex-col gap-3">
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            <span className="material-symbols-outlined text-sm">waves</span>
+                            Pilih Gelombang
+                        </div>
+                        <div className="flex overflow-x-auto no-scrollbar gap-2">
+                            <button
+                                onClick={() => handleWaveChange("all")}
+                                className={`whitespace-nowrap px-4 py-2 text-sm font-bold rounded-xl transition-all border ${
+                                    waveFilter === "all"
+                                        ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20 scale-105"
+                                        : "bg-white text-slate-500 hover:bg-slate-50 border-slate-200"
+                                }`}
+                            >
+                                Semua Gelombang
+                            </button>
+                            {waves.map((wave) => (
+                                <button
+                                    key={wave.id}
+                                    onClick={() => handleWaveChange(wave.id)}
+                                    className={`whitespace-nowrap px-4 py-2 text-sm font-bold rounded-xl transition-all border ${
+                                        waveFilter === wave.id
+                                            ? "bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20 scale-105"
+                                            : "bg-white text-slate-500 hover:bg-slate-50 border-slate-200"
+                                    }`}
+                                >
+                                    {wave.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {/* Path Filters */}
                 <div className="px-4 md:px-6 py-3 border-b border-slate-100 bg-white flex overflow-x-auto no-scrollbar gap-2">

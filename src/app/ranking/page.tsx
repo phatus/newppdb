@@ -6,9 +6,19 @@ import Image from "next/image";
 // Revalidate every 0 seconds (always fresh) or short interval
 export const dynamic = 'force-dynamic';
 
-export default async function PublicRankingPage() {
-    const { students } = await getRankingData();
+export default async function PublicRankingPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ waveId?: string }>;
+}) {
+    const resolvedParams = await searchParams;
+    const waveId = resolvedParams?.waveId;
+
+    const { students } = await getRankingData({ waveId });
     const settings = await db.schoolSettings.findFirst();
+    const waves = await db.wave.findMany({
+        orderBy: { startDate: 'asc' }
+    });
 
     return (
         <div className="min-h-screen bg-slate-50 relative overflow-hidden">
@@ -42,6 +52,8 @@ export default async function PublicRankingPage() {
                 <div className="max-w-5xl mx-auto">
                     <LiveRankingTable
                         initialData={students}
+                        waves={waves}
+                        initialWaveId={waveId}
                         isResultsPublished={(settings as any)?.isResultsPublished ?? false}
                         showRankingScores={(settings as any)?.showRankingScores ?? true}
                         isRankingLive={(settings as any)?.isRankingLive ?? true}
