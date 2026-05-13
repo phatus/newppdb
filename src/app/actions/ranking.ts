@@ -19,11 +19,11 @@ type RankedStudent = StudentWithRelations & {
  * Fetches and ranks student data with optional pagination and filters.
  * Returns an object containing the ranked students and total count.
  */
-export async function getRankingData(filters?: { waveId?: string; jalur?: JalurPendaftaran; forceLive?: boolean; q?: string }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
+export async function getRankingData(filters?: { waveId?: string | null; jalur?: JalurPendaftaran; forceLive?: boolean; q?: string }, skip?: number, take?: number): Promise<{ students: RankedStudent[], totalCount: number }> {
     try {
         // 1. Fetch Students who are verified
         const where: any = { statusVerifikasi: "VERIFIED" };
-        if (filters?.waveId) where.waveId = filters.waveId;
+        if (filters?.waveId !== undefined) where.waveId = filters.waveId;
         if (filters?.jalur) where.jalur = filters.jalur;
         if (filters?.q) {
             where.OR = [
@@ -238,12 +238,179 @@ export async function updateRankingSnapshot() {
 
 import { sendWhatsApp } from "@/lib/whatsapp";
 
+/**
+ * Internal helper to process selection for a single wave with its specific quotas.
+ */
+async function processSingleWaveSelection(
+    wave: any, 
+    settings: any, 
+    globalQuotas: Record<string, number>
+) {
+    // 1. Determine Quotas for this Wave
+    const activeQuotas = { ...globalQuotas };
+    let totalWaveLimit = settings.studentQuota || 100;
+
+    if (wave) {
+        if (wave.quota > 0) totalWaveLimit = wave.quota;
+
+        let wavePathsObj = wave.pathQuotas;
+        if (typeof wave.pathQuotas === 'string') {
+            try { wavePathsObj = JSON.parse(wave.pathQuotas); } catch (e) {}
+        }
+
+        if (wavePathsObj && typeof wavePathsObj === 'object') {
+            const wavePaths = wavePathsObj as Record<string, any>;
+            Object.keys(wavePaths).forEach(path => {
+                const pathQuota = Number(wavePaths[path]);
+                if (!isNaN(pathQuota) && pathQuota > 0) {
+                    activeQuotas[path] = pathQuota;
+                }
+            });
+        }
+    }
+
+    console.log(`[AutoSelect] Processing Wave: ${wave?.name || "Global"}`);
+    console.log(`[AutoSelect] Active Quotas:`, activeQuotas);
+
+    // 2. Get ALL Verified Students for this Wave (Ignoring path filter)
+    const { students: allStudents } = await getRankingData({ waveId: wave ? wave.id : null });
+
+    if (allStudents.length === 0) return { processed: 0, passed: 0 };
+
+    // Process Scores Logic (re-using the same formula as in getRankingData)
+    const pathDefaults: Record<string, any> = {
+        "REGULER": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
+        "AFIRMASI": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
+        "PRESTASI_AKADEMIK": { rapor: 30, ujian: 30, skua: 30, prestasi: 10 },
+        "PRESTASI_NON_AKADEMIK": { rapor: 0, ujian: 30, skua: 30, prestasi: 40 },
+    };
+
+    const recalculateScore = (student: RankedStudent, targetJalur: JalurPendaftaran) => {
+        const grades = student.grades;
+        const pathWeights = ((settings as any)?.pathWeights as Record<string, any>) || {};
+        const specificWeights = pathWeights[targetJalur];
+        const defaultW = pathDefaults[targetJalur] || { rapor: 0, ujian: 50, skua: 50, prestasi: 0 };
+
+        const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
+        const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
+        const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
+
+        const avgReport = grades?.rataRataNilai || 0;
+        const theory = grades?.nilaiUjianTeori || 0;
+        const skua = grades?.nilaiUjianSKUA || 0;
+        const isPrestasiAkademik = targetJalur === "PRESTASI_AKADEMIK";
+        const isPrestasiNonAkademik = targetJalur === "PRESTASI_NON_AKADEMIK";
+        const achievement = (isPrestasiAkademik || isPrestasiNonAkademik) ? (grades?.nilaiPrestasi || 0) : 0;
+
+        let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
+        finalScore = parseFloat(finalScore.toFixed(2));
+
+        return {
+            ...student,
+            jalur: targetJalur,
+            grades: grades ? { ...grades, finalScore } : null
+        } as RankedStudent;
+    };
+
+    // 3. Multi-stage Selection Logic
+    const passedIds: string[] = [];
+    const failedIds: string[] = [];
+    const movedStudents: { student: RankedStudent; originalJalur: string }[] = [];
+
+    // Stage 1: Process Achievement Paths
+    const achievementJalurs: JalurPendaftaran[] = ["PRESTASI_AKADEMIK", "PRESTASI_NON_AKADEMIK"];
+    for (const jalur of achievementJalurs) {
+        const group = allStudents.filter(s => s.jalur === jalur);
+        const quota = activeQuotas[jalur] || 0;
+        const passed = group.slice(0, quota);
+        const failed = group.slice(quota);
+        passed.forEach(s => passedIds.push(s.id));
+        failed.forEach(s => movedStudents.push({
+            student: recalculateScore(s, "REGULER"),
+            originalJalur: jalur
+        }));
+    }
+
+    // Stage 2: Process Afirmasi
+    const afirmasiGroup = allStudents.filter(s => s.jalur === "AFIRMASI");
+    const afirmasiQuota = activeQuotas["AFIRMASI"] || 0;
+    const afirmasiPassed = afirmasiGroup.slice(0, afirmasiQuota);
+    const afirmasiFailed = afirmasiGroup.slice(afirmasiQuota);
+    afirmasiPassed.forEach(s => passedIds.push(s.id));
+    afirmasiFailed.forEach(s => movedStudents.push({
+        student: recalculateScore(s, "REGULER"),
+        originalJalur: "AFIRMASI"
+    }));
+
+    // Stage 3: Process Reguler
+    const originalReguler = allStudents.filter(s => s.jalur === "REGULER");
+    const recalculatedOriginalReguler = originalReguler.map(s => recalculateScore(s, "REGULER"));
+    const combinedReguler = [...recalculatedOriginalReguler, ...movedStudents.map(m => m.student)];
+
+    combinedReguler.sort((a, b) => (b.grades?.finalScore ?? 0) - (a.grades?.finalScore ?? 0));
+
+    const regulerQuota = activeQuotas["REGULER"] || 0;
+    const regulerPassed = combinedReguler.slice(0, regulerQuota);
+    const regulerFailed = combinedReguler.slice(regulerQuota);
+
+    regulerPassed.forEach(s => passedIds.push(s.id));
+    regulerFailed.forEach(s => failedIds.push(s.id));
+
+    // 4. Update Database
+    if (passedIds.length > 0) {
+        await db.student.updateMany({
+            where: { id: { in: passedIds } },
+            data: { statusKelulusan: "LULUS" }
+        });
+    }
+    if (failedIds.length > 0) {
+        await db.student.updateMany({
+            where: { id: { in: failedIds } },
+            data: { statusKelulusan: "TIDAK_LULUS" }
+        });
+    }
+
+    // Process Moved Students Updates & Notifications
+    for (const moved of movedStudents) {
+        const s = moved.student;
+        const isPassed = passedIds.includes(s.id);
+        await db.student.update({
+            where: { id: s.id },
+            data: {
+                jalur: "REGULER",
+                statusKelulusan: isPassed ? "LULUS" : "TIDAK_LULUS",
+                catatanPenolakan: `Dipindahkan dari jalur ${moved.originalJalur} ke REGULER. ` +
+                    (isPassed ? "Lolos di jalur REGULER." : "Tidak lolos di jalur REGULER.")
+            }
+        });
+
+        if (s.telepon) {
+            const message = `Halo ${s.namaLengkap},\n\n` +
+                `Kami menginformasikan bahwa berdasarkan hasil seleksi, Anda tidak masuk di kuota ${moved.originalJalur}. ` +
+                `Sesuai ketentuan, Anda telah dipindahkan ke jalur REGULER dan telah dilakukan perangkingan ulang.\n\n` +
+                `Status Kelulusan Anda: ${isPassed ? "LULUS" : "TIDAK LULUS"}.\n` +
+                `Silakan cek detail di dashboard pendaftaran.\n\n` +
+                `Terima kasih.`;
+            await sendWhatsApp(s.telepon, message);
+        }
+
+        await db.registrationHistory.create({
+            data: {
+                studentId: s.id,
+                waveId: s.waveId,
+                jalur: "REGULER",
+                status: isPassed ? "LULUS" : "TIDAK_LULUS",
+                notes: `Otomatis pindah dari ${moved.originalJalur} karena kuota penuh.`
+            }
+        });
+    }
+
+    return { processed: allStudents.length, passed: passedIds.length };
+}
+
 export async function autoSelectStudents(filters?: { waveId?: string; jalur?: JalurPendaftaran }) {
     try {
-        // 1. Get Quota and Settings
         const settings = await db.schoolSettings.findFirst() || {} as any;
-
-        // Default Global Quotas
         const globalQuotas: Record<string, number> = {
             "REGULER": settings.quotaReguler ?? 50,
             "PRESTASI_AKADEMIK": settings.quotaPrestasiAkademik ?? 15,
@@ -251,224 +418,46 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
             "AFIRMASI": settings.quotaAfirmasi ?? 20
         };
 
-        let activeQuotas = { ...globalQuotas };
-        let totalWaveLimit = settings.studentQuota || 100;
+        let totalProcessed = 0;
+        let totalPassed = 0;
 
-        // 2. Override with Wave Specific Quotas if filter provided
-        if (filters?.waveId) {
-            const wave = await db.wave.findUnique({
-                where: { id: filters.waveId }
-            });
-
-            if (wave) {
-                if (wave.quota > 0) totalWaveLimit = wave.quota;
-
-                let wavePathsObj = wave.pathQuotas;
-                if (typeof wave.pathQuotas === 'string') {
-                    try { wavePathsObj = JSON.parse(wave.pathQuotas); } catch (e) {}
-                }
-
-                if (wavePathsObj && typeof wavePathsObj === 'object') {
-                    const wavePaths = wavePathsObj as Record<string, any>;
-                    // Path quotas in wave override global ones for paths that are defined and > 0
-                    Object.keys(wavePaths).forEach(path => {
-                        const pathQuota = Number(wavePaths[path]);
-                        if (!isNaN(pathQuota) && pathQuota > 0) {
-                            activeQuotas[path] = pathQuota;
-                        }
-                    });
-                }
-            }
-        }
-
-        // 3. Get Verified Students with Ranking Data based on filters
-        // For the full process, we need all students to handle moves
-        const processingFilters = filters?.jalur ? filters : { waveId: filters?.waveId };
-        const { students: allStudents } = await getRankingData(processingFilters);
-
-        if (allStudents.length === 0) {
-            return { success: false, error: "Tidak ada data murid terverifikasi pada filter ini." };
-        }
-
-        // Process Scores Logic (to be reused)
-        const pathDefaults: Record<string, any> = {
-            "REGULER": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
-            "AFIRMASI": { rapor: 40, ujian: 30, skua: 30, prestasi: 0 },
-            "PRESTASI_AKADEMIK": { rapor: 30, ujian: 30, skua: 30, prestasi: 10 },
-            "PRESTASI_NON_AKADEMIK": { rapor: 0, ujian: 30, skua: 30, prestasi: 40 },
-        };
-
-        const recalculateScore = (student: RankedStudent, targetJalur: JalurPendaftaran) => {
-            const grades = student.grades;
-            const pathWeights = ((settings as any)?.pathWeights as Record<string, any>) || {};
-            const specificWeights = pathWeights[targetJalur];
-            const defaultW = pathDefaults[targetJalur] || { rapor: 0, ujian: 50, skua: 50, prestasi: 0 };
-
-            const wRapor = (specificWeights?.rapor ?? defaultW.rapor) / 100;
-            const wUjian = (specificWeights?.ujian ?? defaultW.ujian) / 100;
-            const wSKUA = (specificWeights?.skua ?? defaultW.skua) / 100;
-
-            const avgReport = grades?.rataRataNilai || 0;
-            const theory = grades?.nilaiUjianTeori || 0;
-            const skua = grades?.nilaiUjianSKUA || 0;
-            const isPrestasiAkademik = targetJalur === "PRESTASI_AKADEMIK";
-            const isPrestasiNonAkademik = targetJalur === "PRESTASI_NON_AKADEMIK";
-            const achievement = (isPrestasiAkademik || isPrestasiNonAkademik) ? (grades?.nilaiPrestasi || 0) : 0;
-
-            let finalScore = (avgReport * wRapor) + (theory * wUjian) + (skua * wSKUA) + achievement;
-            finalScore = parseFloat(finalScore.toFixed(2));
-
-            return {
-                ...student,
-                jalur: targetJalur,
-                grades: grades ? { ...grades, finalScore } : null
-            } as RankedStudent;
-        };
-
-        // 4. Multi-stage Selection Logic
-        const passedIds: string[] = [];
-        const failedIds: string[] = [];
-        const movedStudents: { student: RankedStudent; originalJalur: string }[] = [];
-
-        // Track processed IDs to avoid double counting
-        const processedIds = new Set<string>();
-
-        // Stage 1: Process Achievement Paths (Academic & Non-Academic)
-        const achievementJalurs: JalurPendaftaran[] = ["PRESTASI_AKADEMIK", "PRESTASI_NON_AKADEMIK"];
-
-        for (const jalur of achievementJalurs) {
-            const group = allStudents.filter(s => s.jalur === jalur);
-            const quota = activeQuotas[jalur] || 0;
-
-            const passed = group.slice(0, quota);
-            const failed = group.slice(quota);
-
-            passed.forEach(s => {
-                passedIds.push(s.id);
-                processedIds.add(s.id);
-            });
-
-            // Failed achievement students are moved to movedStudents list for Stage 2
-            failed.forEach(s => {
-                movedStudents.push({
-                    student: recalculateScore(s, "REGULER"),
-                    originalJalur: jalur
-                });
-            });
-        }
-
-        // Stage 2: Process Afirmasi
-        const afirmasiGroup = allStudents.filter(s => s.jalur === "AFIRMASI");
-        const afirmasiQuota = activeQuotas["AFIRMASI"] || 0;
-        const afirmasiPassed = afirmasiGroup.slice(0, afirmasiQuota);
-        const afirmasiFailed = afirmasiGroup.slice(afirmasiQuota);
-
-        afirmasiPassed.forEach(s => {
-            passedIds.push(s.id);
-            processedIds.add(s.id);
-        });
-
-        // AFIRMASI failed students are now also moved to REGULER pool
-        afirmasiFailed.forEach(s => {
-            movedStudents.push({
-                student: recalculateScore(s, "REGULER"),
-                originalJalur: "AFIRMASI"
-            });
-        });
-
-        // Stage 3: Process Reguler (Original Reguler + Moved from Achievement)
-        const originalReguler = allStudents.filter(s => s.jalur === "REGULER");
-        
-        // Ensure ALL regular students (original + moved) use the EXACT same fresh mathematical formula
-        const recalculatedOriginalReguler = originalReguler.map(s => recalculateScore(s, "REGULER"));
-        
-        const combinedReguler = [...recalculatedOriginalReguler, ...movedStudents.map(m => m.student)];
-
-        // Re-sort combined reguler explicitly
-        combinedReguler.sort((a, b) => {
-            const scoreA = a.grades?.finalScore ?? 0;
-            const scoreB = b.grades?.finalScore ?? 0;
-            return scoreB - scoreA;
-        });
-
-        const regulerQuota = activeQuotas["REGULER"] || 0;
-        const regulerPassed = combinedReguler.slice(0, regulerQuota);
-        const regulerFailed = combinedReguler.slice(regulerQuota);
-
-        regulerPassed.forEach(s => {
-            passedIds.push(s.id);
-            processedIds.add(s.id);
-        });
-        regulerFailed.forEach(s => {
-            failedIds.push(s.id);
-            processedIds.add(s.id);
-        });
-
-        // 5. Update Database and Notifications
-        // Update Passed
-        if (passedIds.length > 0) {
-            await db.student.updateMany({
-                where: { id: { in: passedIds } },
-                data: { statusKelulusan: "LULUS" }
-            });
-        }
-
-        // Update Failed
-        if (failedIds.length > 0) {
-            await db.student.updateMany({
-                where: { id: { in: failedIds } },
-                data: { statusKelulusan: "TIDAK_LULUS" }
-            });
-        }
-
-        // Specific Updates for Moved Students
-        for (const moved of movedStudents) {
-            const s = moved.student;
-            const isPassed = passedIds.includes(s.id);
-
-            // Update Jalur to REGULER, and explicitly forcefully apply the passed/failed logic
-            await db.student.update({
-                where: { id: s.id },
-                data: {
-                    jalur: "REGULER",
-                    statusKelulusan: isPassed ? "LULUS" : "TIDAK_LULUS",
-                    catatanPenolakan: `Dipindahkan dari jalur ${moved.originalJalur} ke REGULER. ` +
-                        (isPassed ? "Lolos di jalur REGULER." : "Tidak lolos di jalur REGULER.")
-                }
-            });
-
-            // Send WhatsApp notification
-            if (s.telepon) {
-                const message = `Halo ${s.namaLengkap},\n\n` +
-                    `Kami menginformasikan bahwa berdasarkan hasil seleksi, Anda tidak masuk di kuota ${moved.originalJalur}. ` +
-                    `Sesuai ketentuan, Anda telah dipindahkan ke jalur REGULER dan telah dilakukan perangkingan ulang.\n\n` +
-                    `Status Kelulusan Anda: ${isPassed ? "LULUS" : "TIDAK LULUS"}.\n` +
-                    `Silakan cek detail di dashboard pendaftaran.\n\n` +
-                    `Terima kasih.`;
-
-                await sendWhatsApp(s.telepon, message);
+        if (filters?.waveId && filters.waveId !== "all") {
+            // Process Single Wave
+            const wave = await db.wave.findUnique({ where: { id: filters.waveId } });
+            if (!wave) return { success: false, error: "Gelombang tidak ditemukan." };
+            
+            const result = await processSingleWaveSelection(wave, settings, globalQuotas);
+            totalProcessed = result.processed;
+            totalPassed = result.passed;
+        } else {
+            // Process All Waves one by one
+            const waves = await db.wave.findMany({ where: { isActive: true } });
+            for (const wave of waves) {
+                const result = await processSingleWaveSelection(wave, settings, globalQuotas);
+                totalProcessed += result.processed;
+                totalPassed += result.passed;
             }
 
-            // Add to History
-            await db.registrationHistory.create({
-                data: {
-                    studentId: s.id,
-                    waveId: s.waveId,
-                    jalur: "REGULER",
-                    status: isPassed ? "LULUS" : "TIDAK_LULUS",
-                    notes: `Otomatis pindah dari ${moved.originalJalur} karena kuota penuh.`
-                }
+            // Also process students with NO waveId (if any) using global quotas
+            const studentsWithNoWave = await db.student.findMany({ 
+                where: { waveId: null, statusVerifikasi: "VERIFIED" } 
             });
+            if (studentsWithNoWave.length > 0) {
+                 const result = await processSingleWaveSelection(null, settings, globalQuotas);
+                 totalProcessed += result.processed;
+                 totalPassed += result.passed;
+            }
         }
 
         revalidatePath("/admin/reports/ranking");
+        revalidatePath("/admin/ranking");
         revalidatePath("/dashboard");
 
         return {
             success: true,
-            message: `Seleksi otomatis selesai dengan pergerakan jalur pendaftar prestasi ke reguler.\n` +
-                `Total Murid Diproses: ${allStudents.length}\n` +
-                `Total Diterima: ${passedIds.length}`
+            message: `Seleksi otomatis selesai.\n` +
+                `Total Murid Diproses: ${totalProcessed}\n` +
+                `Total Diterima: ${totalPassed}`
         };
 
     } catch (error) {
@@ -476,6 +465,7 @@ export async function autoSelectStudents(filters?: { waveId?: string; jalur?: Ja
         return { success: false, error: "Terjadi kesalahan saat seleksi otomatis." };
     }
 }
+
 
 export async function undoMovedStudents(waveId?: string) {
     try {
