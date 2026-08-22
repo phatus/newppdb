@@ -42,7 +42,6 @@ jobs:
         run: npx prisma generate
 
       - name: Push Database Changes
-        if: steps.filter.outputs.prisma == 'true'
         run: npx prisma db push --accept-data-loss
 
       - name: Build Application

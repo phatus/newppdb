@@ -4,6 +4,8 @@ import { getDashboardAnalytics } from "@/app/actions/analytics";
 import DashboardCharts from "@/components/admin/DashboardCharts";
 import { getOnlineUserCount } from "@/app/actions/users";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
     // 1. Fetch Key Metrics in Parallel
     const [
