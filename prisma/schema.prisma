@@ -140,7 +140,7 @@ model Wave {
   quota      Int   @default(0)
   pathQuotas Json? // { "REGULER": 5, "PRESTASI_AKADEMIK": 3 }
 
-  academicYear String? @default("2025/2026")
+  academicYear String? @default("2026/2027")
 
   students Student[]
 
@@ -155,7 +155,7 @@ model Student {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
-  academicYear String? @default("2025/2026")
+  academicYear String? @default("2026/2027")
 
   namaLengkap      String
   nisn             String             @unique
@@ -342,7 +342,7 @@ model SchoolSettings {
   schoolName         String  @default("Nama Sekolah")
   schoolAddress      String?
   schoolLogo         String? // URL to logo
-  academicYear       String  @default("2025/2026")
+  academicYear       String  @default("2026/2027")
   isRegistrationOpen Boolean @default(true)
   showQuota          Boolean @default(true)
   ppdbSchedule       Json? // Array of { id, title, date, description, icon, color }

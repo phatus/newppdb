@@ -16,7 +16,7 @@ export default function AcademicYearFilter({ className = "", showAllOption = tru
 
     const [years, setYears] = useState<string[]>([]);
     const [selectedYear, setSelectedYear] = useState<string>(searchParams.get("academicYear") || "");
-    const [currentSystemYear, setCurrentSystemYear] = useState<string>("2025/2026");
+    const [currentSystemYear, setCurrentSystemYear] = useState<string>("2026/2027");
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {

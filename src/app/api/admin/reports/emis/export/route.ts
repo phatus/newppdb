@@ -16,7 +16,7 @@ export async function GET(request: Request) {
         const academicYear = searchParams.get("academicYear");
 
         const settings = await db.schoolSettings.findFirst();
-        const targetAcademicYear = academicYear && academicYear !== "all" ? academicYear : (settings?.academicYear || "2025/2026");
+        const targetAcademicYear = academicYear && academicYear !== "all" ? academicYear : (settings?.academicYear || "2026/2027");
 
         const students = await db.student.findMany({
             where: {

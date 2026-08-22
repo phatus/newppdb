@@ -12,7 +12,7 @@ import { revalidatePath } from "next/cache";
 export async function getAcademicYears() {
     try {
         const settings = await db.schoolSettings.findFirst();
-        const currentSettingYear = settings?.academicYear || "2025/2026";
+        const currentSettingYear = settings?.academicYear || "2026/2027";
 
         const studentYears = await db.student.findMany({
             select: { academicYear: true },

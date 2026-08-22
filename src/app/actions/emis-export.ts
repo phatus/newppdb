@@ -13,7 +13,7 @@ export async function getAcceptedStudentsForEmis(waveId?: string, academicYear?:
 
     try {
         const settings = await db.schoolSettings.findFirst();
-        const targetAcademicYear = academicYear && academicYear !== "all" ? academicYear : (settings?.academicYear || "2025/2026");
+        const targetAcademicYear = academicYear && academicYear !== "all" ? academicYear : (settings?.academicYear || "2026/2027");
 
         const whereClause: any = {
             statusVerifikasi: "VERIFIED",
