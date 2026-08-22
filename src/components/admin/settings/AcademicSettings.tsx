@@ -6,7 +6,11 @@ import { startNewAcademicYear } from "@/app/actions/academic-year";
 import { toast } from "react-hot-toast";
 
 interface AcademicSettingsProps {
-    initialData: Record<string, unknown> | null;
+    initialData: {
+        academicYear?: string;
+        isRegistrationOpen?: boolean;
+        [key: string]: any;
+    } | null;
 }
 
 export default function AcademicSettings({ initialData }: AcademicSettingsProps) {
@@ -80,7 +84,7 @@ export default function AcademicSettings({ initialData }: AcademicSettingsProps)
                     <input
                         name="academicYear"
                         type="text"
-                        defaultValue={initialData?.academicYear || "2025/2026"}
+                        defaultValue={initialData?.academicYear || "2026/2027"}
                         className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-primary/50 transition-all font-mono text-sm"
                         placeholder="YYYY/YYYY"
                         required

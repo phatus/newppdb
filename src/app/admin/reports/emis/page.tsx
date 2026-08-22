@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { getAcceptedStudentsForEmis } from "@/app/actions/emis-export";
 import AcademicYearFilter from "@/components/admin/AcademicYearFilter";
 import toast from "react-hot-toast";
 
-export default function EmisExportPage() {
+function EmisExportContent() {
     const searchParams = useSearchParams();
     const academicYear = searchParams.get("academicYear") || "";
 
@@ -159,5 +159,13 @@ export default function EmisExportPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function EmisExportPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center">Memuat data...</div>}>
+            <EmisExportContent />
+        </Suspense>
     );
 }
