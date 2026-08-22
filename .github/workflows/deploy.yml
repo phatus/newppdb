@@ -39,7 +39,7 @@ jobs:
 
       - name: Install Dependencies
         if: steps.npm-cache.outputs.cache-hit != 'true'
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # Cache .next/cache for faster rebuilds
       - name: Cache Next.js Build
