@@ -35,6 +35,7 @@ export default function ExportCbtButton({ waveId }: { waveId?: string }) {
             // Create Worksheet
             const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
 
+            const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Akun CBT");
 
             const fileName = `akun_cbt_${new Date().toISOString().split('T')[0]}.xlsx`;
