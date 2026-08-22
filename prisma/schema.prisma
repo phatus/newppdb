@@ -150,6 +150,20 @@ model Wave {
   @@index([academicYear])
 }
 
+model OrientationClass {
+  id           String   @id @default(cuid())
+  name         String   // e.g. "Kelas Matsama A"
+  academicYear String   @default("2026/2027")
+  capacity     Int      @default(32)
+
+  students Student[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([academicYear])
+}
+
 model Student {
   id     String @id @default(cuid())
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -181,6 +195,10 @@ model Student {
   // Wave Relation
   wave   Wave?   @relation(fields: [waveId], references: [id])
   waveId String?
+
+  // Orientation Class Relation
+  orientationClass   OrientationClass? @relation(fields: [orientationClassId], references: [id], onDelete: SetNull)
+  orientationClassId String?
 
   // EMIS Data Fields
   nik             String? @unique
@@ -214,6 +232,7 @@ model Student {
   @@index([verifierId])
   @@index([academicYear])
   @@index([academicYear, statusVerifikasi])
+  @@index([orientationClassId])
 }
 
 model Documents {

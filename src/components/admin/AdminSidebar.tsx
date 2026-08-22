@@ -42,6 +42,7 @@ export default function AdminSidebar({
                 { href: "/admin/schedule", icon: "calendar_month", label: "Jadwal Ujian" },
                 { href: "/admin/grades", icon: "edit_note", label: "Olah Nilai" },
                 { href: "/admin/ranking", icon: "leaderboard", label: "Rangking" },
+                { href: "/admin/classes", icon: "co_present", label: "Kelas Orientasi (Matsama)" },
                 { href: "/admin/document-validation", icon: "qr_code_scanner", label: "Validasi Dokumen" },
             ]
         },
