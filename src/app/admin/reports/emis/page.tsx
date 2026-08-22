@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getAcceptedStudentsForEmis } from "@/app/actions/emis-export";
-import * as XLSX from "xlsx";
+import AcademicYearFilter from "@/components/admin/AcademicYearFilter";
 import toast from "react-hot-toast";
 
 export default function EmisExportPage() {
+    const searchParams = useSearchParams();
+    const academicYear = searchParams.get("academicYear") || "";
+
     const [students, setStudents] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -13,14 +17,15 @@ export default function EmisExportPage() {
 
     useEffect(() => {
         loadData();
-    }, []);
+    }, [academicYear]);
 
     const totalPages = Math.ceil(students.length / itemsPerPage);
     const pagedStudents = students.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
     const loadData = async () => {
+        setIsLoading(true);
         try {
-            const res = await getAcceptedStudentsForEmis();
+            const res = await getAcceptedStudentsForEmis(undefined, academicYear);
             if (res.success && res.data) {
                 setStudents(res.data);
             } else {
@@ -39,7 +44,8 @@ export default function EmisExportPage() {
             return;
         }
 
-        window.location.href = "/api/admin/reports/emis/export";
+        const url = academicYear ? `/api/admin/reports/emis/export?academicYear=${encodeURIComponent(academicYear)}` : "/api/admin/reports/emis/export";
+        window.location.href = url;
     };
 
 
@@ -57,14 +63,16 @@ export default function EmisExportPage() {
                         Unduh data murid yang diterima untuk keperluan integrasi EMIS.
                     </p>
                 </div>
-                <button
-                    onClick={handleExport}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg flex items-center gap-2 font-medium shadow-sm transition-colors"
-                >
-                    <span className="material-symbols-outlined">file_download</span>
-                    Export Excel (.xlsx)
-                </button>
-
+                <div className="flex items-center gap-3">
+                    <AcademicYearFilter />
+                    <button
+                        onClick={handleExport}
+                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg flex items-center gap-2 font-medium shadow-sm transition-colors"
+                    >
+                        <span className="material-symbols-outlined">file_download</span>
+                        Export Excel (.xlsx)
+                    </button>
+                </div>
             </div>
 
             <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">

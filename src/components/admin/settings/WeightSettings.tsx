@@ -36,7 +36,7 @@ export default function WeightSettings({ initialSettings }: WeightSettingsProps)
 
     // Initialize state with existing settings or defaults
     const [weights, setWeights] = useState<PathWeights>(() => {
-        const existing = initialSettings.pathWeights || {};
+        const existing = (initialSettings && initialSettings.pathWeights) ? initialSettings.pathWeights : {};
         const defaults: PathWeights = {};
 
         PATHS.forEach(path => {

@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import * as XLSX from "xlsx";
 
-export async function GET() {
+export async function GET(request: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== "ADMIN") {
@@ -12,10 +12,17 @@ export async function GET() {
     }
 
     try {
+        const { searchParams } = new URL(request.url);
+        const academicYear = searchParams.get("academicYear");
+
+        const settings = await db.schoolSettings.findFirst();
+        const targetAcademicYear = academicYear && academicYear !== "all" ? academicYear : (settings?.academicYear || "2025/2026");
+
         const students = await db.student.findMany({
             where: {
                 statusVerifikasi: "VERIFIED",
                 statusKelulusan: "LULUS",
+                academicYear: targetAcademicYear,
             },
             orderBy: {
                 namaLengkap: "asc",

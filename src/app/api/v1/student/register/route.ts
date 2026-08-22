@@ -57,9 +57,13 @@ async function handler(req: Request, session: any) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
+        const settings = await db.schoolSettings.findFirst();
+        const activeAcademicYear = settings?.academicYear || "2025/2026";
+
         const newStudent = await db.student.create({
             data: {
                 userId: user.id,
+                academicYear: activeAcademicYear,
                 namaLengkap,
                 nisn,
                 nik,

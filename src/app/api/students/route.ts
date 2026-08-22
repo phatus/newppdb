@@ -57,9 +57,13 @@ export async function POST(req: Request) {
         // We will store specific fields now. alamatLengkap can be a summary string.
         const fullAddress = `${alamatJalan}, RT ${alamatRt}/RW ${alamatRw}, ${alamatDesa}, ${alamatKecamatan}, ${alamatKabupaten}`;
 
+        const settings = await db.schoolSettings.findFirst();
+        const activeAcademicYear = settings?.academicYear || "2025/2026";
+
         const newStudent = await db.student.create({
             data: {
                 userId: session.user.id,
+                academicYear: activeAcademicYear,
                 namaLengkap,
                 nisn,
                 nik,

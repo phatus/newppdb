@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function getAcceptedStudentsForEmis(waveId?: string) {
+export async function getAcceptedStudentsForEmis(waveId?: string, academicYear?: string) {
     const session = await getServerSession(authOptions);
 
     if (!session || session.user.role !== "ADMIN") {
@@ -12,9 +12,13 @@ export async function getAcceptedStudentsForEmis(waveId?: string) {
     }
 
     try {
+        const settings = await db.schoolSettings.findFirst();
+        const targetAcademicYear = academicYear && academicYear !== "all" ? academicYear : (settings?.academicYear || "2025/2026");
+
         const whereClause: any = {
             statusVerifikasi: "VERIFIED",
             statusKelulusan: "LULUS",
+            academicYear: targetAcademicYear,
         };
 
         if (waveId && waveId !== "all") {

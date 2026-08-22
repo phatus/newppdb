@@ -140,16 +140,22 @@ model Wave {
   quota      Int   @default(0)
   pathQuotas Json? // { "REGULER": 5, "PRESTASI_AKADEMIK": 3 }
 
+  academicYear String? @default("2025/2026")
+
   students Student[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([academicYear])
 }
 
 model Student {
   id     String @id @default(cuid())
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
+
+  academicYear String? @default("2025/2026")
 
   namaLengkap      String
   nisn             String             @unique
@@ -206,6 +212,8 @@ model Student {
   @@index([statusKelulusan])
   @@index([asalSekolah])
   @@index([verifierId])
+  @@index([academicYear])
+  @@index([academicYear, statusVerifikasi])
 }
 
 model Documents {
