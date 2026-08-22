@@ -62,9 +62,19 @@ export default function RankingExportButton({ filters }: { filters: { waveId?: s
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Data Perangkingan");
 
-            // Save file
             const fileName = `Export_Perangkingan_PMBM_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(wb, fileName);
+            const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+            const blob = new Blob([excelBuffer], {
+                type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
 
             toast.success("Data PMBM berhasil diekspor");
         } catch (error) {

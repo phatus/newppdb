@@ -39,37 +39,7 @@ export default function EmisExportPage() {
             return;
         }
 
-        const exportData = students.map((s, index) => ({
-            "No": index + 1,
-            "Nama Lengkap": s.namaLengkap,
-            "NISN": s.nisn,
-            "NIK": s.nik || "-",
-            "No KK": s.noKk || "-",
-            "Jenis Kelamin": s.gender || "-",
-            "Tempat Lahir": s.tempatLahir || "-",
-            "Tanggal Lahir": s.tanggalLahir ? new Date(s.tanggalLahir).toLocaleDateString("id-ID") : "-",
-            "Asal Sekolah": s.asalSekolah || "-",
-            "Nama Ayah": s.namaAyah || "-",
-            "Pekerjaan Ayah": s.pekerjaanAyah || "-",
-            "Nama Ibu": s.namaIbu || "-",
-            "Pekerjaan Ibu": s.pekerjaanIbu || "-",
-            "Penghasilan Ortu": s.penghasilanOrtu || "-",
-            "Alamat Jalan": s.alamatJalan || "-",
-            "RT": s.alamatRt || "-",
-            "RW": s.alamatRw || "-",
-            "Desa/Kelurahan": s.alamatDesa || "-",
-            "Kecamatan": s.alamatKecamatan || "-",
-            "Kabupaten/Kota": s.alamatKabupaten || "-",
-            "Provinsi": s.alamatProvinsi || "-",
-            "Kode Pos": s.kodePos || "-",
-            "Telepon": s.telepon || "-",
-            "Jalur Pendaftaran": s.jalur
-        }));
-
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data EMIS");
-        XLSX.writeFile(wb, `Data_Murid_EMIS_${new Date().getTime()}.xlsx`);
+        window.location.href = "/api/admin/reports/emis/export";
     };
 
 

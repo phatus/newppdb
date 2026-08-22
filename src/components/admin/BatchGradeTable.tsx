@@ -60,7 +60,20 @@ export default function BatchGradeTable({ students }: { students: StudentProps[]
         ws['!cols'] = wscols;
 
         XLSX.utils.book_append_sheet(wb, ws, "Data Nilai Murid");
-        XLSX.writeFile(wb, `Data_Nilai_Murid_${new Date().toISOString().split('T')[0]}.xlsx`);
+        const fileName = `Data_Nilai_Murid_${new Date().toISOString().split('T')[0]}.xlsx`;
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
         toast.success("Berhasil mengexport data nilai!");
     };
 

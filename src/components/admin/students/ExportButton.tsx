@@ -75,7 +75,19 @@ export default function ExportButton({ students: initialStudents, filters }: Exp
         ws['!cols'] = wscols;
 
         XLSX.utils.book_append_sheet(wb, ws, "Data Calon Murid");
-        XLSX.writeFile(wb, `Data_Calon_Murid_PMBM_${new Date().toISOString().split('T')[0]}.xlsx`);
+        const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+        const blob = new Blob([excelBuffer], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Data_Calon_Murid_PMBM_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
         toast.success("Data PMBM berhasil diekspor");
     };
 

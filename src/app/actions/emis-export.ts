@@ -14,6 +14,7 @@ export async function getAcceptedStudentsForEmis(waveId?: string) {
     try {
         const whereClause: any = {
             statusVerifikasi: "VERIFIED",
+            statusKelulusan: "LULUS",
         };
 
         if (waveId && waveId !== "all") {
