@@ -11,7 +11,7 @@ interface AcademicSettingsProps {
 
 export default function AcademicSettings({ initialData }: AcademicSettingsProps) {
     const [loading, setLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(initialData?.isRegistrationOpen ?? true);
+    const [isOpen, setIsOpen] = useState<boolean>(Boolean(initialData?.isRegistrationOpen ?? true));
 
     // Modal state for rollover new academic year
     const [showRolloverModal, setShowRolloverModal] = useState(false);
