@@ -29,26 +29,8 @@ jobs:
               - 'package.json'
               - '.github/workflows/deploy.yml'
 
-      # Cache node_modules on self-hosted runner (biggest speedup)
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        id: npm-cache
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('package-lock.json') }}
-
       - name: Install Dependencies
-        if: steps.npm-cache.outputs.cache-hit != 'true'
         run: npm ci --legacy-peer-deps
-
-      # Cache .next/cache for faster rebuilds
-      - name: Cache Next.js Build
-        uses: actions/cache@v4
-        with:
-          path: .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('package-lock.json') }}-
 
       - name: Copy .env from production
         run: |
@@ -57,7 +39,6 @@ jobs:
           fi
 
       - name: Generate Prisma Client
-        if: steps.npm-cache.outputs.cache-hit != 'true' || steps.filter.outputs.prisma == 'true'
         run: npx prisma generate
 
       - name: Push Database Changes
